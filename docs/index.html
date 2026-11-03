@@ -28,6 +28,29 @@ main{padding:14px 16px calc(var(--tab) + 90px + env(safe-area-inset-bottom));max
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;background:#fff;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
 .tab{flex:1;border:0;background:none;padding:7px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:var(--sub)}
 .tab .zh{font-size:10px}
+.tab{font-size:11px}
+table.ts td{text-align:center}
+.chip.pb1{background:#1D4ED8;color:#fff}.chip.pb2{background:#7E22CE;color:#fff}.chip.pb0{background:#1f2937;color:#fff}
+.dot{display:inline-block;width:8px;height:8px;border-radius:9px;background:#16A34A;margin-right:5px}
+.card.spl.on{border:2px solid #16A34A}
+.scr{background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden}
+.scr .h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;background:#EEF3FA;padding:8px 12px;border-bottom:1px solid var(--line)}
+.scr .h .en,.en{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.scr .h .en{font-weight:700;font-size:13.5px;color:#1E3A5F}.scr .h .vi{font-weight:600}.scr .h .zh{display:inline}
+.scr .h .ref{margin-left:auto;font-size:11px;color:var(--sub);white-space:nowrap}
+.scr .kv{display:grid;grid-template-columns:1fr auto;padding:2px 12px 6px}.scr .kv:empty{display:none}
+.scr .kv>div{padding:7px 0;border-bottom:1px dashed #E6EBF3}.scr .kv>div:nth-last-child(-n+2){border-bottom:0}
+.scr .kv .k .en{font-size:12.5px;display:block}.scr .kv .k .vi{font-size:12px;color:var(--sub)}
+.scr .kv .v{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}.scr .kv .v small{font-weight:400;color:var(--sub)}
+.scr .doi,table.t td.doi{background:#FFF1DD}
+.scr table.t{border-radius:0}.scr table.ja td,.scr table.ja th{text-align:center}.scr table.ja td.l{text-align:left}
+.scr table.pbt td{text-align:center}.scr table.pbt td.l{text-align:left}.scr table.pbt .en{display:block;font-size:12px}.scr table.pbt .vi{font-size:11.5px;color:var(--sub)}
+.scr .fbody{padding:10px 12px 2px}.scr .fbody table.ja input{text-align:center;padding:8px 2px}
+input.chg,select.chg{border-color:#F59E0B !important;background:#FFF8EC}
+ul.doi{margin:6px 0 0;padding-left:18px}
+.diffbox{background:#FFF8EC;border-color:#F3C37E}
+table.kvt th{width:45%}
+.runh{padding:3px 0}
 .tab svg{width:22px;height:22px}
 .tab.on{color:var(--pri2);font-weight:600}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin:0 0 12px}
@@ -55,6 +78,7 @@ input.i,select.i,textarea.i{width:100%;border:1.5px solid var(--line);border-rad
 textarea.i{min-height:120px;resize:vertical}
 input.i:focus,select.i:focus,textarea.i:focus{outline:0;border-color:var(--pri2)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.grid2>*{min-width:0}
 .btn{border:0;border-radius:12px;padding:12px 16px;background:var(--pri2);color:#fff;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-align:center}
 .btn .zh{color:#DCE7FF;display:inline;margin-left:4px;font-weight:400}
 .btn.ghost{background:#EAF0FA;color:var(--pri)} .btn.ghost .zh{color:#4D6587}
@@ -116,7 +140,7 @@ mark{background:#FFF0A8;border-radius:3px;padding:0 1px}
 <script>
 const API_URL = "";
 const MODE = "live";
-const APP_VER = "1.0.0";
+const APP_VER = "1.1.0";
 const DemoBackend = null;
 'use strict';
 // ============ Tiện ích chung ============
@@ -161,13 +185,16 @@ const T = {
   mayChu: ['Link máy chủ (…/exec)', '服务器链接（…/exec）'], lienKet: ['Kết nối', '连接'], phienBanApp: ['Phiên bản', '版本'],
   bo: ['Bộ thông số', '参数组'], luuBo: ['Lưu bộ thông số', '保存参数组'], luuBoMoi: ['Lưu thành bộ mới', '另存为新参数组'],
   dangTai: ['Đang tải…', '加载中…'], loiMang: ['Không kết nối được máy chủ', '无法连接服务器'], demo: ['BẢN XEM THỬ', '演示版'],
-  choGui: ['chờ gửi', '待发送'], dangGui: ['Đang gửi…', '发送中…'], daGui: ['Đã gửi hết', '已全部发送'], loiGui: ['gửi lỗi', '发送失败']
+  choGui: ['chờ gửi', '待发送'], may: ['Thông số', '参数'], apDung: ['Ngày áp dụng', '生效日期'], chuaGhi: ['Chưa ghi thông số', '尚未记录参数'],
+  capNhatTs: ['Cập nhật thông số', '更新参数'], lichSuTs: ['Lịch sử thông số', '参数历史'], hienTai: ['Hiện tại', '当前'], xoaNham: ['Xoá lần ghi nhầm', '删除误记'],
+  soSanh: ['So sánh các chuyền', '产线对比'], dangChay: ['Đang chạy', '运行中'], dsChuyen: ['Chuyền sản xuất', '生产线'], dangGui: ['Đang gửi…', '发送中…'], daGui: ['Đã gửi hết', '已全部发送'], loiGui: ['gửi lỗi', '发送失败']
 };
 const IC = {
   tim: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>',
   gc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h14v16H5z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>',
   tl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg>',
   day: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h5a3 3 0 0 1 3 3v4a3 3 0 0 0 3 3h5"/><circle cx="4" cy="7" r="2"/><circle cx="20" cy="17" r="2"/></svg>',
+  may: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>',
   tinh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h2M12 12h2M16 12v5M8 16h2M12 16h2"/></svg>',
   cai: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
   plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>',
@@ -204,7 +231,7 @@ const store = (() => {
 })();
 
 // ============ Trạng thái ============
-const S = { tk: '', data: null, Q: [], view: 'tim', q: '', the: '', nhom: '', wq: '', cfgId: '', offline: false, simOff: false, sending: false, anh: {}, offDocs: {} };
+const S = { tk: '', data: null, Q: [], view: 'tim', q: '', the: '', nhom: '', wq: '', cfgId: '', soMau: 0, offline: false, simOff: false, sending: false, anh: {}, offDocs: {} };
 const DEV = (() => { try { let d = localStorage.getItem('gctl_dev'); if (!d) { d = 'D' + Math.random().toString(36).slice(2, 12); localStorage.setItem('gctl_dev', d); } return d; } catch (e) { return 'D-nostore'; } })();
 
 function apiUrl() { return (typeof API_URL === 'string' && API_URL) || S.api || ''; }
@@ -319,6 +346,17 @@ function gopKetQua(action, d) {
   if (action === 'wireDelete') D.dayDien = D.dayDien.filter((x) => x.id !== d.id);
   if (d.cauHinh) upsert(D.cauHinh, d.cauHinh);
   if (action === 'cfgDelete') D.cauHinh = D.cauHinh.filter((x) => x.id !== d.id);
+  if (d.thongSo) { D.thongSo = D.thongSo || []; upsert(D.thongSo, d.thongSo); }
+  if (d.chaySP) { D.chaySP = D.chaySP || []; upsert(D.chaySP, d.chaySP); }
+  if (d.sanPham) { D.sanPham = D.sanPham || []; if (d.sanPham.hoatDong === 0) D.sanPham = D.sanPham.filter((x) => x.id !== d.sanPham.id); else upsert(D.sanPham, d.sanPham); }
+  if (d.chuyenSP) {
+    const l = d.chuyenSP; D.chuyenSP = (D.chuyenSP || []).filter((x) => !(x.chuyen === l.chuyen && x.sanPham === l.sanPham));
+    if (l.hoatDong) D.chuyenSP.push({ id: l.id, chuyen: l.chuyen, sanPham: l.sanPham });
+  }
+  // Lưu thông số / chuyển SP cho cặp chưa gắn: máy chủ tự gắn, app gắn theo cho khớp
+  const cap = d.thongSo || d.chaySP;
+  if (cap && !(D.chuyenSP || []).some((x) => x.chuyen === cap.chuyen && x.sanPham === cap.sanPham)) { D.chuyenSP = D.chuyenSP || []; D.chuyenSP.push({ id: 'tam', chuyen: cap.chuyen, sanPham: cap.sanPham }); }
+  if (action === 'paramDelete') D.thongSo = (D.thongSo || []).filter((x) => x.id !== d.id);
   saveSnap();
 }
 async function refresh(im) {
@@ -349,13 +387,35 @@ const APDUNG = {
   noteDelete(op, p) { S.data.ghiChu = S.data.ghiChu.filter((x) => x.id !== p.id); },
   wireSave(op, p) { const id = p.id || maTuOp('DD', op); upsert(S.data.dayDien, Object.assign({}, S.data.dayDien.find((x) => x.id === id) || {}, p, { id, _cho: op })); },
   wireDelete(op, p) { S.data.dayDien = S.data.dayDien.filter((x) => x.id !== p.id); },
+  paramSave(op, p) {
+    const c = (S.data.chuyen || []).find((x) => x.id === p.chuyen) || { soMau: 1 }, x = Object.assign({}, p, { id: maTuOp('TS', op), soMau: c.soMau,
+      ghiChuDich: p.ghiChuDich || '', lucTao: new Date().toISOString().slice(0, 19).replace('T', ' '), dichTay: {}, _cho: op });
+    S.data.thongSo = S.data.thongSo || []; upsert(S.data.thongSo, x);
+    APDUNG.lineProduct(op, { chuyen: p.chuyen, sanPham: p.sanPham });
+  },
+  paramDelete(op, p) { S.data.thongSo = (S.data.thongSo || []).filter((x) => x.id !== p.id); },
+  runSet(op, p) {
+    S.data.chaySP = S.data.chaySP || [];
+    upsert(S.data.chaySP, { id: maTuOp('CY', op), chuyen: p.chuyen, sanPham: p.sanPham, tuNgay: p.tuNgay, lucTao: new Date().toISOString().slice(0, 19).replace('T', ' '), _cho: op });
+    APDUNG.lineProduct(op, { chuyen: p.chuyen, sanPham: p.sanPham });
+  },
+  lineProduct(op, p) {
+    const ds = (S.data.chuyenSP || []).filter((x) => !(x.chuyen === p.chuyen && x.sanPham === p.sanPham));
+    if (p.hoatDong !== 0) ds.push({ id: 'tam', chuyen: p.chuyen, sanPham: p.sanPham });
+    S.data.chuyenSP = ds;
+  },
+  productSave(op, p) {
+    S.data.sanPham = S.data.sanPham || [];
+    const id = p.id || maTuOp('SP', op), cu = S.data.sanPham.find((x) => x.id === id) || {};
+    upsert(S.data.sanPham, Object.assign({ tenDich: '' }, cu, p, { id, _cho: op }));
+  },
   cfgSave(op, p) { const id = p.id || maTuOp('CH', op); upsert(S.data.cauHinh, Object.assign({}, p, { id, _cho: op })); S.cfgId = id; }
 };
 function theTu(v) { const o = [], co = {}; (Array.isArray(v) ? v : String(v || '').split(/[,;#\n]/)).forEach((t) => { t = t.trim().replace(/^#/, ''); if (t && !co[t.toLowerCase()]) { co[t.toLowerCase()] = 1; o.push(t); } }); return o.slice(0, 12); }
 
 // ============ Khung giao diện ============
 const VIEWS = {};
-const TABS = ['tim', 'gc', 'tl', 'day', 'tinh'];
+const TABS = ['tim', 'gc', 'tl', 'day', 'may', 'tinh'];
 function go(v) { S.view = v; render(); window.scrollTo(0, 0); }
 function renderBar() {
   const b = $('header.bar'); if (!b) return;
@@ -470,8 +530,11 @@ VIEWS.tim = {
       o += `<div class="sec">${L(T.tlHH[0], T.tlHH[1])}</div>` + tlNhom().slice(0, 5).map((g) => rowTL(g)).join('');
       return o;
     }
+    const cv = (D.chuyen || []).filter((c) => khop(norm(['chuyen ' + c.ma, c.ghiChu, c.seriDau, c.mauPB1, c.mauPB2].join(' ')), q));
+    const sps = (D.sanPham || []).filter((x) => khop(norm([x.ma, x.ten, x.tenDich].join(' ')), q));
     const gc = D.ghiChu.filter((x) => khop(hayGC(x), q)), tl = tlNhom().filter((g) => g.ds.some((x) => khop(hayTL(x), q))), dd = D.dayDien.filter((x) => khop(hayDay(x), q));
-    if (!gc.length && !tl.length && !dd.length) return o + `<div class="card empty">${TT('khongThay')}</div>`;
+    if (cv.length + sps.length) o += `<div class="sec">${L(T.may[0], T.may[1])}<span>${cv.length + sps.length}</span></div>` + cv.map(rowLine).join('') + sps.map(rowSP).join('');
+    if (!gc.length && !tl.length && !dd.length && !cv.length && !sps.length) return o + `<div class="card empty">${TT('khongThay')}</div>`;
     if (gc.length) o += `<div class="sec">${L(T.gc[0], T.gc[1])}<span>${gc.length}</span></div>` + gc.slice(0, 30).map((x) => rowGC(x, q)).join('');
     if (tl.length) o += `<div class="sec">${L(T.tl[0], T.tl[1])}<span>${tl.length}</span></div>` + tl.slice(0, 30).map((g) => rowTL(g, q)).join('');
     if (dd.length) o += `<div class="sec">${L(T.day[0], T.day[1])}<span>${dd.length}</span></div>` + dd.slice(0, 50).map((x) => rowDay(x, q)).join('');
@@ -824,6 +887,353 @@ async function cfgSave(moi) {
   if (r.ok) { if (!r.queued) { S.cfgId = r.data.cauHinh.id; tt('daLuu'); } render(); }
 }
 
+// ============ Thông số máy: chuyền → sản phẩm → thông số (theo màn hình bộ điều khiển Merlin D CE) ============
+// Mỗi cặp chuyền + sản phẩm có bộ thông số riêng. Mỗi lần lưu là một lần ghi mới (máy chủ không sửa dòng cũ);
+// thông số hiện tại = lần ghi mới nhất theo ngày áp dụng. Máy 1 màu chỉ có PB1 (JA1–4); máy 2 màu thêm PB2 (JA5–8).
+// Tên tiếng Anh giữ đúng chữ trên màn hình máy để nhìn app là tìm được ô cần chỉnh trên bộ điều khiển.
+const CHON = { encDir: ['Forward', 'Reverse'], encDecode: ['Single Edge', 'Two Edges', 'All Four Edges'], triggerMode: ['Auto', 'Once per Image'], fireMode: ['External', 'Internal'] };
+// Khối: [khoá, tên màn hình (tiếng Anh như trên máy), tiếng Việt, tiếng Trung, mục sổ tay, các ô]; ô: [khoá, nhãn máy, tiếng Việt, tiếng Trung, đơn vị]
+const KHOI = [
+  ['enc', 'Encoders', 'Encoder', '编码器', '§2.4', [['encDir', 'Encoder Direction', 'Chiều encoder', '编码器方向'], ['encDecode', 'Encoder Decode', 'Kiểu giải mã', '解码方式'],
+    ['encDPI', 'Encoder DPI', 'DPI encoder', '编码器DPI'], ['divider', 'Divider', 'Chia xung', '分频']]],
+  ['pc', 'Print Control', 'Điều khiển in', '打印控制', '§2.3.1', [['triggerMode', 'Trigger Mode', 'Chế độ trigger', '触发模式'], ['fireMode', 'Fire Mode', 'Chế độ phun', '喷射模式']]],
+  ['fs', 'Form Specification', 'Định vị ảnh', '图像定位', '§2.3.2', [['_len', 'Length', 'Khoảng cách ảnh = dài SP', '图像间距', 'in'], ['formDelay', 'Delay', 'Trễ từ trigger', '触发延时', 'in']]],
+  ['al', 'Head Alignments', 'Căn chỉnh JA', '喷嘴组对齐', '§2.3.3 · pixel', [['registration', 'Image Registration', 'Dịch ảnh', '图像偏移', 'pixel']], 'align'],
+  ['fp', 'Fire Pulses', 'Điện áp xung kích', '发火电压', '§2.6 · VDC', [], 'volt'],
+  ['pn', 'Pneumatics', 'Khí nén', '气动', '§2.5', [['meniscus', 'Meniscus Set point', 'Điểm đặt meniscus', '弯月面设定'], ['lungVac', 'Lung Vacuum Set point', 'Chân không lung', '真空设定'],
+    ['purgeShort', 'Short Purge', 'Xả ngắn', '短清洗', 's'], ['purgeLong', 'Long Purge', 'Xả dài', '长清洗', 's']]],
+  ['hd', 'Heads · Temperatures / Ink Levels', 'Nhiệt độ & mực', '温度与墨位', '§2.7', [['nhietTam', 'Plate (Jetting) Set point', 'Nhiệt tấm phun', '喷板温度', '°C']]],
+  ['sx', '', 'Sản xuất', '生产', '', [['tocDo', 'Tốc độ chạy', 'Tốc độ chạy', '速度', 'sp/ph']]]
+];
+const O_PB = [['nhietBinh', 'Reservoir Set point', 'Nhiệt bình mực', '墨盒温度', '°C'], ['lois', 'LOIS Set point', 'Mức mực', '墨位', ''], ['muc', 'Ink', 'Loại mực', '墨水', '']];
+const DL = () => S.data;
+const dsChuyen = () => (DL().chuyen || []);
+const dsSP = () => (DL().sanPham || []);
+const cvOf = (id) => dsChuyen().find((x) => x.id === id);
+const spOf = (id) => dsSP().find((x) => x.id === id);
+const tenChuyen = (c) => 'Chuyền ' + c.ma;
+const nhanMau = (n) => n === 2 ? '2 màu · 双色' : '1 màu · 单色';
+const tenPB = (c, m) => 'PB' + m + (c && c['mauPB' + m] ? ' · ' + c['mauPB' + m] : '');
+const khoaTs = (t) => String(t.apDung) + String(t.lucTao) + String(t.id);
+const lichSu = (cv, sp) => (DL().thongSo || []).filter((t) => t.chuyen === cv && t.sanPham === sp).sort((a, b) => khoaTs(a).localeCompare(khoaTs(b)));
+const hienTai = (cv, sp) => { const ds = lichSu(cv, sp); return ds[ds.length - 1] || null; };
+const lichSuChay = (cv) => (DL().chaySP || []).filter((x) => x.chuyen === cv).sort((a, b) => String(b.tuNgay + b.lucTao + b.id).localeCompare(String(a.tuNgay + a.lucTao + a.id)));
+const dangChay = (cv) => { const x = lichSuChay(cv)[0]; return x ? x.sanPham : ''; };
+const spCuaChuyen = (cv) => (DL().chuyenSP || []).filter((l) => l.chuyen === cv).map((l) => spOf(l.sanPham)).filter(Boolean).sort((a, b) => String(a.ma).localeCompare(String(b.ma), 'vi', { numeric: true }));
+const chuyenCuaSP = (sp) => (DL().chuyenSP || []).filter((l) => l.sanPham === sp).map((l) => cvOf(l.chuyen)).filter(Boolean);
+const soTs = (v) => (v === '' || v === undefined || v === null) ? '' : (isFinite(Number(v)) && String(v).trim() !== '' ? so(Number(v), 3) : String(v));
+const dayJA = (v) => String(v || '').split('/').map((x) => x.trim()).filter((x, i, a) => a.slice(i).some((y) => y !== ''));
+const coBo = () => DL().cauHinh[0] || {};
+const daiSPmm = (sp) => Number((spOf(sp) || {}).daiSP) || 0;
+// DPI để tính tần số: lấy Encoder DPI đã ghi; chưa ghi thì tính từ divider theo encoder/trục ở bộ thông số đầu tiên màn Tính toán
+function dpiTs(t) {
+  if (Number(t.encDPI) > 0) return Number(t.encDPI);
+  const b = coBo(), dv = Number(t.divider);
+  return dv > 0 && b.encoderPPR > 0 && b.duongKinh > 0 ? b.encoderPPR * (b.soCanh || 1) / dv / (b.duongKinh / 25.4 * Math.PI) : 0;
+}
+function tanSoTs(t) { const f = daiSPmm(t.sanPham) / 25.4 * dpiTs(t) * Number(t.tocDo) / 60; return isFinite(f) && f > 0 ? f : 0; }
+function chipKhz(t) {
+  const f = t ? tanSoTs(t) : 0, lim = (coBo().gioiHan || 8) * 1000; if (!f) return '';
+  return `<span class="chip ${f <= lim ? 'ok' : f <= 20000 ? 'warn' : 'bad'}" data-khz="${(f / 1000).toFixed(1)}">${so(f / 1000, 1)} kHz${f > lim ? ' > ' + so(lim / 1000) : ''}</span>`;
+}
+const chipPB = (c, m) => `<span class="chip pb${m}${c.soMau === 1 ? ' pb0' : ''}">${esc(tenPB(c, m))}</span>`;
+const rowLine = (c) => {
+  const spId = dangChay(c.id), sp = spOf(spId), t = spId ? hienTai(c.id, spId) : null, n = spCuaChuyen(c.id).length;
+  return `<button class="row line" data-act="lineView" data-id="${esc(c.id)}">${IC.may}<div class="main"><div class="nm">${esc(tenChuyen(c))} <span class="chip ${c.soMau === 2 ? 'pb2' : 'pb0'}">${nhanMau(c.soMau)}</span></div>
+  ${sp ? `<div class="sub"><span class="dot"></span>${T.dangChay[0]} · ${T.dangChay[1]}: <b class="mono">${esc(sp.ma)}</b> ${esc(sp.ten)}</div>` : `<div class="sub muted">${L('Chưa chọn sản phẩm đang chạy', '未选择运行产品')}</div>`}
+  ${t ? `<div class="sub">Divider ${esc(soTs(t.divider) || '—')} · ${esc(soTs(t.encDPI) || '—')} dpi · ${esc(soTs(t.tocDo) || '—')} sp/ph ${chipKhz(t)}${t._cho ? ` <span class="chip warn">${T.choGui[0]}</span>` : ''}</div>`
+    : sp ? `<div><span class="chip warn">${T.chuaGhi[0]} · ${T.chuaGhi[1]}</span></div>` : ''}
+  <div class="sub muted">${n} ${L('sản phẩm', '个产品').replace(/<\/?span[^>]*>/g, ' ')}</div></div></button>`;
+};
+const rowSP = (sp) => `<button class="row prod" data-act="spView" data-id="${esc(sp.id)}">${IC.tl}<div class="main"><div class="nm"><span class="mono">${esc(sp.ma)}</span> ${esc(sp.ten)}</div>
+  ${sp.tenDich ? `<div class="sub">${esc(sp.tenDich)}</div>` : ''}<div class="sub">${sp.daiSP ? esc(soTs(sp.daiSP)) + ' mm · ' : ''}${chuyenCuaSP(sp.id).map((c) => `<span class="chip">${esc(c.ma)}${dangChay(c.id) === sp.id ? ' ●' : ''}</span>`).join('') || '—'}</div></div></button>`;
+VIEWS.may = {
+  html() {
+    const loc = S.soMau;
+    const chips = `<div class="chips">${[[0, 'Tất cả', '全部'], [1, '1 màu', '单色'], [2, '2 màu', '双色'], [9, 'Sản phẩm', '产品']].map((x) => `<button class="${loc === x[0] ? 'on' : ''}" data-act="mauChon" data-m="${x[0]}">${L(x[1], x[2])}</button>`).join('')}</div>`;
+    if (loc === 9) {
+      return chips + (dsSP().slice().sort((a, b) => String(a.ma).localeCompare(String(b.ma), 'vi', { numeric: true })).map(rowSP).join('') || `<div class="card empty">${L('Chưa có sản phẩm', '暂无产品')}</div>`) +
+        `<button class="btn fab" id="fabSP" data-act="spEdit" data-id="">${IC.plus}${L('Sản phẩm', '产品')}</button>`;
+    }
+    const ds = dsChuyen().filter((c) => !loc || c.soMau === loc);
+    return chips + `<div class="btns" style="margin:0 0 12px"><button class="btn sm ghost" data-act="tsCompare">${L(T.soSanh[0], T.soSanh[1])}</button></div>` + (ds.map(rowLine).join('') || `<div class="card empty">—</div>`);
+  }
+};
+// ----- Màn một chuyền -----
+function lineView(id) {
+  const c = cvOf(id); if (!c) return;
+  const run = dangChay(id), ds = spCuaChuyen(id), ls = lichSuChay(id);
+  const the = (sp, on) => { const t = hienTai(id, sp.id); return `<div class="card spl${on ? ' on' : ''}" data-sp="${esc(sp.id)}"><div style="display:flex;gap:8px;align-items:flex-start"><div style="flex:1;min-width:0">
+    <div class="mono muted">${esc(sp.ma)}</div><b>${esc(sp.ten)}</b>${sp.tenDich ? ` <span class="muted">${esc(sp.tenDich)}</span>` : ''}
+    <div class="muted">${t ? `${T.apDung[0]} ${esc(t.apDung)} ${chipKhz(t)}` : `<span style="color:var(--warn)">${T.chuaGhi[0]} · ${T.chuaGhi[1]}</span>`}</div></div>
+    ${on ? `<span class="chip ok">${T.dangChay[0]}</span>` : ''}</div>
+    <div class="btns"><button class="btn sm${on ? '' : ' ghost'}" data-act="tsView" data-cv="${esc(id)}" data-sp="${esc(sp.id)}">${L('Xem thông số', '查看参数')}</button>
+    <button class="btn sm ghost" data-act="tsNew" data-cv="${esc(id)}" data-sp="${esc(sp.id)}">${L(T.capNhatTs[0], T.capNhatTs[1])}</button>
+    ${on ? '' : `<button class="btn sm ghost" style="background:var(--okbg);color:var(--ok)" data-act="runForm" data-cv="${esc(id)}" data-sp="${esc(sp.id)}">${L('Chuyển sang SP này', '切换到此产品')}</button>
+    <button class="btn sm bad" data-act="lineProdOff" data-cv="${esc(id)}" data-sp="${esc(sp.id)}">${L('Gỡ', '移除')}</button>`}</div></div>`; };
+  const runSp = spOf(run);
+  sheet(`${esc(tenChuyen(c))} <span class="chip ${c.soMau === 2 ? 'pb2' : 'pb0'}">${nhanMau(c.soMau)}</span>`, `
+    <div class="muted" style="margin:-6px 0 8px">${chipPB(c, 1)}${c.soMau === 2 ? chipPB(c, 2) : ''} ${c.soMau === 2 ? 'PB1 = JA1–4 · PB2 = JA5–8' : 'PB1 = JA1–4'}</div>
+    <div class="sec">${L(T.dangChay[0], T.dangChay[1])}</div>${runSp ? the(runSp, true) : `<div class="card empty">${L('Chưa chọn sản phẩm đang chạy', '未选择运行产品')}</div>`}
+    <div class="sec">${L('Sản phẩm của chuyền này', '本线产品')}<span>${ds.length}</span></div>
+    ${ds.filter((sp) => sp.id !== run).map((sp) => the(sp, false)).join('')}
+    <div class="btns"><button class="btn ghost wide" id="lineAddSp" data-act="lineAddSp" data-id="${esc(id)}">${IC.plus}${L('Thêm sản phẩm vào chuyền', '添加产品到本线')}</button></div>
+    <div class="sec">${L('Đầu in trên chuyền', '本线喷头')}</div>
+    <div class="card"><table class="t kvt"><tr><th>${L('Số seri đầu in', '喷头序列号')}</th><td>${esc(c.seriDau || '—')}</td></tr><tr><th>${L('Ngày thay đầu in', '换喷头日期')}</th><td>${esc(c.thayDau || '—')}</td></tr>
+    <tr><th>${L('Ngày thay lọc mực', '换滤芯日期')}</th><td>${esc(c.thayLoc || '—')}</td></tr></table>
+    <div class="btns"><button class="btn sm ghost" data-act="lineEdit" data-id="${esc(id)}">${L(T.sua[0], T.sua[1])}</button></div></div>
+    <div class="sec">${L('Lịch sử chạy', '运行记录')}</div>
+    <div class="card">${ls.length ? ls.map((x, i) => { const sp = spOf(x.sanPham); return `<div class="runh">${esc(x.tuNgay)} → ${i === 0 ? 'nay · 至今' : esc(ls[i - 1].tuNgay)}: <b class="mono">${esc(sp ? sp.ma : x.sanPham)}</b> ${esc(sp ? sp.ten : '')}</div>`; }).join('') : '—'}</div>`);
+}
+function runForm(cv, sp) {
+  const c = cvOf(cv), p = spOf(sp);
+  sheet(L('Chuyển sản phẩm đang chạy', '切换运行产品'), `<div class="card">${esc(tenChuyen(c))} → <b class="mono">${esc(p.ma)}</b> ${esc(p.ten)}</div>
+    <label class="f"><span class="l">${L('Chạy từ ngày', '开始日期')}</span><input class="i" type="date" id="runNgay" value="${TODAY()}"></label>
+    <button class="btn wide" id="runSave" data-act="runSave" data-cv="${esc(cv)}" data-sp="${esc(sp)}">${L(T.luu[0], T.luu[1])}</button>`);
+}
+async function runSave(cv, sp) {
+  const p = { chuyen: cv, sanPham: sp, tuNgay: $('#runNgay').value };
+  if (!p.tuNgay) { toast(L('Chọn ngày', '请选择日期'), true); return; }
+  const r = await ghi('runSet', p, 'Chạy ' + (spOf(sp) || {}).ma, (op) => APDUNG.runSet(op, p));
+  if (r.ok) { if (!r.queued) tt('daLuu'); render(); lineView(cv); }
+}
+function lineAddSp(cv) {
+  const co = spCuaChuyen(cv).map((x) => x.id), con = dsSP().filter((x) => co.indexOf(x.id) < 0);
+  sheet(L('Thêm sản phẩm vào chuyền', '添加产品到本线'), `${con.length ? `<label class="f"><span class="l">${L('Chọn sản phẩm đã có', '选择已有产品')}</span>
+    <select class="i" id="addSp">${con.map((x) => `<option value="${esc(x.id)}">${esc(x.ma)} · ${esc(x.ten)}</option>`).join('')}</select></label>
+    <button class="btn wide" id="addSpOk" data-act="lineAddSpOk" data-cv="${esc(cv)}">${L('Thêm', '添加')}</button>
+    <div class="sec">${L('Hoặc tạo sản phẩm mới', '或新建产品')}</div>` : ''}
+    <button class="btn ghost wide" id="addSpNew" data-act="spEdit" data-id="" data-cv="${esc(cv)}">${IC.plus}${L('Sản phẩm mới', '新产品')}</button>`);
+}
+async function lineAddSpOk(cv, sp) {
+  const p = { chuyen: cv, sanPham: sp };
+  const r = await ghi('lineProduct', p, 'Gắn SP vào chuyền', (op) => APDUNG.lineProduct(op, p));
+  if (r.ok) { render(); tsForm(cv, sp); }
+}
+async function lineProdOff(cv, sp) {
+  if (!window.confirm('Gỡ sản phẩm khỏi chuyền? Thông số cũ vẫn giữ trên Google Sheet. · 从本线移除产品？')) return;
+  const p = { chuyen: cv, sanPham: sp, hoatDong: 0 };
+  const r = await ghi('lineProduct', p, 'Gỡ SP khỏi chuyền', (op) => APDUNG.lineProduct(op, p));
+  if (r.ok) { render(); lineView(cv); }
+}
+// ----- Sản phẩm -----
+function spView(id) {
+  const sp = spOf(id); if (!sp) return;
+  const cvs = chuyenCuaSP(id);
+  sheet(`<span class="mono">${esc(sp.ma)}</span> ${esc(sp.ten)}`, `<div class="card">${sp.tenDich ? `<div class="zhbox">${esc(sp.tenDich)}</div>` : ''}
+    <table class="t kvt" style="margin-top:8px"><tr><th>${L('Chiều dài SP', '单片长度')}</th><td>${sp.daiSP ? esc(soTs(sp.daiSP)) + ' mm = ' + so(Number(sp.daiSP) / 25.4, 3) + ' in' : '—'}</td></tr>
+    ${sp.ghiChu ? `<tr><th>${L('Ghi chú', '备注')}</th><td>${esc(sp.ghiChu)}</td></tr>` : ''}</table>
+    <div class="btns"><button class="btn sm ghost" data-act="spEdit" data-id="${esc(id)}">${L(T.sua[0], T.sua[1])}</button></div></div>
+    <div class="sec">${L('Chạy ở các chuyền', '使用的产线')}<span>${cvs.length}</span></div>
+    ${cvs.map((c) => { const t = hienTai(c.id, id); return `<div class="card"><b>${esc(tenChuyen(c))}</b> <span class="chip ${c.soMau === 2 ? 'pb2' : 'pb0'}">${nhanMau(c.soMau)}</span>${dangChay(c.id) === id ? ` <span class="chip ok">${T.dangChay[0]}</span>` : ''}
+      <div class="muted">${t ? T.apDung[0] + ' ' + esc(t.apDung) + ' ' + chipKhz(t) : T.chuaGhi[0]}</div>
+      <div class="btns"><button class="btn sm" data-act="tsView" data-cv="${esc(c.id)}" data-sp="${esc(id)}">${L('Xem thông số', '查看参数')}</button></div></div>`; }).join('') || `<div class="card empty">—</div>`}`);
+}
+function spEdit(id, cv) {
+  const x = id ? spOf(id) : null;
+  sheet(x ? L(T.sua[0], T.sua[1]) : L('Sản phẩm mới', '新产品'), `<div class="grid2">${oTs('spMa', 'Mã sản phẩm', '产品编号', x ? x.ma : '', 'autocomplete="off"')}${oTs('spDai', 'Chiều dài (mm)', '长度（mm）', x ? x.daiSP : '')}</div>
+    ${oTs('spTen', 'Tên sản phẩm', '产品名称', x ? x.ten : '', 'autocomplete="off"')}
+    ${oTs('spZh', 'Tên tiếng Trung (để trống = tự dịch)', '中文名称（留空自动翻译）', x ? x.tenDich : '', 'autocomplete="off"')}
+    ${oTs('spGhi', 'Ghi chú', '备注', x ? x.ghiChu : '', 'autocomplete="off"')}
+    <div class="muted" style="margin:-4px 0 10px">${L('Chiều dài SP chính là Length ở màn Form Specification (máy hiện inch).', '单片长度即 Form Specification 中的 Length（机器显示英寸）。')}</div>
+    <div class="btns"><button class="btn wide" id="spSave" data-act="spSave" data-id="${esc(id || '')}" data-cv="${esc(cv || '')}">${L(T.luu[0], T.luu[1])}</button></div>`, (o) => { o.dataset.zh0 = x ? x.tenDich || '' : ''; });
+}
+async function spSave(id, cv) {
+  const o = $('#ov'), g = (e) => $(e).value.trim();
+  const p = { id: id || '', ma: g('#spMa'), ten: g('#spTen'), daiSP: g('#spDai'), ghiChu: g('#spGhi') };
+  if (g('#spZh') !== o.dataset.zh0) p.tenDich = g('#spZh');
+  if (!p.ma || !p.ten) { toast(L('Nhập mã và tên sản phẩm', '请输入产品编号和名称'), true); return; }
+  const r = await ghi('productSave', p, 'SP ' + p.ma, (op) => APDUNG.productSave(op, p));
+  if (!r.ok) return;
+  if (!r.queued) tt('daLuu');
+  const spId = r.queued ? maTuOp('SP', r.op) : r.data.sanPham.id;
+  render();
+  if (cv) await lineAddSpOk(cv, spId); else spView(spId);
+}
+// ----- Xem thông số một chuyền + sản phẩm -----
+const giaTri = (t, k, c) => k === '_len' ? (daiSPmm(t.sanPham) ? so(daiSPmm(t.sanPham) / 25.4, 3) : '') : soTs(t[k]);
+function bangJA(c, t, k, truoc, sua) {
+  const a = dayJA(t[k]), b = truoc ? dayJA(truoc[k]) : null;
+  return `<table class="t ja">${[1, 2].slice(0, c.soMau).map((m) => `<tr><th></th>${[1, 2, 3, 4].map((j) => `<th>JA${(m - 1) * 4 + j}</th>`).join('')}</tr>
+    <tr><td class="l">${chipPB(c, m)}</td>${[0, 1, 2, 3].map((j) => { const i = (m - 1) * 4 + j, doi = b && (b[i] || '') !== (a[i] || '');
+      return sua ? `<td><input class="i ja" data-k="${k}" data-i="${i}" id="f_${k}_${i}" inputmode="decimal" value="${esc(a[i] || '')}"></td>` : `<td${doi ? ' class="doi"' : ''}><b>${esc(soTs(a[i]) || '—')}</b></td>`; }).join('')}</tr>`).join('')}</table>`;
+}
+function bangTs(c, t, truoc) {
+  const doi = (k) => truoc && String(truoc[k] || '') !== String(t[k] || '') ? ' doi' : '';
+  return KHOI.map((kh) => `<div class="scr" data-k="${kh[0]}"><div class="h">${kh[1] ? `<span class="en">${kh[1]}</span>` : ''}<span class="vi">${kh[2]}</span><span class="zh">${kh[3]}</span><span class="ref">${kh[4]}</span></div>
+    ${kh[6] ? bangJA(c, t, kh[6], truoc) : ''}
+    ${kh[0] === 'hd' ? `<table class="t pbt"><tr><th></th>${[1, 2].slice(0, c.soMau).map((m) => `<th>${chipPB(c, m)}</th>`).join('')}</tr>
+      ${O_PB.map((f) => `<tr><td class="l"><span class="en">${f[1]}</span><span class="vi">${f[2]} · ${f[3]}</span></td>${[1, 2].slice(0, c.soMau).map((m) => `<td class="${doi(f[0] + m)}"><b>${esc(soTs(t[f[0] + m]) || '—')}</b>${t[f[0] + m] && f[4] ? ' ' + f[4] : ''}</td>`).join('')}</tr>`).join('')}</table>` : ''}
+    <div class="kv">${kh[5].map((f) => { const v = giaTri(t, f[0], c); return `<div class="k${doi(f[0])}"><span class="en">${f[1]}</span><span class="vi">${f[2]} · ${f[3]}</span></div><div class="v${doi(f[0])}">${esc(v || '—')}${v && f[4] ? ` <small>${f[4]}</small>` : ''}</div>`; }).join('')}</div></div>`).join('');
+}
+// Liệt kê các ô đổi so với lần ghi trước: "Fire Pulses JA5: 102 → 104"
+function cacThayDoi(c, t, truoc) {
+  if (!truoc) return [];
+  const out = [], s2 = (v) => soTs(v) || '—';
+  KHOI.forEach((kh) => {
+    kh[5].forEach((f) => { if (f[0][0] !== '_' && String(truoc[f[0]] || '') !== String(t[f[0]] || '')) out.push(`${f[1] || f[2]}: ${s2(truoc[f[0]])} → ${s2(t[f[0]])}`); });
+    if (kh[6]) { const a = dayJA(truoc[kh[6]]), b = dayJA(t[kh[6]]); for (let i = 0; i < c.soMau * 4; i++) if ((a[i] || '') !== (b[i] || '')) out.push(`${kh[1]} JA${i + 1}: ${s2(a[i])} → ${s2(b[i])}`); }
+    if (kh[0] === 'hd') [1, 2].slice(0, c.soMau).forEach((m) => O_PB.forEach((f) => { if (String(truoc[f[0] + m] || '') !== String(t[f[0] + m] || '')) out.push(`${f[1]} PB${m}: ${s2(truoc[f[0] + m])} → ${s2(t[f[0] + m])}`); }));
+  });
+  return out;
+}
+function tsView(cv, sp, id) {
+  const c = cvOf(cv), p = spOf(sp); if (!c || !p) return;
+  const ds = lichSu(cv, sp), t = id ? ds.find((x) => x.id === id) : ds[ds.length - 1], i = ds.indexOf(t), truoc = id ? ds[i - 1] : null;
+  sheet(`${esc(tenChuyen(c))} · <span class="mono">${esc(p.ma)}</span>`, `<div class="card top"><b>${esc(p.ten)}</b>${p.tenDich ? ` <span class="muted">${esc(p.tenDich)}</span>` : ''}
+    <div style="margin-top:6px">${t ? `<span class="chip">${T.apDung[0]} ${esc(t.apDung)}</span>${chipKhz(t)}${t === ds[ds.length - 1] ? `<span class="chip ok">${T.hienTai[0]} · ${T.hienTai[1]}</span>` : `<span class="chip warn">${L('Lần ghi cũ', '旧记录').replace(/<\/?span[^>]*>/g, ' ')}</span>`}` : ''}
+    ${chipPB(c, 1)}${c.soMau === 2 ? chipPB(c, 2) : ''}</div>
+    ${t && t.ghiChu ? `<div style="margin-top:6px">${esc(t.ghiChu)}${t.ghiChuDich ? ` <span class="muted">${esc(t.ghiChuDich)}</span>` : ''}</div>` : ''}
+    ${truoc ? `<div class="muted" style="margin-top:6px">${L('Ô tô cam: khác lần ghi trước (' + esc(truoc.apDung) + ')', '橙色：与上次记录不同')}</div>` : ''}</div>
+    ${t ? `<div class="sec">${L('Theo màn hình bộ điều khiển Merlin D CE', '按 Merlin D CE 控制器界面')}</div>${bangTs(c, t, truoc)}` : `<div class="card empty">${TT('chuaGhi')}</div>`}
+    <div class="btns"><button class="btn wide" id="tsNewBtn" data-act="tsNew" data-cv="${esc(cv)}" data-sp="${esc(sp)}">${L(T.capNhatTs[0], T.capNhatTs[1])}</button></div>
+    <div class="sec">${L(T.lichSuTs[0], T.lichSuTs[1])}<span>${ds.length}</span></div>
+    ${ds.slice().reverse().map((x) => { const j = ds.indexOf(x), dois = cacThayDoi(c, x, ds[j - 1]); return `<div class="card hist" data-id="${esc(x.id)}">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>${esc(x.apDung)}</b>${j === ds.length - 1 ? `<span class="chip ok">${T.hienTai[0]}</span>` : ''}${x._cho ? `<span class="chip warn">${T.choGui[0]}</span>` : ''}</div>
+      ${x.ghiChu ? `<div>${esc(x.ghiChu)}</div>` : ''}${x.ghiChuDich ? `<div class="muted">${esc(x.ghiChuDich)}</div>` : ''}
+      ${j === 0 ? `<div class="muted">${L('Lần ghi đầu tiên', '首次记录')}</div>` : dois.length ? `<ul class="doi">${dois.map((d) => `<li>${esc(d)}</li>`).join('')}</ul>` : `<div class="muted">${L('Không đổi thông số', '参数未变')}</div>`}
+      <div class="btns">${x !== t ? `<button class="btn sm ghost" data-act="tsShow" data-cv="${esc(cv)}" data-sp="${esc(sp)}" data-id="${esc(x.id)}">${L('Xem lần này', '查看此记录')}</button>` : ''}
+      ${x._cho ? '' : `<button class="btn sm bad" data-act="tsDel" data-id="${esc(x.id)}">${L(T.xoaNham[0], T.xoaNham[1])}</button>`}</div></div>`; }).join('')}
+    <div class="btns"><button class="btn ghost" data-act="lineView" data-id="${esc(cv)}">← ${esc(tenChuyen(c))}</button></div>`);
+}
+// ----- Form cập nhật -----
+const oTs = (id, nhan, zh, v, them) => `<label class="f"><span class="l">${L(nhan, zh)}</span><input class="i" id="${id}" value="${esc(v === undefined || v === null ? '' : v)}" ${them || 'inputmode="decimal" autocomplete="off"'}></label>`;
+let TS_GOC = null;   // lần ghi hiện tại (để tô ô đã sửa và liệt kê thay đổi)
+function nguonChep(cv, sp) {
+  // Chép được từ: sản phẩm khác cùng chuyền, hoặc cùng sản phẩm ở chuyền khác (đã có thông số)
+  const out = [];
+  spCuaChuyen(cv).forEach((x) => { if (x.id !== sp && hienTai(cv, x.id)) out.push([cv, x.id]); });
+  chuyenCuaSP(sp).forEach((c) => { if (c.id !== cv && hienTai(c.id, sp)) out.push([c.id, sp]); });
+  (DL().chuyenSP || []).forEach((l) => { if (!out.some((o) => o[0] === l.chuyen && o[1] === l.sanPham) && !(l.chuyen === cv && l.sanPham === sp) && hienTai(l.chuyen, l.sanPham)) out.push([l.chuyen, l.sanPham]); });
+  return out;
+}
+function tsForm(cv, sp, tu) {
+  const c = cvOf(cv), p = spOf(sp); if (!c || !p) return;
+  TS_GOC = hienTai(cv, sp);
+  const src = tu ? hienTai(tu[0], tu[1]) : TS_GOC, t = src || {}, g = (k) => (t[k] === undefined ? '' : t[k]);
+  const nguon = nguonChep(cv, sp);
+  const o1 = (f) => CHON[f[0]] ? `<label class="f"><span class="l"><span class="en">${f[1]}</span> <span class="zh" style="display:inline">${f[2]}</span></span><select class="i" id="f_${f[0]}"><option value="">—</option>${CHON[f[0]].map((v) => `<option ${g(f[0]) === v ? 'selected' : ''}>${v}</option>`).join('')}</select></label>`
+    : f[0] === '_len' ? `<div class="f"><span class="l"><span class="en">${f[1]}</span> <span class="zh" style="display:inline">${f[2]}</span></span><div class="muted" style="padding:10px 0">${daiSPmm(sp) ? so(daiSPmm(sp) / 25.4, 3) + ' in (' + so(daiSPmm(sp)) + ' mm)' : '—'}</div></div>`
+      : `<label class="f"><span class="l"><span class="en">${f[1]}</span>${f[4] ? ' (' + f[4] + ')' : ''} <span class="zh" style="display:inline">${f[2]}</span></span><input class="i" id="f_${f[0]}" inputmode="decimal" autocomplete="off" value="${esc(g(f[0]))}"></label>`;
+  sheet(`${L(T.capNhatTs[0], T.capNhatTs[1])} · ${esc(tenChuyen(c))} · <span class="mono">${esc(p.ma)}</span>`, `
+    <div class="card muted">${TS_GOC ? L('Điền sẵn theo thông số hiện tại — chỉ sửa ô thay đổi (ô sửa tô cam). Lưu xong là một lần ghi mới, lần cũ vẫn giữ.', '已按当前参数预填，只改有变化的项（橙色）。保存后新增一条记录。')
+      : L('Sản phẩm này chưa có thông số trên chuyền này. Có thể chép từ chuyền/sản phẩm khác rồi sửa.', '本线此产品尚无参数，可从其他产线/产品复制后修改。')}</div>
+    ${nguon.length ? `<label class="f"><span class="l">${L('Chép từ', '复制自')}</span><select class="i" id="f_chep"><option value="">${tu ? '' : '—'}</option>${nguon.map((n) => { const cc = cvOf(n[0]), pp = spOf(n[1]);
+      return `<option value="${esc(n[0] + '|' + n[1])}" ${tu && tu[0] === n[0] && tu[1] === n[1] ? 'selected' : ''}>${esc(tenChuyen(cc))} · ${esc(pp.ma)} ${esc(pp.ten)}${cc.soMau !== c.soMau ? ' (' + cc.soMau + ' màu)' : ''}</option>`; }).join('')}</select></label>` : ''}
+    <div class="grid2">${oTs('f_apDung', T.apDung[0], T.apDung[1], TODAY(), 'type="date"')}${oTs('f_ghiChu', 'Lý do thay đổi', '变更原因', tu ? 'Chép từ ' + tenChuyen(cvOf(tu[0])) + ' · ' + spOf(tu[1]).ma : '', 'autocomplete="off"')}</div>
+    ${oTs('f_ghiChuDich', 'Lý do (tiếng Trung, để trống = tự dịch)', '变更原因（中文，留空自动翻译）', '', 'autocomplete="off"')}
+    ${KHOI.map((kh) => `<div class="scr" data-k="${kh[0]}"><div class="h">${kh[1] ? `<span class="en">${kh[1]}</span>` : ''}<span class="vi">${kh[2]}</span><span class="ref">${kh[4]}</span></div><div class="fbody">
+      ${kh[6] ? bangJA(c, t, kh[6], null, true) + (kh[6] === 'align' ? `<button class="btn sm ghost" data-act="tsAlign">${L('Tính theo Divider', '按分频计算')}</button>` : '') : ''}
+      ${kh[0] === 'hd' ? [1, 2].slice(0, c.soMau).map((m) => `<div class="pbf"><div style="margin:4px 0">${chipPB(c, m)}</div><div class="grid2">${O_PB.map((f) => `<label class="f"><span class="l"><span class="en">${f[1]}</span> <span class="zh" style="display:inline">${f[2]}</span></span><input class="i" id="f_${f[0]}${m}" ${f[0] === 'muc' ? 'autocomplete="off"' : 'inputmode="decimal"'} value="${esc(g(f[0] + m))}"></label>`).join('')}</div></div>`).join('') : ''}
+      <div class="grid2">${kh[5].map(o1).join('')}</div>${kh[0] === 'enc' ? `<div class="muted" id="f_kq"></div>` : ''}</div></div>`).join('')}
+    <div class="card diffbox" id="f_diff"></div>
+    <div class="btns"><button class="btn wide" id="tsSave" data-act="tsSave" data-cv="${esc(cv)}" data-sp="${esc(sp)}">${L(T.luu[0], T.luu[1])}</button></div>`, (o) => {
+    o.addEventListener('input', tsSoat); o.addEventListener('change', tsSoat);
+    const ch = $('#f_chep', o); if (ch) ch.addEventListener('change', () => { const v = ch.value; tsForm(cv, sp, v ? v.split('|') : null); });
+    tsSoat();
+  });
+}
+// Đọc form thành đối tượng thông số (cùng dạng máy chủ lưu)
+function tsDoc(cv, sp) {
+  const c = cvOf(cv), v = (id) => { const e = $('#' + id); return e ? e.value.trim() : ''; };
+  const p = { chuyen: cv, sanPham: sp, apDung: v('f_apDung'), ghiChu: v('f_ghiChu') };
+  if (v('f_ghiChuDich')) p.ghiChuDich = v('f_ghiChuDich');
+  KHOI.forEach((kh) => kh[5].forEach((f) => { if (f[0][0] !== '_') p[f[0]] = v('f_' + f[0]); }));
+  ['align', 'volt'].forEach((k) => {
+    const a = []; for (let i = 0; i < c.soMau * 4; i++) a.push(v(`f_${k}_${i}`));
+    while (a.length && a[a.length - 1] === '') a.pop();
+    p[k] = a.join('/');
+  });
+  [1, 2].slice(0, c.soMau).forEach((m) => O_PB.forEach((f) => { p[f[0] + m] = v(`f_${f[0]}${m}`); }));
+  return p;
+}
+const chuanSo = (v) => { const t = String(v === undefined || v === null ? '' : v).trim().replace(',', '.'); return t !== '' && isFinite(Number(t)) ? String(Number(t)) : t; };
+const chuanDay = (v) => dayJA(v).map(chuanSo).join('/');
+function tsSoat() {
+  const nut = $('#tsSave'); if (!nut) return;
+  const cv = nut.dataset.cv, sp = nut.dataset.sp, c = cvOf(cv), p = tsDoc(cv, sp), goc = TS_GOC || {};
+  // Tô cam ô khác lần ghi hiện tại
+  $$('#ov .fbody input, #ov .fbody select').forEach((e) => {
+    const m = /^f_(align|volt)_(\d+)$/.exec(e.id), k = e.id.slice(2);
+    const cu = m ? (dayJA(goc[m[1]])[Number(m[2])] || '') : (goc[k] === undefined ? '' : goc[k]);
+    e.classList.toggle('chg', chuanSo(e.value) !== chuanSo(cu));
+  });
+  const x = Object.assign({}, p); x.align = chuanDay(p.align); x.volt = chuanDay(p.volt);
+  Object.keys(x).forEach((k) => { if (k !== 'align' && k !== 'volt') x[k] = chuanSo(x[k]); });
+  const g2 = {}; Object.keys(goc).forEach((k) => { g2[k] = k === 'align' || k === 'volt' ? chuanDay(goc[k]) : chuanSo(goc[k]); });
+  const dois = TS_GOC ? cacThayDoi(c, x, g2) : [];
+  $('#f_diff').innerHTML = TS_GOC ? (dois.length ? `<b>${L('Sẽ thay đổi', '将变更')} (${dois.length}):</b><ul class="doi">${dois.map((d) => `<li>${esc(d)}</li>`).join('')}</ul>` : `<span class="muted">${L('Chưa sửa ô nào', '尚未修改')}</span>`)
+    : `<span class="muted">${L('Lần ghi đầu tiên cho chuyền + sản phẩm này', '本线此产品首次记录')}</span>`;
+  const kq = $('#f_kq'), t = Object.assign({}, x, { sanPham: sp });
+  if (kq) { const tinhDpi = dpiTs({ divider: x.divider }); kq.innerHTML = `${tinhDpi ? L('Theo encoder ' + so(coBo().encoderPPR || 0) + ' xung, trục ' + so(coBo().duongKinh || 0) + ' mm: ' + so(tinhDpi, 2) + ' dpi', '按编码器计算') : ''} ${chipKhz(t)}`; }
+}
+function tsAlign() {
+  const nut = $('#tsSave'), c = cvOf(nut.dataset.cv), dv = Number(chuanSo($('#f_divider').value)), b = coBo();
+  if (!(dv > 0)) { toast(L('Nhập Divider trước', '请先输入分频'), true); return; }
+  const r = tinh(Object.assign({}, b, { divider: dv, daiSP: daiSPmm(nut.dataset.sp) || b.daiSP }));
+  for (let i = 0; i < c.soMau * 4; i++) $(`#f_align_${i}`).value = r.delay[i].d;
+  tsSoat();
+}
+async function tsSave(cv, sp) {
+  const p = tsDoc(cv, sp), c = cvOf(cv);
+  for (const k of ['align', 'volt']) if (p[k].split('/').some((x, i, a) => x === '' && a.length > 1)) { toast(L((k === 'align' ? 'Head Alignments' : 'Fire Pulses') + ': không bỏ trống ô ở giữa', '中间不能留空'), true); return; }
+  if (!p.apDung) { toast(L('Chọn ngày áp dụng', '请选择生效日期'), true); return; }
+  $('#tsSave').disabled = true;
+  const kq = await ghi('paramSave', p, tenChuyen(c) + ' · ' + (spOf(sp) || {}).ma + ' · ' + p.apDung, (op) => APDUNG.paramSave(op, p));
+  if (!kq.ok) { $('#tsSave').disabled = false; return; }
+  if (!kq.queued) tt('daLuu');
+  render(); tsView(cv, sp);
+}
+async function tsDel(id) {
+  if (!confirmXoa()) return;
+  const x = (DL().thongSo || []).find((t) => t.id === id);
+  const r = await ghi('paramDelete', { id }, 'Xoá thông số ' + id, (op) => APDUNG.paramDelete(op, { id }));
+  if (r.ok) { if (!r.queued) tt('daXoa'); render(); if (x) tsView(x.chuyen, x.sanPham); }
+}
+// So sánh: mỗi chuyền một cột, sản phẩm đang chạy và thông số hiện tại của nó
+function tsCompare() {
+  const ds = dsChuyen().filter((c) => !S.soMau || S.soMau === 9 || c.soMau === S.soMau).map((c) => { const sp = dangChay(c.id); return { c, sp: spOf(sp), t: sp ? hienTai(c.id, sp) : null }; });
+  const pham = (a) => { const n = a.map(Number).filter((x) => isFinite(x) && String(x) !== ''); return n.length ? (Math.min(...n) === Math.max(...n) ? so(n[0]) : so(Math.min(...n)) + '–' + so(Math.max(...n))) : '—'; };
+  const pb = (x, k, m) => x.t && m <= x.c.soMau ? pham(dayJA(x.t[k]).slice((m - 1) * 4, m * 4).filter((v) => v !== '')) : '';
+  const hang = (ten, f) => `<tr><th>${ten}</th>${ds.map((x) => `<td>${x.t ? f(x) : ''}</td>`).join('')}</tr>`;
+  sheet(L(T.soSanh[0], T.soSanh[1]), `<div style="overflow-x:auto"><table class="t" id="tsCmp" style="white-space:nowrap"><tr><th></th>${ds.map((x) => `<th>${esc(x.c.ma)}</th>`).join('')}</tr>
+    <tr><th>${L('Đang chạy', '运行中')}</th>${ds.map((x) => `<td class="mono">${x.sp ? esc(x.sp.ma) : '—'}</td>`).join('')}</tr>
+    ${hang(L(T.apDung[0], T.apDung[1]), (x) => esc(x.t.apDung))}${hang('Encoder DPI', (x) => esc(soTs(x.t.encDPI)))}${hang('Divider', (x) => esc(soTs(x.t.divider)))}
+    ${hang(L('Tốc độ', '速度'), (x) => esc(soTs(x.t.tocDo)))}${hang('kHz', (x) => chipKhz(x.t))}
+    ${hang('Fire Pulses PB1', (x) => pb(x, 'volt', 1))}${hang('Fire Pulses PB2', (x) => pb(x, 'volt', 2))}
+    ${hang('Meniscus', (x) => esc(soTs(x.t.meniscus)))}${hang('Plate °C', (x) => esc(soTs(x.t.nhietTam)))}
+    ${hang('Reservoir PB1 °C', (x) => esc(soTs(x.t.nhietBinh1)))}${hang('Reservoir PB2 °C', (x) => esc(soTs(x.t.nhietBinh2)))}</table></div>`);
+}
+function linesForm() {
+  sheet(L(T.dsChuyen[0], T.dsChuyen[1]), dsChuyen().map((c) => `<div class="card" style="display:flex;gap:8px;align-items:center"><div style="flex:1"><b>${esc(tenChuyen(c))}</b> <span class="chip">${nhanMau(c.soMau)}</span>${c.ghiChu ? `<div class="muted">${esc(c.ghiChu)}</div>` : ''}</div>
+    <button class="btn sm ghost" data-act="lineEdit" data-id="${esc(c.id)}">${L(T.sua[0], T.sua[1])}</button></div>`).join('') +
+    `<div class="btns"><button class="btn wide" data-act="lineEdit" data-id="">${IC.plus}${L('Thêm chuyền', '添加产线')}</button></div>`);
+}
+function lineEdit(id) {
+  const c = id ? cvOf(id) : null, v = (k) => c ? c[k] : '';
+  sheet(c ? L(T.sua[0], T.sua[1]) + ' · ' + esc(tenChuyen(c)) : L('Thêm chuyền', '添加产线'), `<div class="grid2">${oTs('lMa', 'Mã chuyền', '产线编号', v('ma'), 'autocomplete="off"')}
+    <label class="f"><span class="l">${L('Số màu', '颜色数')}</span><select class="i" id="lMau"><option value="1" ${c && c.soMau === 1 ? 'selected' : ''}>1 màu · 单色 (PB1)</option><option value="2" ${c && c.soMau === 2 ? 'selected' : ''}>2 màu · 双色 (PB1+PB2)</option></select></label>
+    ${oTs('lPB1', 'Mực PB1 (JA1–4)', 'PB1墨水', v('mauPB1'), 'autocomplete="off"')}${oTs('lPB2', 'Mực PB2 (JA5–8)', 'PB2墨水', v('mauPB2'), 'autocomplete="off"')}
+    ${oTs('lSeri', 'Số seri đầu in', '喷头序列号', v('seriDau'), 'autocomplete="off"')}${oTs('lThayDau', 'Ngày thay đầu in', '换喷头日期', v('thayDau'), 'type="date"')}
+    ${oTs('lThayLoc', 'Ngày thay lọc mực', '换滤芯日期', v('thayLoc'), 'type="date"')}</div>
+    ${oTs('lGhi', 'Ghi chú', '备注', v('ghiChu'), 'autocomplete="off"')}
+    <div class="btns"><button class="btn" id="lSave" data-act="lineSave" data-id="${esc(c ? c.id : '')}">${L(T.luu[0], T.luu[1])}</button>
+    ${c ? `<button class="btn bad" data-act="lineOff" data-id="${esc(c.id)}">${L('Ngừng dùng', '停用')}</button>` : ''}</div>`);
+}
+async function lineSave(id, tat) {
+  const c = id ? cvOf(id) : null, g = (e) => $(e).value.trim();
+  if (tat && !confirmXoa()) return;
+  const p = tat ? Object.assign({}, c, { hoatDong: 0 }) : { id, ma: g('#lMa'), soMau: Number($('#lMau').value), mauPB1: g('#lPB1'), mauPB2: g('#lPB2'),
+    seriDau: g('#lSeri'), thayDau: g('#lThayDau'), thayLoc: g('#lThayLoc'), ghiChu: g('#lGhi') };
+  try {
+    const d = await api('lineSave', p, { opId: newOp() });
+    DL().chuyen = dsChuyen();
+    if (tat) DL().chuyen = dsChuyen().filter((x) => x.id !== id); else upsert(DL().chuyen, d.chuyen);
+    await saveSnap(); tt('daLuu'); render();
+    if (!tat && id) lineView(id); else linesForm();
+  } catch (e) { toast(errMsg(e), true); }
+}
+
 // ============ Cài đặt ============
 VIEWS.cai = {
   html() {
@@ -833,7 +1243,8 @@ VIEWS.cai = {
         ${q.err ? `<div style="color:var(--bad)">${esc(q.err)}</div>` : ''}<div class="btns"><button class="btn sm" data-act="qSend">${L(T.guiLai[0], T.guiLai[1])}</button>
         <button class="btn sm bad" data-act="qDrop" data-i="${i}">${L(T.boViec[0], T.boViec[1])}</button></div></div>`).join('') : `<div class="card empty">${TT('khongCho')}</div>`}
       <div class="sec">${L('Dữ liệu', '数据')}</div>
-      <button class="row" data-act="export">${IC.xls}<div class="main"><div class="nm">${TT('xuat')}</div><div class="sub">${S.data.ghiChu.length} ${T.gc[0]} · ${S.data.taiLieu.length} ${T.tl[0]} · ${S.data.dayDien.length} ${T.day[0]}</div></div></button>
+      <button class="row" data-act="export">${IC.xls}<div class="main"><div class="nm">${TT('xuat')}</div><div class="sub">${S.data.ghiChu.length} ${T.gc[0]} · ${S.data.taiLieu.length} ${T.tl[0]} · ${S.data.dayDien.length} ${T.day[0]} · ${dsChuyen().length} chuyền</div></div></button>
+      <button class="row" data-act="lines">${IC.may}<div class="main"><div class="nm">${TT('dsChuyen')}</div><div class="sub">${dsChuyen().length}</div></div></button>
       <button class="row" data-act="groups">${IC.tl}<div class="main"><div class="nm">${TT('nhomTL')}</div><div class="sub">${S.data.nhom.length}</div></div></button>
       <button class="row" data-act="audit">${IC.gc}<div class="main"><div class="nm">${TT('nhatKy')}</div></div></button>
       <div class="sec">${L('Tài khoản', '账户')}</div>
@@ -955,9 +1366,30 @@ function xuatExcel() {
       rows: D.taiLieu.slice().sort((a, b2) => String(a.maTL).localeCompare(String(b2.maTL)) || b2.phienBan - a.phienBan).map((x) => [x.id, x.ten, x.tenDich, nh(x.nhom), x.kieu === 'LINK' ? 'Link · 链接' : 'Tệp · 文件', x.phienBan, x.hienHanh ? 'Có · 是' : '', x.tenTep, x.kichThuoc ? kb(x.kichThuoc) : '', x.url, (x.the || []).join(', '), x.capNhat]) },
     { name: 'Dây điện · 线号', w: [14, 14, 8, 16, 16, 14, 30, 26, 26, 8, 24],
       head: COT_DAY.slice(0, 8).map((c) => c[1] + ' · ' + c[2]).concat(['Tệp bản vẽ · 图纸文件', 'Trang PDF · PDF页码', 'Ghi chú · 备注']),
-      rows: D.dayDien.map((x) => { const t = D.taiLieu.find((y) => y.id === x.taiLieuId); return [x.soDay, x.banVe, x.to, x.tuDiem, x.denDiem, x.mau, x.tinHieu, x.tinHieuZh, t ? t.ten + ' v' + t.phienBan : '', x.trang || '', x.ghiChu]; }) }
+      rows: D.dayDien.map((x) => { const t = D.taiLieu.find((y) => y.id === x.taiLieuId); return [x.soDay, x.banVe, x.to, x.tuDiem, x.denDiem, x.mau, x.tinHieu, x.tinHieuZh, t ? t.ten + ' v' + t.phienBan : '', x.trang || '', x.ghiChu]; }) },
+    sheetTs('Thông số hiện tại · 当前参数', (D.chuyenSP || []).map((l) => hienTai(l.chuyen, l.sanPham)).filter(Boolean)),
+    sheetTs('Lịch sử thông số · 参数历史', (D.thongSo || []).slice().sort((a, b) => String(a.chuyen + a.sanPham).localeCompare(String(b.chuyen + b.sanPham)) || khoaTs(b).localeCompare(khoaTs(a)))),
+    { name: 'Sản phẩm · 产品', w: [14, 30, 28, 12, 30, 30], head: ['Mã SP · 产品编号', 'Tên · 名称', 'Tên (中文) · 中文名称', 'Dài (mm) · 长度', 'Chuyền · 产线', 'Ghi chú · 备注'],
+      rows: dsSP().map((x) => [x.ma, x.ten, x.tenDich, x.daiSP ? Number(x.daiSP) : '', chuyenCuaSP(x.id).map((c) => c.ma + (dangChay(c.id) === x.id ? ' (đang chạy)' : '')).join(', '), x.ghiChu]) }
   ]);
   luuFile(b, 'Ghi-chu-Tai-lieu_' + TODAY() + '.xlsx');
+}
+// Thông số ra Excel: mỗi lần ghi một dòng, cột theo màn hình bộ điều khiển; JA1–8 mỗi JA một cột để lọc/so sánh trong Excel
+function sheetTs(name, ds) {
+  const n = (v) => (v === '' || v === undefined || v === null || !isFinite(Number(v))) ? (v || '') : Number(v);
+  const ja = (k, dv) => [1, 2, 3, 4, 5, 6, 7, 8].map((i) => k + ' JA' + i + ' (' + dv + ')');
+  const rows = ds.map((t) => { const c = cvOf(t.chuyen) || { ma: t.chuyen, soMau: t.soMau }, sp = spOf(t.sanPham) || { ma: t.sanPham, ten: '' };
+    const a = dayJA(t.align), v = dayJA(t.volt), f = tanSoTs(t);
+    return [c.ma, t.soMau === 2 ? '2 màu · 双色' : '1 màu · 单色', sp.ma, sp.ten, dangChay(t.chuyen) === t.sanPham ? 'Có · 是' : '', t.apDung, t.encDir, t.encDecode, n(t.encDPI), n(t.divider),
+      t.triggerMode, t.fireMode, daiSPmm(t.sanPham) ? Math.round(daiSPmm(t.sanPham) / 25.4 * 1000) / 1000 : '', n(t.formDelay)]
+      .concat([0, 1, 2, 3, 4, 5, 6, 7].map((i) => n(a[i] || ''))).concat([n(t.registration)]).concat([0, 1, 2, 3, 4, 5, 6, 7].map((i) => n(v[i] || '')))
+      .concat([n(t.meniscus), n(t.lungVac), n(t.purgeShort), n(t.purgeLong), n(t.nhietTam), n(t.nhietBinh1), n(t.lois1), t.muc1, n(t.nhietBinh2), n(t.lois2), t.muc2,
+        n(t.tocDo), f ? Math.round(f) : '', t.ghiChu, t.ghiChuDich]); });
+  const head = ['Chuyền · 产线', 'Màu · 颜色', 'Mã SP · 产品编号', 'Tên SP · 产品名称', 'Đang chạy · 运行中', 'Ngày áp dụng · 生效日期', 'Encoder Direction', 'Encoder Decode', 'Encoder DPI', 'Divider · 分频',
+    'Trigger Mode', 'Fire Mode', 'Length (in)', 'Delay (in)'].concat(ja('Head Alignments', 'px')).concat(['Image Registration']).concat(ja('Fire Pulses', 'V'))
+    .concat(['Meniscus', 'Lung Vacuum', 'Short Purge (s)', 'Long Purge (s)', 'Plate °C · 喷板温度', 'Reservoir PB1 °C', 'LOIS PB1', 'Ink PB1 · 墨水', 'Reservoir PB2 °C', 'LOIS PB2', 'Ink PB2 · 墨水',
+      'Tốc độ · 速度', 'Tần số (Hz) · 频率', 'Lý do · 原因', 'Lý do (中文) · 原因']);
+  return { name, rows, head, w: head.map((h, i) => i < 4 ? 14 : i >= head.length - 2 ? 30 : 11) };
 }
 function fileMauDay() {
   luuFile(xlsx([{ name: 'Dây điện · 线号', w: [14, 14, 8, 16, 16, 14, 30, 26, 10, 24], head: COT_DAY.map((c) => c[1] + ' · ' + c[2]),
@@ -978,6 +1410,13 @@ const ACT = {
   wireNew: () => wireEdit(''), wireView: (b) => wireView(b.dataset.id), wireEdit: (b) => wireEdit(b.dataset.id), wireSave: (b) => wireSave(b.dataset.id), wireDel: (b) => wireDel(b.dataset.id),
   wireOpenDoc: (b) => { const x = S.data.dayDien.find((d) => d.id === b.dataset.id); if (x) moTL(x.taiLieuId, x.trang); },
   wireImport: wireImportForm, wireTpl: fileMauDay,
+  mauChon: (b) => { S.soMau = Number(b.dataset.m); render(); }, lineView: (b) => lineView(b.dataset.id),
+  tsView: (b) => tsView(b.dataset.cv, b.dataset.sp), tsShow: (b) => tsView(b.dataset.cv, b.dataset.sp, b.dataset.id), tsNew: (b) => tsForm(b.dataset.cv, b.dataset.sp),
+  tsSave: (b) => tsSave(b.dataset.cv, b.dataset.sp), tsDel: (b) => tsDel(b.dataset.id), tsAlign,
+  runForm: (b) => runForm(b.dataset.cv, b.dataset.sp), runSave: (b) => runSave(b.dataset.cv, b.dataset.sp),
+  lineAddSp: (b) => lineAddSp(b.dataset.id), lineAddSpOk: (b) => lineAddSpOk(b.dataset.cv, $('#addSp').value), lineProdOff: (b) => lineProdOff(b.dataset.cv, b.dataset.sp),
+  spView: (b) => spView(b.dataset.id), spEdit: (b) => spEdit(b.dataset.id, b.dataset.cv), spSave: (b) => spSave(b.dataset.id, b.dataset.cv),
+  tsCompare, lines: linesForm, lineEdit: (b) => lineEdit(b.dataset.id), lineSave: (b) => lineSave(b.dataset.id), lineOff: (b) => lineSave(b.dataset.id, true),
   cfgSave: () => cfgSave(false), cfgSaveNew: () => cfgSave(true),
   qSend: () => { S.Q.forEach((q) => { q.err = ''; }); guiHangCho(true).then(render); },
   qDrop: async (b) => { if (!window.confirm('Bỏ việc chờ gửi này? · 删除此待发送项？')) return; S.Q.splice(Number(b.dataset.i), 1); await saveQ(); await refresh(); render(); },

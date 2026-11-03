@@ -63,7 +63,7 @@ test('lần đầu tải dữ liệu: tự tạo các trang, 4 nhóm mẫu và b
   assert.equal(d.nhom[0].tenZh, '设备手册');
   assert.equal(d.cauHinh.length, 1);
   assert.equal(d.cauHinh[0].divider, 6);
-  for (const t of ['GhiChu', 'NhomTL', 'TaiLieu', 'DayDien', 'CauHinhMay', 'NhatKy', 'NguoiDung']) assert.ok(b.ctx.SpreadsheetApp.getActive().getSheetByName(t), t);
+  for (const t of ['GhiChu', 'NhomTL', 'TaiLieu', 'DayDien', 'CauHinhMay', 'NhatKy', 'NguoiDung', 'Chuyen', 'SanPham', 'ChuyenSP', 'ChaySP', 'ThongSo']) assert.ok(b.ctx.SpreadsheetApp.getActive().getSheetByName(t), t);
 });
 
 test('nâng cấp: trang cũ thiếu cột cuối được thêm cột, dữ liệu cũ đọc đúng', () => {
@@ -269,4 +269,136 @@ test('bộ thông số tính toán: lưu được, chặn số vô lý, không x
   err(b.call('cfgSave', Object.assign({}, p, { ten: '' }), b.tk), 'TRONG');
   ok(b.call('cfgDelete', { id: c.id }, b.tk));
   err(b.call('cfgDelete', { id: c0.id }, b.tk), 'CON_MOT');
+});
+
+// ===== v1.1.0: chuyền → sản phẩm → thông số (theo màn hình bộ điều khiển), có lịch sử =====
+const TS1 = { apDung: '2026-11-03', encDir: 'Forward', encDecode: 'All Four Edges', encDPI: '112,3', divider: '6', triggerMode: 'Once per Image', fireMode: 'External',
+  formDelay: '0.5', align: '0, 121 243/364', registration: '0', volt: '98/98/99/98', meniscus: '5,02', purgeShort: '1.5', purgeLong: '3.5', nhietTam: '125',
+  nhietBinh1: '120', lois1: '50', muc1: 'TEST-MUC', tocDo: '900' };
+const spMoi = (b, ma, op) => ok(b.call('productSave', { ma, ten: 'Băng 330 mm', daiSP: '330' }, b.tk, op)).sanPham;
+
+test('chuyền: lần đầu tạo sẵn 9 chuyền (1 màu 01/09/21/16, 2 màu 23/06/08/27/18), mã giữ số 0 đầu, 2 màu có PB1 xanh/PB2 tím', () => {
+  const b = setup();
+  const d = ok(b.call('data', {}, b.tk));
+  assert.deepEqual(d.chuyen.map((c) => c.ma), ['01', '09', '21', '16', '23', '06', '08', '27', '18']);
+  assert.deepEqual(d.chuyen.map((c) => c.soMau), [1, 1, 1, 1, 2, 2, 2, 2, 2]);
+  assert.match(d.chuyen[4].mauPB2, /Tím/);
+  assert.deepEqual([d.sanPham, d.thongSo, d.chaySP, d.chuyenSP], [[], [], [], []]);
+  ok(b.call('data', {}, b.tk));
+  assert.equal(rawRows(b, 'Chuyen').length, 9, 'tải lại không tạo thêm chuyền');
+});
+
+test('chuyền: thêm, chặn trùng mã, số màu 1|2, ghi seri/ngày thay đầu in (nhật ký giữ bản cũ), ngừng dùng thì ẩn', () => {
+  const b = setup();
+  ok(b.call('data', {}, b.tk));
+  const c = ok(b.call('lineSave', { ma: '30', soMau: 1, mauPB2: 'Tím' }, b.tk, 'op-l1')).chuyen;
+  assert.equal(c.mauPB2, '', 'máy 1 màu không có PB2');
+  assert.equal(ok(b.call('lineSave', { ma: '30', soMau: 2 }, b.tk, 'op-l1')).dup, true);
+  err(b.call('lineSave', { ma: '01', soMau: 1 }, b.tk), 'TRUNG');
+  err(b.call('lineSave', { ma: '31', soMau: 3 }, b.tk), 'SO');
+  err(b.call('lineSave', { ma: '', soMau: 1 }, b.tk), 'TRONG');
+  err(b.call('lineSave', { id: c.id, ma: '30', soMau: 1, thayDau: '2026-13-01' }, b.tk), 'NGAY');
+  ok(b.call('lineSave', { id: c.id, ma: '30', soMau: 1, seriDau: 'TEST-SN-1', thayDau: '2026-10-01' }, b.tk));
+  ok(b.call('lineSave', { id: c.id, ma: '30', soMau: 1, seriDau: 'TEST-SN-2', thayDau: '2026-11-01' }, b.tk));
+  const nk = ok(b.call('audit', { bang: 'Chuyen', khoa: c.id }, b.tk)).nhatKy;
+  assert.match(nk[0].truoc, /TEST-SN-1/); assert.match(nk[0].sau, /TEST-SN-2/);
+  ok(b.call('lineSave', { id: c.id, ma: '30', soMau: 1, hoatDong: 0 }, b.tk));
+  assert.ok(!ok(b.call('data', {}, b.tk)).chuyen.some((x) => x.ma === '30'));
+});
+
+test('sản phẩm: mã + tên, tự dịch tên, chặn trùng mã, chiều dài phải là số; gửi lại cùng opId không trùng', () => {
+  const b = setup('demo');
+  const x = spMoi(b, 'TEST-SP09', 'op-s1');
+  assert.equal(x.id, 'SPOPS1'); assert.equal(x.tenDich, '330毫米卫生巾'); assert.equal(x.daiSP, '330');
+  assert.equal(ok(b.call('productSave', { ma: 'TEST-SP09', ten: 'x' }, b.tk, 'op-s1')).dup, true);
+  err(b.call('productSave', { ma: 'test-sp09', ten: 'Khác' }, b.tk), 'TRUNG');
+  err(b.call('productSave', { ma: 'TEST-SP10', ten: '' }, b.tk), 'TRONG');
+  err(b.call('productSave', { ma: 'TEST-SP10', ten: 'A', daiSP: 'dài' }, b.tk), 'SO');
+  const y = ok(b.call('productSave', { id: x.id, ma: 'TEST-SP09', ten: 'Băng 330 mm', tenDich: '夜用330（手改）', daiSP: '330' }, b.tk)).sanPham;
+  assert.deepEqual(y.dichTay, { ten: 1 });
+  assert.equal(ok(b.call('productSave', { id: x.id, ma: 'TEST-SP09', ten: 'Băng 290 mm', daiSP: '290' }, b.tk)).sanPham.tenDich, '夜用330（手改）', 'sửa tay thì không dịch đè');
+});
+
+test('gắn sản phẩm vào chuyền, chuyển sản phẩm đang chạy (có lịch sử), không gỡ được sản phẩm đang chạy', () => {
+  const b = setup('demo');
+  const x = spMoi(b, 'TEST-SP09');
+  ok(b.call('lineProduct', { chuyen: 'CV16', sanPham: x.id }, b.tk));
+  ok(b.call('lineProduct', { chuyen: 'CV16', sanPham: x.id }, b.tk));
+  let d = ok(b.call('data', {}, b.tk));
+  assert.equal(d.chuyenSP.filter((l) => l.chuyen === 'CV16').length, 1, 'gắn lại không tạo trùng');
+  const r = ok(b.call('runSet', { chuyen: 'CV16', sanPham: x.id, tuNgay: '2026-11-03' }, b.tk, 'op-r1')).chaySP;
+  assert.equal(ok(b.call('runSet', { chuyen: 'CV16', sanPham: x.id, tuNgay: '2026-11-03' }, b.tk, 'op-r1')).dup, true);
+  assert.equal(r.sanPham, x.id);
+  err(b.call('lineProduct', { chuyen: 'CV16', sanPham: x.id, hoatDong: 0 }, b.tk), 'DANG_CHAY');
+  // Chuyển chuyền 23 sang SP07 (chưa từng chạy) rồi gỡ SP06 khỏi chuyền
+  ok(b.call('runSet', { chuyen: 'CV23', sanPham: 'SPTEST07', tuNgay: '2026-11-04' }, b.tk));
+  ok(b.call('lineProduct', { chuyen: 'CV23', sanPham: 'SPTEST06', hoatDong: 0 }, b.tk));
+  d = ok(b.call('data', {}, b.tk));
+  assert.ok(!d.chuyenSP.some((l) => l.chuyen === 'CV23' && l.sanPham === 'SPTEST06'));
+  assert.equal(d.chaySP.filter((c) => c.chuyen === 'CV23').length, 3, 'lịch sử chạy giữ đủ');
+  err(b.call('runSet', { chuyen: 'CV23', sanPham: 'SPKHONG', tuNgay: '2026-11-04' }, b.tk), 'KHONG_THAY');
+  err(b.call('runSet', { chuyen: 'CV23', sanPham: 'SPTEST05', tuNgay: '' }, b.tk), 'TRONG');
+});
+
+test('thông số: mỗi lần lưu là một dòng mới theo chuyền + sản phẩm, chuẩn hoá số/dãy JA, tự dịch lý do, opId không trùng', () => {
+  const b = setup('demo');
+  const truoc = rawRows(b, 'ThongSo').length;
+  const x = ok(b.call('paramSave', Object.assign({ chuyen: 'CV21', sanPham: 'SPTEST01', ghiChu: 'Thông số ban đầu' }, TS1), b.tk, 'op-t1')).thongSo;
+  assert.equal(x.id, 'TSOPT1');
+  assert.equal(x.meniscus, '5.02'); assert.equal(x.encDPI, '112.3');
+  assert.equal(x.align, '0/121/243/364');
+  assert.equal(x.ghiChuDich, '初始参数');
+  assert.equal(x.lungVac, '', 'ô trống giữ trống, không thành 0');
+  assert.equal(ok(b.call('paramSave', Object.assign({ chuyen: 'CV21', sanPham: 'SPTEST01' }, TS1), b.tk, 'op-t1')).dup, true);
+  ok(b.call('paramSave', Object.assign({ chuyen: 'CV21', sanPham: 'SPTEST01' }, TS1, { volt: '100/100/100/100' }), b.tk, 'op-t2'));
+  assert.equal(rawRows(b, 'ThongSo').length, truoc + 2, 'không sửa dòng cũ, chỉ thêm dòng');
+  const ds = ok(b.call('data', {}, b.tk)).thongSo.filter((t) => t.chuyen === 'CV21' && t.sanPham === 'SPTEST01');
+  assert.deepEqual(ds.map((t) => t.volt), ['98/98/99/98', '100/100/100/100']);
+  // Cùng sản phẩm ở chuyền khác là bộ thông số khác; lưu thông số cho SP chưa gắn thì tự gắn vào chuyền
+  ok(b.call('paramSave', Object.assign({ chuyen: 'CV16', sanPham: 'SPTEST01' }, TS1), b.tk));
+  assert.ok(ok(b.call('data', {}, b.tk)).chuyenSP.some((l) => l.chuyen === 'CV16' && l.sanPham === 'SPTEST01'));
+});
+
+test('thông số: máy 1 màu chỉ JA1–4 và bỏ PB2; máy 2 màu đủ JA1–8 và 2 bình; bản dịch lý do sửa tay được giữ', () => {
+  const b = setup('demo');
+  err(b.call('paramSave', Object.assign({ chuyen: 'CV01', sanPham: 'SPTEST01' }, TS1, { align: '1/2/3/4/5' }), b.tk), 'SO');
+  const m1 = ok(b.call('paramSave', Object.assign({ chuyen: 'CV01', sanPham: 'SPTEST01' }, TS1, { nhietBinh2: '130', muc2: 'TEST-TIM' }), b.tk)).thongSo;
+  assert.equal(m1.nhietBinh2, ''); assert.equal(m1.muc2, ''); assert.equal(m1.soMau, 1);
+  const m2 = ok(b.call('paramSave', Object.assign({ chuyen: 'CV23', sanPham: 'SPTEST05' }, TS1, { align: '0/121/243/364/520/641/763/884', volt: '98/98/99/98/104/103/104/103',
+    nhietBinh2: '121', lois2: '50', muc2: 'TEST-TIM', ghiChu: 'PB2 in mờ, tăng áp', ghiChuDich: '手改' }), b.tk)).thongSo;
+  assert.equal(m2.soMau, 2); assert.equal(m2.volt.split('/').length, 8); assert.equal(m2.nhietBinh2, '121'); assert.equal(m2.muc2, 'TEST-TIM');
+  assert.equal(m2.ghiChuDich, '手改'); assert.deepEqual(m2.dichTay, { ghiChu: 1 });
+  err(b.call('paramSave', Object.assign({ chuyen: 'CV23', sanPham: 'SPTEST05' }, TS1, { align: '1/2/3/4/5/6/7/8/9' }), b.tk), 'SO');
+});
+
+test('thông số: chặn số ngoài khoảng, lựa chọn lạ, ngày sai, chuyền/SP không có; chữ = + - @ được chèn nháy', () => {
+  const b = setup('demo');
+  const p = (o) => Object.assign({ chuyen: 'CV01', sanPham: 'SPTEST01' }, TS1, o);
+  err(b.call('paramSave', p({ volt: '98/500' }), b.tk), 'SO');
+  err(b.call('paramSave', p({ align: '12.5' }), b.tk), 'SO');
+  err(b.call('paramSave', p({ meniscus: 'năm' }), b.tk), 'SO');
+  err(b.call('paramSave', p({ divider: '0' }), b.tk), 'SO');
+  err(b.call('paramSave', p({ purgeLong: '30' }), b.tk), 'SO');
+  err(b.call('paramSave', p({ encDecode: 'Three Edges' }), b.tk), 'SO');
+  err(b.call('paramSave', p({ apDung: '' }), b.tk), 'TRONG');
+  err(b.call('paramSave', p({ apDung: '2026-02-31' }), b.tk), 'NGAY');
+  err(b.call('paramSave', p({ chuyen: 'CVKHONG' }), b.tk), 'KHONG_THAY');
+  err(b.call('paramSave', p({ sanPham: 'SPKHONG' }), b.tk), 'KHONG_THAY');
+  const x = ok(b.call('paramSave', p({ muc1: '=TEST', ghiChu: '-5V' }), b.tk)).thongSo;
+  assert.equal(x.muc1, '=TEST'); assert.equal(x.ghiChu, '-5V');
+  const cot = b.ctx.BANG.ThongSo, dong = b.ctx.thanhDong('ThongSo', x);
+  assert.equal(dong[cot.indexOf('Muc1')], "'=TEST");
+  assert.equal(dong[cot.indexOf('GhiChu')], "'-5V");
+});
+
+test('thông số: xoá lần ghi nhầm chỉ đánh dấu Xoa = 1, có nhật ký; mọi thao tác mới đều cần đăng nhập', () => {
+  const b = setup('demo');
+  const x = ok(b.call('paramSave', Object.assign({ chuyen: 'CV01', sanPham: 'SPTEST01' }, TS1), b.tk)).thongSo;
+  ok(b.call('paramDelete', { id: x.id }, b.tk));
+  assert.ok(!ok(b.call('data', {}, b.tk)).thongSo.some((t) => t.id === x.id));
+  assert.ok(rawRows(b, 'ThongSo').some((r) => r[0] === x.id), 'dòng vẫn còn trên sheet');
+  err(b.call('paramDelete', { id: 'TSKHONG' }, b.tk), 'KHONG_THAY');
+  const nk = ok(b.call('audit', { bang: 'ThongSo', khoa: x.id }, b.tk)).nhatKy;
+  assert.deepEqual(nk.map((n) => n.hanhDong), ['xoa', 'tao']);
+  for (const a of ['paramSave', 'paramDelete', 'lineSave', 'productSave', 'lineProduct', 'runSet']) err(b.call(a, {}, 'gia.mao'), 'HET_PHIEN');
 });

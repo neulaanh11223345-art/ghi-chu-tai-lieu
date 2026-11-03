@@ -316,13 +316,114 @@ try {
   assert.equal(await text('#rDpi'), '112,29');
   ok('Tính DPI, tần số (cảnh báo khi vượt 8 kHz), delay tính thẳng, lưu bộ thông số');
 
+  // 16a. Thông số máy: danh sách chuyền có sản phẩm đang chạy
+  await tab('may');
+  assert.equal(await page.locator('#main .row.line').count(), 9);
+  assert.match(await page.locator('#main .row.line[data-id="CV01"]').textContent(), /TEST-SP01/);
+  assert.match(await page.locator('#main .row.line[data-id="CV16"]').textContent(), /Chưa chọn sản phẩm/);
+  await page.click('.chips button[data-m="2"]');
+  await wait();
+  assert.equal(await page.locator('#main .row.line').count(), 5);
+  await page.click('.chips button[data-m="0"]');
+  await wait();
+  await shot('11-thong-so-chuyen');
+  ok('Thông số: 9 chuyền, lọc 1/2 màu, thấy sản phẩm đang chạy');
+
+  // 16b. Xem thông số máy 2 màu theo màn hình bộ điều khiển: PB1 JA1–4, PB2 JA5–8
+  await page.click('#main .row.line[data-id="CV23"]');
+  await wait();
+  await page.click('#ov .card.spl.on [data-act="tsView"]');
+  await wait();
+  for (const t of ['Encoders', 'Print Control', 'Form Specification', 'Head Alignments', 'Fire Pulses', 'Pneumatics', 'Heads']) assert.match(await text('#ov'), new RegExp(t));
+  assert.match(await page.locator('#ov .scr[data-k="fp"]').textContent(), /JA8/);
+  assert.match(await page.locator('#ov .scr[data-k="fs"]').textContent(), /7,48 in/, 'Length = 190 mm đổi ra inch');
+  assert.equal(await page.locator('#ov .scr[data-k="hd"] table.pbt th .chip').count(), 2, 'Heads có 2 bình mực PB1/PB2');
+  ok('Máy 2 màu: chia theo màn hình bộ điều khiển, PB1/PB2 tách riêng, Length theo dài SP');
+
+  // 16c. Cập nhật: ô sửa tô cam, liệt kê thay đổi, lưu thành lần ghi mới, lịch sử giữ lần cũ
+  await page.click('#tsNewBtn');
+  await wait();
+  assert.equal(await page.locator('#ov .chg').count(), 0);
+  await page.fill('#f_volt_4', '104');
+  await page.fill('#f_volt_5', '103');
+  await page.fill('#f_ghiChu', 'PB2 in mờ, tăng áp');
+  await wait();
+  assert.equal(await page.locator('#ov input.chg').count(), 2);
+  const diff = await text('#f_diff');
+  assert.match(diff, /Fire Pulses JA5: 102 → 104/);
+  assert.match(diff, /JA6: 101 → 103/);
+  await page.fill('#f_volt_2', '');
+  await page.click('#tsSave');
+  await wait();
+  assert.match(await text('.toast'), /ô ở giữa/, 'bỏ trống ô JA ở giữa phải bị chặn');
+  await page.fill('#f_volt_2', '99');
+  await shot('12-cap-nhat-thong-so');
+  await page.click('#tsSave');
+  await wait(800);
+  assert.equal(await page.locator('#ov .hist').count(), 2);
+  assert.match(await page.locator('#ov .hist').first().textContent(), /PB2喷印模糊，提高电压/);
+  assert.match(await page.locator('#ov .hist').first().textContent(), /JA5: 102 → 104/);
+  assert.match(await page.locator('#ov .scr[data-k="fp"]').textContent(), /104/);
+  // Xem lại lần ghi cũ: ô khác lần trước được tô
+  await page.locator('#ov .hist').nth(0).locator('[data-act="tsDel"]').waitFor();
+  ok('Cập nhật thông số: tô ô sửa, liệt kê thay đổi, lưu lần ghi mới, giữ lịch sử, lý do tự dịch');
+
+  // 16d. Sản phẩm mới cho chuyền 1 màu: chép từ chuyền khác, máy 1 màu chỉ có PB1; chuyển sang chạy SP đó
+  await page.click('#ov [data-act="close"]');
+  await page.click('.chips button[data-m="9"]');
+  await wait();
+  await page.click('#fabSP');
+  await wait();
+  await page.fill('#spMa', 'TEST-SP09');
+  await page.fill('#spTen', 'Băng 190 mm');
+  await page.fill('#spDai', '190');
+  await page.click('#spSave');
+  await wait(700);
+  assert.match(await text('#ov'), /190毫米卫生巾/);
+  await page.click('#ov [data-act="close"]');
+  await page.click('.chips button[data-m="0"]');
+  await wait();
+  await page.click('#main .row.line[data-id="CV16"]');
+  await wait();
+  await page.click('#lineAddSp');
+  await wait();
+  await page.selectOption('#addSp', { label: 'TEST-SP09 · Băng 190 mm' });
+  await page.click('#addSpOk');
+  await wait(700);
+  await page.selectOption('#f_chep', 'CV01|SPTEST01');
+  await wait();
+  assert.equal(await page.inputValue('#f_volt_0'), '98');
+  assert.equal(await page.locator('#f_volt_4').count(), 0, 'máy 1 màu không có JA5–8');
+  assert.equal(await page.locator('#f_nhietBinh2').count(), 0, 'máy 1 màu không có PB2');
+  await page.click('#tsSave');
+  await wait(800);
+  assert.match(await text('#ov'), /Chép từ Chuyền 01/);
+  await page.click('#ov [data-act="lineView"]');
+  await wait();
+  await page.click('#ov [data-act="runForm"]');
+  await wait();
+  await page.click('#runSave');
+  await wait(700);
+  assert.match(await page.locator('#ov .card.spl.on').textContent(), /TEST-SP09/);
+  await page.click('#ov [data-act="close"]');
+  await wait();
+  assert.match(await page.locator('#main .row.line[data-id="CV16"]').textContent(), /TEST-SP09/);
+  ok('Sản phẩm mới, gắn vào chuyền, chép thông số từ chuyền khác (máy 1 màu chỉ PB1), chuyển sang chạy');
+
+  // 16e. So sánh các chuyền
+  await page.click('[data-act="tsCompare"]');
+  await wait();
+  assert.match(await text('#tsCmp'), /TEST-SP09/);
+  await page.click('#ov [data-act="close"]');
+  ok('So sánh thông số các chuyền');
+
   // 16. Xuất Excel song ngữ
   await page.click('#caiBtn');
   await wait();
   const [dlx] = await Promise.all([page.waitForEvent('download'), page.click('[data-act="export"]')]);
   const buf = readFileSync(await dlx.path()).toString('utf8');
   assert.match(dlx.suggestedFilename(), /^Ghi-chu-Tai-lieu_\d{4}-\d{2}-\d{2}\.xlsx$/);
-  for (const h of ['Tiêu đề · 标题', 'Tên · 名称', 'Số dây · 线号', 'TEST-201', '高速运行时喷印模糊']) assert.ok(buf.includes(h), 'Excel thiếu ' + h);
+  for (const h of ['Tiêu đề · 标题', 'Tên · 名称', 'Số dây · 线号', 'TEST-201', '高速运行时喷印模糊', 'Thông số hiện tại · 当前参数', 'Fire Pulses', 'Fire Pulses JA8 (V)', 'Head Alignments JA1 (px)', 'TEST-SP09', 'Sản phẩm · 产品']) assert.ok(buf.includes(h), 'Excel thiếu ' + h);
   ok('Xuất Excel song ngữ (ghi chú, tài liệu, dây)');
 
   // 17. Nhật ký sửa đổi

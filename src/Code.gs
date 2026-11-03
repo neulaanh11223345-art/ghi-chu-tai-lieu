@@ -15,7 +15,7 @@
  * App chỉ có MỘT người dùng (chủ app), nên không chia vai trò. Mọi thao tác trừ ping/đăng nhập vẫn phải có
  * token hợp lệ: link /exec là công khai, không kiểm token thì ai biết link cũng đọc được tài liệu.
  */
-var PHIEN_BAN = '1.0.0';
+var PHIEN_BAN = '1.1.0';
 var TZ = 'Asia/Ho_Chi_Minh';
 var HAN_PHIEN_NGAY = 30;            // đăng nhập giữ 30 ngày
 var TEP_TOI_DA = 25 * 1024 * 1024;  // 25 MB/tệp: Apps Script nhận tối đa ~50 MB mỗi lần gửi, base64 làm to thêm 1/3
@@ -37,22 +37,48 @@ var BANG = {
   // Bộ thông số cho màn Tính toán (DPI, tần số phun, delay)
   CauHinhMay: ['ID', 'Ten', 'EncoderPPR', 'DuongKinh', 'SoCanh', 'Divider', 'DaiSP', 'TocDo', 'KhoangJA', 'KhoangPB', 'BuPB',
     'GioiHan', 'CapNhat', 'OpId', 'Xoa'],
-  NhatKy: ['ID', 'ThoiGian', 'HanhDong', 'Bang', 'Khoa', 'Truoc', 'Sau']
+  NhatKy: ['ID', 'ThoiGian', 'HanhDong', 'Bang', 'Khoa', 'Truoc', 'Sau'],
+  // Chuyền sản xuất. Ma để dạng chữ để giữ số 0 đầu ("01", "06"). SoMau: 1 màu (chỉ PB1 = JA1–4) hoặc 2 màu (PB1 = JA1–4, PB2 = JA5–8).
+  // SeriDau/ThayDau/ThayLoc là của đầu in lắp trên chuyền, không theo sản phẩm
+  Chuyen: ['ID', 'Ma', 'SoMau', 'GhiChu', 'ThuTu', 'HoatDong', 'CapNhat', 'OpId', 'SeriDau', 'ThayDau', 'ThayLoc', 'MauPB1', 'MauPB2'],
+  // Sản phẩm: chiều dài miếng (mm) chính là Length ở màn Form Specification (máy hiện inch)
+  SanPham: ['ID', 'Ma', 'Ten', 'TenDich', 'DaiSP', 'GhiChu', 'HoatDong', 'CapNhat', 'OpId', 'DichTay'],
+  // Chuyền nào có những sản phẩm nào (cùng sản phẩm ở hai chuyền thì thông số khác nhau)
+  ChuyenSP: ['ID', 'Chuyen', 'SanPham', 'HoatDong', 'CapNhat', 'OpId'],
+  // Lịch sử chạy: mỗi lần chuyển sản phẩm một dòng; dòng mới nhất theo TuNgay là sản phẩm đang chạy
+  ChaySP: ['ID', 'Chuyen', 'SanPham', 'TuNgay', 'LucTao', 'OpId', 'Xoa'],
+  // Thông số theo chuyền + sản phẩm, chia đúng các màn hình bộ điều khiển Merlin D CE.
+  // KHÔNG sửa dòng cũ: mỗi lần đổi là một dòng mới (ngày áp dụng + lý do) để tra lại "trước khi in mờ đang đặt bao nhiêu".
+  // Số để dạng chữ: ô trống là "chưa ghi", khác số 0. Align/Volt: 4 hoặc 8 số (JA1–4, JA5–8) cách nhau bởi "/".
+  // NhietBinh/Lois/Muc hậu tố 1 = PB1, 2 = PB2 (máy 1 màu bỏ trống …2).
+  ThongSo: ['ID', 'Chuyen', 'SanPham', 'SoMau', 'ApDung', 'GhiChu', 'GhiChuDich',
+    'EncDir', 'EncDecode', 'EncDPI', 'Divider', 'TriggerMode', 'FireMode', 'FormDelay', 'Align', 'Registration', 'Volt',
+    'Meniscus', 'LungVac', 'PurgeShort', 'PurgeLong', 'NhietTam', 'NhietBinh1', 'Lois1', 'Muc1', 'NhietBinh2', 'Lois2', 'Muc2', 'TocDo',
+    'LucTao', 'OpId', 'Xoa', 'DichTay']
 };
 // Cột lưu dạng số (còn lại để dạng chữ "@" — tránh Sheets tự đổi "1-2" thành ngày, "007" thành 7)
 var COT_SO = {
   NguoiDung: ['HoatDong'], GhiChu: ['Xoa'], NhomTL: ['ThuTu', 'HoatDong'], TaiLieu: ['KichThuoc', 'PhienBan', 'HienHanh', 'Xoa'],
   DayDien: ['Trang', 'Xoa'], CauHinhMay: ['EncoderPPR', 'DuongKinh', 'SoCanh', 'Divider', 'DaiSP', 'TocDo', 'KhoangJA', 'KhoangPB', 'BuPB', 'GioiHan', 'Xoa'],
-  NhatKy: []
+  NhatKy: [], Chuyen: ['SoMau', 'ThuTu', 'HoatDong'], SanPham: ['HoatDong'], ChuyenSP: ['HoatDong'], ChaySP: ['Xoa'], ThongSo: ['SoMau', 'Xoa']
 };
 var COT_DD = { CauHinhMay: { DuongKinh: '0.###', KhoangJA: '0.####', KhoangPB: '0.####', BuPB: '0.###', GioiHan: '0.##', DaiSP: '0.##' } };
 var HANH_DONG_GHI = ['changePin', 'noteSave', 'noteDelete', 'groupSave', 'docUpload', 'docLink', 'docSave', 'docCurrent', 'docDelete',
-  'wireSave', 'wireImport', 'wireDelete', 'cfgSave', 'cfgDelete'];
+  'wireSave', 'wireImport', 'wireDelete', 'cfgSave', 'cfgDelete', 'lineSave', 'productSave', 'lineProduct', 'runSet', 'paramSave', 'paramDelete'];
 var KIEU_TL = ['FILE', 'LINK'];
 var NHOM_MAU = [['Sổ tay thiết bị', '设备手册'], ['Bản vẽ điện', '电气图纸'], ['Quy trình', '操作规程'], ['Khác', '其他']];
 // Thông số máy in hiện tại (đầu in Galaxy 80 HM, bộ điều khiển Merlin D CE). Khoảng cách JA/PB lấy theo bảng tính của nhà cung cấp.
 var CAU_HINH_MAU = { ten: 'Máy in phun băng vệ sinh · 卫生巾喷码机', encoderPPR: 2500, duongKinh: 120, soCanh: 4, divider: 6, daiSP: 190,
   tocDo: 900, khoangJA: 27.4333, khoangPB: 33.528, buPB: 1.8, gioiHan: 8 };
+// Các chuyền đang có lúc cài đặt: [mã chuyền, số màu]. Thêm/sửa chuyền sau này làm trong app.
+var CHUYEN_MAU = [['01', 1], ['09', 1], ['21', 1], ['16', 1], ['23', 2], ['06', 2], ['08', 2], ['27', 2], ['18', 2]];
+// Thông số dạng số: [khoá, nhỏ nhất, lớn nhất, tên báo lỗi]. Chặn ở máy chủ để gõ nhầm (50 thay 5.0) không thành "thông số hiện tại"
+var TS_SO = [['encDPI', 1, 10000, 'Encoder DPI'], ['divider', 1, 1000, 'Divider'], ['formDelay', 0, 1000, 'Form Delay (in)'],
+  ['registration', -1000000, 1000000, 'Image Registration'], ['meniscus', -100, 100, 'Meniscus Set point'], ['lungVac', -100, 100, 'Lung Vacuum'],
+  ['purgeShort', 0, 10, 'Short Purge (s)'], ['purgeLong', 0, 10, 'Long Purge (s)'], ['nhietTam', 0, 250, 'Plate Set point (°C)'], ['tocDo', 0, 100000, 'Tốc độ · 速度']];
+var TS_SO_PB = [['nhietBinh', 0, 250, 'Reservoir Set point (°C)'], ['lois', 0, 100000, 'LOIS Set point']];
+// Giá trị chọn sẵn đúng như trên màn hình máy
+var TS_CHON = { encDir: ['Forward', 'Reverse'], encDecode: ['Single Edge', 'Two Edges', 'All Four Edges'], triggerMode: ['Auto', 'Once per Image'], fireMode: ['External', 'Internal'] };
 
 function doGet() {
   return traVe({ ok: true, data: { app: 'ghi-chu-tai-lieu', phienBan: PHIEN_BAN } });
@@ -113,6 +139,12 @@ function dieuHuong(a, p, req) {
     case 'cfgSave': return luuCauHinh(p, op);
     case 'cfgDelete': return xoaCauHinh(p);
     case 'audit': return docNhatKy(p);
+    case 'lineSave': return luuChuyen(p, op);
+    case 'productSave': return luuSanPham(p, op);
+    case 'lineProduct': return ganSanPham(p, op);
+    case 'runSet': return chuyenSanPham(p, op);
+    case 'paramSave': return luuThongSo(p, op);
+    case 'paramDelete': return xoaThongSo(p);
   }
   throw loi('KHONG_HIEU', 'Máy chủ chưa hiểu yêu cầu này · 服务器无法识别: ' + a);
 }
@@ -195,7 +227,7 @@ function suaDong(ten, r, arr) {
   trang(ten).getRange(r, 1, 1, arr.length).setNumberFormats([dinhDang(ten)]).setValues([arr]);
 }
 // Bảng ↔ đối tượng theo tên cột: khoá là tên cột viết thường chữ đầu (TieuDeDich → tieuDeDich)
-function khoa(c) { return c === 'ID' ? 'id' : c === 'OpId' ? 'opId' : c === 'TaiLieuID' ? 'taiLieuId' : c === 'EncoderPPR' ? 'encoderPPR' : c.charAt(0).toLowerCase() + c.slice(1); }
+function khoa(c) { return c === 'ID' ? 'id' : c === 'OpId' ? 'opId' : c === 'TaiLieuID' ? 'taiLieuId' : c === 'EncoderPPR' ? 'encoderPPR' : c === 'DPI' ? 'dpi' : c.charAt(0).toLowerCase() + c.slice(1); }
 function tuDong(ten, r, i) {
   var o = { _r: i + 2 };
   BANG[ten].forEach(function (c, j) {
@@ -327,7 +359,9 @@ function apDich(x, cu, p, truong, truongDich, dichTay) {
 
 // ===================== Dữ liệu tổng =====================
 function layDuLieu() {
-  ['GhiChu', 'NhomTL', 'TaiLieu', 'DayDien', 'CauHinhMay', 'NhatKy'].forEach(trang);
+  ['GhiChu', 'NhomTL', 'TaiLieu', 'DayDien', 'CauHinhMay', 'NhatKy', 'Chuyen', 'SanPham', 'ChuyenSP', 'ChaySP', 'ThongSo'].forEach(trang);
+  var chuyen = docBang('Chuyen');
+  if (!chuyen.length) chuyen = taoChuyenMau();
   var nhom = docBang('NhomTL');
   if (!nhom.length) nhom = taoNhomMau();
   var ch = docBang('CauHinhMay');
@@ -338,7 +372,12 @@ function layDuLieu() {
     nhom: nhom.filter(function (x) { return x.hoatDong; }).map(sachNhom).sort(function (a, b) { return a.thuTu - b.thuTu; }),
     taiLieu: docBang('TaiLieu').filter(function (x) { return !x.xoa; }).map(sachTL),
     dayDien: docBang('DayDien').filter(function (x) { return !x.xoa; }).map(sachDay),
-    cauHinh: ch.filter(function (x) { return !x.xoa; }).map(congKhai)
+    cauHinh: ch.filter(function (x) { return !x.xoa; }).map(congKhai),
+    chuyen: chuyen.filter(function (x) { return x.hoatDong; }).map(sachChuyen).sort(function (a, b) { return a.thuTu - b.thuTu; }),
+    sanPham: docBang('SanPham').filter(function (x) { return x.hoatDong; }).map(sachSP),
+    chuyenSP: docBang('ChuyenSP').filter(function (x) { return x.hoatDong; }).map(function (x) { return { id: x.id, chuyen: x.chuyen, sanPham: x.sanPham }; }),
+    chaySP: docBang('ChaySP').filter(function (x) { return !x.xoa; }).map(congKhai),
+    thongSo: docBang('ThongSo').filter(function (x) { return !x.xoa; }).map(sachTS)
   };
 }
 
@@ -669,6 +708,186 @@ function xoaCauHinh(p) {
   return { id: x.id };
 }
 
+// ===================== Chuyền sản xuất =====================
+function sachChuyen(x) {
+  return { id: x.id, ma: x.ma, soMau: x.soMau, ghiChu: x.ghiChu, thuTu: x.thuTu, seriDau: x.seriDau, thayDau: x.thayDau, thayLoc: x.thayLoc,
+    mauPB1: x.mauPB1, mauPB2: x.mauPB2 };
+}
+function taoChuyenMau() {
+  var bay = thoiGianStr();
+  themNhieu('Chuyen', CHUYEN_MAU.map(function (c, i) {
+    return thanhDong('Chuyen', { id: 'CV' + c[0], ma: c[0], soMau: c[1], ghiChu: '', thuTu: i + 1, hoatDong: 1, capNhat: bay, opId: '',
+      seriDau: '', thayDau: '', thayLoc: '', mauPB1: c[1] === 2 ? 'Xanh · 蓝' : '', mauPB2: c[1] === 2 ? 'Tím · 紫' : '' });
+  }));
+  return docBang('Chuyen');
+}
+function timChuyen(id) {
+  var cv = docBang('Chuyen').filter(function (c) { return c.id === s(id) && c.hoatDong; })[0];
+  if (!cv) throw loi('KHONG_THAY', 'Không thấy chuyền · 找不到产线');
+  return cv;
+}
+function luuChuyen(p, op) {
+  var ds = docBang('Chuyen');
+  if (op) { var t = ds.filter(function (x) { return x.opId === op; })[0]; if (t) return { dup: true, chuyen: sachChuyen(t) }; }
+  var ma = catChu(p.ma, 20);
+  if (!ma) throw loi('TRONG', 'Nhập mã chuyền · 请输入产线编号');
+  var cu = s(p.id) ? ds.filter(function (x) { return x.id === s(p.id); })[0] : null;
+  if (s(p.id) && !cu) throw loi('KHONG_THAY', 'Không thấy chuyền · 找不到产线');
+  var soMau = Number(p.soMau);
+  if (soMau !== 1 && soMau !== 2) throw loi('SO', 'Số màu chỉ là 1 hoặc 2 · 颜色数只能为1或2');
+  var trung = ds.filter(function (x) { return x.hoatDong && x.ma.toLowerCase() === ma.toLowerCase() && (!cu || x.id !== cu.id); })[0];
+  if (trung) throw loi('TRUNG', 'Đã có chuyền ' + ma + ' · 产线已存在');
+  var truoc = cu ? congKhai(cu) : null;
+  var x = cu || { id: op ? maTuOp('CV', op) : idMoi('CV', dsIdCo(ds)), thuTu: ds.length + 1 };
+  x.ma = ma; x.soMau = soMau; x.ghiChu = catChu(p.ghiChu, 200);
+  x.seriDau = catChu(p.seriDau, 60); x.thayDau = ngayTS(p.thayDau, 'Ngày thay đầu in'); x.thayLoc = ngayTS(p.thayLoc, 'Ngày thay lọc');
+  x.mauPB1 = catChu(p.mauPB1, 40); x.mauPB2 = soMau === 2 ? catChu(p.mauPB2, 40) : '';
+  x.hoatDong = p.hoatDong === undefined ? 1 : (hd(p.hoatDong) ? 1 : 0);
+  if (p.thuTu !== undefined) x.thuTu = soHuu(p.thuTu, x.thuTu);
+  x.capNhat = thoiGianStr(); x.opId = op || x.opId || '';
+  if (cu) suaDong('Chuyen', cu._r, thanhDong('Chuyen', x)); else themNhieu('Chuyen', [thanhDong('Chuyen', x)]);
+  // Nhật ký giữ lịch sử seri đầu in / ngày thay đầu in, thay lọc
+  ghiNhatKy(cu ? 'sua' : 'tao', 'Chuyen', x.id, truoc, x);
+  return { chuyen: sachChuyen(x) };
+}
+
+// ===================== Sản phẩm =====================
+function sachSP(x) { var o = congKhai(x); o.dichTay = docJson(x.dichTay, {}); return o; }
+function luuSanPham(p, op) {
+  var ds = docBang('SanPham');
+  if (op) { var t = ds.filter(function (x) { return x.opId === op; })[0]; if (t) return { dup: true, sanPham: sachSP(t) }; }
+  var cu = s(p.id) ? ds.filter(function (x) { return x.id === s(p.id); })[0] : null;
+  if (s(p.id) && !cu) throw loi('KHONG_THAY', 'Không thấy sản phẩm · 找不到产品');
+  var ma = catChu(p.ma, 40), ten = catChu(p.ten, 120);
+  if (!ma || !ten) throw loi('TRONG', 'Nhập mã và tên sản phẩm · 请输入产品编号和名称');
+  var trung = ds.filter(function (x) { return x.hoatDong && x.ma.toLowerCase() === ma.toLowerCase() && (!cu || x.id !== cu.id); })[0];
+  if (trung) throw loi('TRUNG', 'Đã có sản phẩm mã ' + ma + ' · 产品编号已存在');
+  var truoc = cu ? sachSP(cu) : null, dichTay = cu ? docJson(cu.dichTay, {}) : {};
+  var x = cu || { id: op ? maTuOp('SP', op) : idMoi('SP', dsIdCo(ds)) };
+  x.ma = ma; x.ten = ten; x.daiSP = soTS(p.daiSP, ['daiSP', 1, 10000, 'Chiều dài SP (mm) · 单片长度']); x.ghiChu = catChu(p.ghiChu, 300);
+  apDich(x, truoc, p, 'ten', 'tenDich', dichTay);
+  x.dichTay = Object.keys(dichTay).length ? JSON.stringify(dichTay) : '';
+  x.hoatDong = p.hoatDong === undefined ? 1 : (hd(p.hoatDong) ? 1 : 0);
+  x.capNhat = thoiGianStr(); x.opId = op || x.opId || '';
+  if (cu) suaDong('SanPham', cu._r, thanhDong('SanPham', x)); else themNhieu('SanPham', [thanhDong('SanPham', x)]);
+  var sau = sachSP(x);
+  ghiNhatKy(cu ? 'sua' : 'tao', 'SanPham', x.id, truoc, sau);
+  return { sanPham: sau };
+}
+function timSP(id) {
+  var sp = docBang('SanPham').filter(function (x) { return x.id === s(id) && x.hoatDong; })[0];
+  if (!sp) throw loi('KHONG_THAY', 'Không thấy sản phẩm · 找不到产品');
+  return sp;
+}
+// Gắn sản phẩm vào chuyền (hoặc gỡ ra với hoatDong = 0). Gắn lại cùng cặp thì dùng lại dòng cũ, không tạo trùng.
+function ganSP(cv, sp, bat, op) {
+  var ds = docBang('ChuyenSP'), cu = ds.filter(function (x) { return x.chuyen === cv && x.sanPham === sp; })[0];
+  if (cu && (cu.hoatDong ? 1 : 0) === (bat ? 1 : 0)) return cu;
+  var x = cu || { id: op ? maTuOp('CS', op) : idMoi('CS', dsIdCo(ds)), chuyen: cv, sanPham: sp };
+  x.hoatDong = bat ? 1 : 0; x.capNhat = thoiGianStr(); x.opId = op || x.opId || '';
+  if (cu) suaDong('ChuyenSP', cu._r, thanhDong('ChuyenSP', x)); else themNhieu('ChuyenSP', [thanhDong('ChuyenSP', x)]);
+  ghiNhatKy(bat ? 'gan' : 'go', 'ChuyenSP', x.id, cu ? congKhai(cu) : null, x);
+  return x;
+}
+function spDangChay(cv) {
+  var ds = docBang('ChaySP').filter(function (x) { return !x.xoa && x.chuyen === cv; })
+    .sort(function (a, b) { return (a.tuNgay + a.lucTao + a.id) < (b.tuNgay + b.lucTao + b.id) ? -1 : 1; });
+  return ds.length ? ds[ds.length - 1].sanPham : '';
+}
+function ganSanPham(p, op) {
+  var cv = timChuyen(p.chuyen), sp = timSP(p.sanPham), bat = p.hoatDong === undefined ? true : hd(p.hoatDong);
+  if (!bat && spDangChay(cv.id) === sp.id) throw loi('DANG_CHAY', 'Sản phẩm đang chạy, chuyển chuyền sang sản phẩm khác trước · 产品正在运行');
+  var x = ganSP(cv.id, sp.id, bat, op);
+  return { chuyenSP: { id: x.id, chuyen: x.chuyen, sanPham: x.sanPham, hoatDong: x.hoatDong } };
+}
+function chuyenSanPham(p, op) {
+  var ds = docBang('ChaySP');
+  if (op) { var t = ds.filter(function (x) { return x.opId === op; })[0]; if (t) return { dup: true, chaySP: congKhai(t) }; }
+  var cv = timChuyen(p.chuyen), sp = timSP(p.sanPham), tu = ngayTS(p.tuNgay, 'Từ ngày');
+  if (!tu) throw loi('TRONG', 'Nhập ngày bắt đầu chạy · 请输入开始日期');
+  ganSP(cv.id, sp.id, true, '');
+  var x = { id: op ? maTuOp('CY', op) : idMoi('CY', dsIdCo(ds)), chuyen: cv.id, sanPham: sp.id, tuNgay: tu, lucTao: thoiGianStr(), opId: op || '', xoa: 0 };
+  themNhieu('ChaySP', [thanhDong('ChaySP', x)]);
+  ghiNhatKy('chay', 'ChaySP', x.id, null, x);
+  return { chaySP: congKhai(x) };
+}
+
+// ===================== Thông số theo chuyền + sản phẩm (có lịch sử) =====================
+function sachTS(x) { var o = congKhai(x); o.dichTay = docJson(x.dichTay, {}); return o; }
+// Ô trống giữ trống ("chưa ghi"); có chữ thì phải là số trong khoảng. Nhận cả dấu phẩy thập phân "5,02".
+function soTS(v, k) {
+  var t = s(v).replace(',', '.');
+  if (!t) return '';
+  var n = Number(t);
+  if (!isFinite(n) || n < k[1] || n > k[2]) throw loi('SO', 'Giá trị không hợp lệ: ' + k[3] + ' (' + k[1] + '–' + k[2] + ')');
+  return String(n);
+}
+function ngayTS(v, ten) {
+  var t = s(v);
+  if (!t) return '';
+  var d = /^\d{4}-\d{2}-\d{2}$/.test(t) ? new Date(t + 'T00:00:00Z') : null;
+  // So ngược lại để chặn ngày không có thật như 2026-02-31
+  if (!d || isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== t) throw loi('NGAY', 'Ngày không hợp lệ: ' + ten + ' · 日期无效');
+  return t;
+}
+// Dãy theo JA (Head Alignments, Fire Pulses): tối đa 4 số với máy 1 màu, 8 số với máy 2 màu; nhận / , ; hoặc dấu cách.
+function dayTS(v, toiDa, nguyen, k) {
+  var t = s(v);
+  if (!t) return '';
+  var a = t.split(/[\/,;\s]+/).filter(function (x) { return x !== ''; });
+  if (a.length > toiDa) throw loi('SO', k[3] + ': tối đa ' + toiDa + ' giá trị (JA1–' + toiDa + ') · 最多' + toiDa + '个值');
+  return a.map(function (x) {
+    var n = Number(String(x).replace(',', '.'));
+    if (!isFinite(n) || n < k[1] || n > k[2] || (nguyen && Math.round(n) !== n)) throw loi('SO', 'Giá trị không hợp lệ: ' + k[3] + ' "' + x + '"');
+    return String(n);
+  }).join('/');
+}
+function chonTS(v, k) {
+  var t = s(v);
+  if (!t) return '';
+  if (TS_CHON[k].indexOf(t) < 0) throw loi('SO', 'Giá trị không hợp lệ: ' + k + ' "' + t + '"');
+  return t;
+}
+function luuThongSo(p, op) {
+  var ds = docBang('ThongSo');
+  if (op) { var t = ds.filter(function (x) { return x.opId === op; })[0]; if (t) return { dup: true, thongSo: sachTS(t) }; }
+  var cv = timChuyen(p.chuyen), sp = timSP(p.sanPham), nJA = cv.soMau * 4;
+  var apDung = ngayTS(p.apDung, 'Ngày áp dụng');
+  if (!apDung) throw loi('TRONG', 'Nhập ngày áp dụng · 请输入生效日期');
+  var x = { id: op ? maTuOp('TS', op) : idMoi('TS', dsIdCo(ds)), chuyen: cv.id, sanPham: sp.id, soMau: cv.soMau, apDung: apDung,
+    ghiChu: catNhieuDong(p.ghiChu, 1000) };
+  Object.keys(TS_CHON).forEach(function (k) { x[k] = chonTS(p[k], k); });
+  TS_SO.forEach(function (k) { x[k[0]] = soTS(p[k[0]], k); });
+  x.align = dayTS(p.align, nJA, true, ['align', 0, 1000000, 'Head Alignments (pixel)']);
+  x.volt = dayTS(p.volt, nJA, false, ['volt', 0, 300, 'Fire Pulses (VDC)']);
+  [1, 2].forEach(function (m) {
+    // Máy 1 màu không có PB2: bỏ hẳn cột …2 kể cả khi app gửi lên (chép từ máy 2 màu sang)
+    var co = m <= cv.soMau;
+    TS_SO_PB.forEach(function (k) { x[k[0] + m] = co ? soTS(p[k[0] + m], k) : ''; });
+    x['muc' + m] = co ? catChu(p['muc' + m], 80) : '';
+  });
+  var dichTay = {};
+  apDich(x, null, p, 'ghiChu', 'ghiChuDich', dichTay);
+  x.dichTay = Object.keys(dichTay).length ? JSON.stringify(dichTay) : '';
+  x.lucTao = thoiGianStr(); x.opId = op || ''; x.xoa = 0;
+  ganSP(cv.id, sp.id, true, '');
+  themNhieu('ThongSo', [thanhDong('ThongSo', x)]);
+  var sau = sachTS(x);
+  ghiNhatKy('tao', 'ThongSo', x.id, null, sau);
+  return { thongSo: sau };
+}
+// Xoá một lần ghi nhầm: chỉ đánh dấu Xoa = 1; lần ghi trước đó tự thành thông số hiện tại
+function xoaThongSo(p) {
+  var ds = docBang('ThongSo'), x = ds.filter(function (t) { return t.id === s(p.id); })[0];
+  if (!x) throw loi('KHONG_THAY', 'Không thấy lần ghi thông số · 找不到参数记录');
+  if (x.xoa) return { id: x.id, dup: true };
+  var truoc = sachTS(x);
+  x.xoa = 1;
+  suaDong('ThongSo', x._r, thanhDong('ThongSo', x));
+  ghiNhatKy('xoa', 'ThongSo', x.id, truoc, null);
+  return { id: x.id };
+}
+
 // ===================== Cài đặt =====================
 // Chạy tay một lần sau khi dán mã. Chạy lại không tạo trùng.
 function caiDatBanDau() {
@@ -678,6 +897,7 @@ function caiDatBanDau() {
   }
   if (!docBang('NhomTL').length) taoNhomMau();
   if (!docBang('CauHinhMay').length) taoCauHinhMau();
+  if (!docBang('Chuyen').length) taoChuyenMau();
   return 'Đã cài đặt. PIN mặc định 111111 — đổi ngay trong app.';
 }
 // Thử Google Dịch (chạy tay trong Apps Script để cấp quyền dịch)
