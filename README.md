@@ -1,4 +1,4 @@
-# Ghi chú & Tra cứu tài liệu · 笔记与资料查询 (v1.3.0)
+# Ghi chú & Tra cứu tài liệu · 笔记与资料查询 (v1.4.0)
 
 App riêng cho một người dùng: ghi chú ngay tại máy, tra cứu tài liệu (sổ tay, bản vẽ, quy trình), tra số dây điện theo bản vẽ, lưu thông số máy in theo từng chuyền và sản phẩm, tính DPI, tần số phun, delay, và tra bảng chương trình PLC của từng chuyền.
 
@@ -13,20 +13,20 @@ App riêng cho một người dùng: ghi chú ngay tại máy, tra cứu tài li
 
 | File | Dùng để |
 |---|---|
-| `Code.gs-v1.3.0.txt` | Mã máy chủ, dán vào Apps Script của Google Sheet |
+| `Code.gs-v1.4.0.txt` | Mã máy chủ, dán vào Apps Script của Google Sheet |
 | `docs/` | Bộ PWA để đăng lên GitHub Pages: `index.html` (app thật), `demo.html` (bản xem thử), `sw.js`, `manifest.webmanifest`, `icons/` |
-| `app-v1.3.0.html` | Giống `docs/index.html`, gói trong một file |
-| `demo-v1.3.0.html` | Bản xem thử chạy hẳn trong trình duyệt, có máy chủ giả và dữ liệu mẫu |
+| `app-v1.4.0.html` | Giống `docs/index.html`, gói trong một file |
+| `demo-v1.4.0.html` | Bản xem thử chạy hẳn trong trình duyệt, có máy chủ giả và dữ liệu mẫu |
 | `src/` | Mã nguồn: `app.html`, `Code.gs`, `sw.js`, `config.json`, `demo/`, `icons/` |
 | `tools/build.mjs` | Ghép `src/` thành các file trên: `node tools/build.mjs` |
 | `tests/` | `npm test`: kiểm thử máy chủ. `npm run e2e`: bấm thử toàn bộ luồng trên bản xem thử |
-| `*-v1.0.0.*`, `*-v1.1.0.*`, `*-v1.2.0.*` | Bản cũ, giữ lại để đối chiếu hoặc quay lại khi cần |
+| `*-v1.0.0.*`, `*-v1.1.0.*`, `*-v1.2.0.*`, `*-v1.3.0.*` | Bản cũ, giữ lại để đối chiếu hoặc quay lại khi cần |
 
 > Chỉ sửa trong `src/`, rồi chạy `node tools/build.mjs`. Không sửa thẳng các file do lệnh này tạo ra.
 
 ## Xem thử ngay
 
-Mở `docs/demo.html` (hoặc `demo-v1.3.0.html`) bằng trình duyệt và đăng nhập bằng PIN **111111**.
+Mở `docs/demo.html` (hoặc `demo-v1.4.0.html`) bằng trình duyệt và đăng nhập bằng PIN **111111**.
 
 - Muốn thử khi mất mạng: **Cài đặt (bánh răng) → Giả lập mất mạng**.
 - Bản xem thử chỉ dịch được vài câu mẫu, ví dụ "Thay lọc mực", "Kiểm tra áp suất meniscus", "Mass chung", "Nối đất".
@@ -34,7 +34,7 @@ Mở `docs/demo.html` (hoặc `demo-v1.3.0.html`) bằng trình duyệt và đă
 ## Cài đặt (lần đầu)
 
 1. Tạo **Google Sheet mới** (để trống), rồi vào **Tiện ích mở rộng → Apps Script**.
-2. Xoá mã có sẵn, dán toàn bộ `Code.gs-v1.3.0.txt`, rồi bấm **Lưu**.
+2. Xoá mã có sẵn, dán toàn bộ `Code.gs-v1.4.0.txt`, rồi bấm **Lưu**.
 3. Chọn hàm `caiDatBanDau` → **Chạy** → cấp quyền khi Google hỏi. Hàm này sẽ:
    - tạo các trang;
    - tạo 4 nhóm tài liệu;
@@ -74,7 +74,7 @@ Giới hạn của PWA trên iPhone:
 | **Ghi chú · 笔记** | Tiêu đề, nội dung, thẻ, mã máy và tối đa 6 ảnh chụp tại chỗ (ảnh tự thu nhỏ). Lọc theo thẻ. Lúc mất mạng vẫn ghi và sửa được |
 | **Tài liệu · 资料** | Tải lên PDF, Word, Excel hoặc ảnh (tối đa 25 MB), hoặc dán link Google Drive cho tệp lớn hơn. Một tài liệu có nhiều phiên bản, và đúng một bản **Đang hiệu lực**. Bấm **Lưu xem khi mất mạng** để mở được cả khi không có sóng |
 | **Máy in · 喷码机** | Gom ba màn của máy in phun, chọn ở thanh trên: **Thông số**, **Tính toán**, **Tra dây** |
-| **Chương trình · PLC程序** | Chọn chuyền sản xuất (16 chuyền, danh sách riêng với máy in), gõ địa chỉ như `X1002` là ra ngay địa chỉ đó ứng với gì (xem Điểm mới của v1.3.0) |
+| **Chương trình · PLC程序** | Chọn chuyền sản xuất (16 chuyền, danh sách riêng với máy in), gõ đúng địa chỉ như `M570` là ra ngay địa chỉ đó ứng với gì, kèm ghi chú của bạn và lịch sử sửa (xem Điểm mới của v1.4.0) |
 | ↳ **Thông số** | Thông số máy in theo chuyền → sản phẩm, chia đúng các màn hình bộ điều khiển Merlin D CE. Mỗi lần đổi là một lần ghi mới có ngày và lý do. Xem chi tiết ở phần Điểm mới của v1.1.0 |
 | ↳ **Tra dây** | Tìm theo số dây, điểm đầu/cuối, tín hiệu hoặc tờ bản vẽ. Nút **Mở bản vẽ** mở thẳng PDF ở đúng trang |
 | ↳ **Tính toán** | Nhập xung encoder, đường kính trục, số cạnh, divider, chiều dài sản phẩm và tốc độ để ra DPI, tần số phun, tốc độ tối đa, divider tối thiểu và delay PB1/PB2 × JA1–4. Lưu được nhiều bộ thông số |
@@ -107,6 +107,37 @@ Bảng tính cũ của nhà cung cấp nhân tỉ lệ từ số đã làm tròn
 - tốc độ tối đa để còn ≤ 8 kHz là 571 miếng/phút;
 - hoặc giữ 900 miếng/phút thì phải đặt divider ≥ 10.
 
+## Điểm mới của v1.4.0: tra đúng tên, ghi chú theo địa chỉ có lịch sử
+
+**Tra đúng tên**
+
+Gõ `M570` thì chỉ ra các ô đúng là `M570`, không ra `M5701`, `M57`, hay ô có chữ M570 lẫn bên trong.
+- Không phân biệt chữ hoa, chữ thường: `m570` cũng được.
+- Dấu cách bị bỏ qua.
+
+Ô Tìm chung ở tab Tìm cũng tra bảng chương trình theo cách này.
+
+**Ghi chú theo địa chỉ**
+
+Dùng khi bạn thêm địa chỉ mới vào chương trình, hoặc sửa một địa chỉ cũ.
+
+- Tra một địa chỉ, ví dụ `M570`. Trên đầu kết quả là ô **Ghi chú của bạn** cho địa chỉ đó trên chuyền đang chọn.
+  - Chưa có ghi chú thì bấm **Thêm ghi chú**.
+  - Đã có thì hiện ghi chú mới nhất, kèm ngày giờ và bản dịch tiếng Trung tự động.
+- Bấm **Sửa / ghi thêm**: ô nội dung điền sẵn ghi chú mới nhất.
+  - Lưu là thêm một lần ghi mới, **lần cũ vẫn giữ trong Lịch sử**.
+  - Ghi nhầm thì **Xoá lần ghi nhầm**; lần trước đó tự thành ghi chú hiện tại.
+- Ghi chú gắn theo **chuyền + địa chỉ**. M570 của chuyền 06 và M570 của chuyền 23 là hai ghi chú riêng.
+- Địa chỉ **chưa có trong bảng** (vừa thêm vào chương trình) vẫn ghi chú được. Chuyền chưa tải bảng cũng ghi chú được.
+- Ở ô Tìm chung, kết quả bảng chương trình có hiện kèm ghi chú mới nhất của địa chỉ đó.
+- Mất mạng vẫn ghi được; app tự gửi khi có mạng.
+
+**Nâng cấp từ v1.3.0:**
+1. Dán `Code.gs-v1.4.0.txt` đè lên mã cũ, bấm Lưu.
+2. **Triển khai → Quản lý triển khai → Phiên bản mới**.
+
+Trang mới `GhiChuPLC` được tự tạo. Không trang cũ nào thêm cột.
+
 ## Điểm mới của v1.3.0: chuyền PLC tách riêng, tra theo từng chuyền
 
 **Danh sách chuyền riêng cho phần Chương trình**
@@ -122,7 +153,7 @@ Có 16 chuyền, theo đúng thứ tự: 01, 02, 03, 04, 09, 10, 15, 21, 23, 06,
 
 Ô Tìm chung ở tab Tìm vẫn tìm qua mọi chuyền, mỗi kết quả có ghi số chuyền.
 
-**Nâng cấp từ v1.2.0:** dán `Code.gs-v1.3.0.txt` → Lưu → **Triển khai → Quản lý triển khai → Phiên bản mới**.
+**Nâng cấp từ v1.2.0:** dán `Code.gs-v1.4.0.txt` → Lưu → **Triển khai → Quản lý triển khai → Phiên bản mới**.
 - Trang mới `ChuyenPLC` được tự tạo với 16 chuyền.
 - Bảng đã tải ở v1.2.0 (đang gắn với chuyền máy in, ví dụ chuyền 06) được **tự chuyển sang chuyền PLC cùng mã**, không phải tải lại. Việc chuyển có ghi vào Nhật ký.
 - Không trang cũ nào thêm cột.
@@ -155,7 +186,7 @@ Mỗi chuyền có một file Excel chương trình (ví dụ máy VKY06): đị
 - **Thử với file thật:** file máy 06 (1,9 MB, 21 sheet) đọc xong trong khoảng 4 giây trên máy tính.
 
 **Nâng cấp từ v1.1.0:**
-1. Dán `Code.gs-v1.3.0.txt` đè lên mã cũ, bấm Lưu.
+1. Dán `Code.gs-v1.4.0.txt` đè lên mã cũ, bấm Lưu.
 2. **Triển khai → Quản lý triển khai → Phiên bản mới**.
 
 Trang mới `BangMay` (chuyền ↔ tài liệu bảng chương trình) được tự tạo. Lần tải bảng đầu tiên sẽ tạo thêm nhóm tài liệu "Chương trình PLC". Không trang cũ nào thêm cột.
@@ -213,7 +244,7 @@ Thêm chuyền, đổi số màu hay đổi tên mực của PB ở **Cài đặ
 - Xuất Excel thêm 3 sheet: *Thông số hiện tại*, *Lịch sử thông số* (mỗi JA một cột), *Sản phẩm*.
 
 **Nâng cấp từ v1.0.0:**
-1. Dán `Code.gs-v1.3.0.txt` đè lên mã cũ, bấm Lưu.
+1. Dán `Code.gs-v1.4.0.txt` đè lên mã cũ, bấm Lưu.
 2. **Triển khai → Quản lý triển khai → Phiên bản mới**.
 
 Lần đầu mở app, máy chủ tự tạo 5 trang mới và 9 chuyền. Không trang cũ nào thêm hay đổi cột.
@@ -257,6 +288,6 @@ Quy ước dữ liệu:
 ## Kiểm thử
 
 ```
-npm test        # 35 bài kiểm thử máy chủ (chạy Code.gs trong máy chủ giả)
-npm run e2e     # build + Playwright bấm 29 bước trên docs/demo.html, không được có lỗi JavaScript
+npm test        # 37 bài kiểm thử máy chủ (chạy Code.gs trong máy chủ giả)
+npm run e2e     # build + Playwright bấm 30 bước trên docs/demo.html, không được có lỗi JavaScript
 ```

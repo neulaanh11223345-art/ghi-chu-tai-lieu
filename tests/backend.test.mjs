@@ -485,3 +485,34 @@ test('chuyền PLC: thêm/sửa, chặn trùng mã, không ngừng dùng chuyề
   assert.ok(!ok(b.call('data', {}, b.tk)).chuyenPLC.some((x) => x.ma === '30'));
   err(b.call('plcLineSave', {}, 'gia.mao'), 'HET_PHIEN');
 });
+
+// ===== v1.4.0: ghi chú theo địa chỉ PLC, có lịch sử =====
+test('ghi chú địa chỉ PLC: mỗi lần lưu là một dòng mới (lịch sử), địa chỉ viết hoa bỏ dấu cách, tự dịch, opId không trùng', () => {
+  const b = setup('demo');
+  const x = ok(b.call('plcNoteSave', { chuyen: 'PL06', diaChi: ' m 570 ', noiDung: 'Đã đổi sang cảm biến mới' }, b.tk, 'op-g1')).ghiChuPLC;
+  assert.equal(x.id, 'GPOPG1'); assert.equal(x.diaChi, 'M570'); assert.equal(x.noiDungDich, '已更换为新传感器');
+  assert.equal(ok(b.call('plcNoteSave', { chuyen: 'PL06', diaChi: 'M570', noiDung: 'x' }, b.tk, 'op-g1')).dup, true);
+  ok(b.call('plcNoteSave', { chuyen: 'PL06', diaChi: 'M570', noiDung: 'Thêm nút dừng phụ' }, b.tk));
+  ok(b.call('plcNoteSave', { chuyen: 'PL23', diaChi: 'M570', noiDung: 'Chuyền khác' }, b.tk));
+  const ds = ok(b.call('data', {}, b.tk)).ghiChuPLC.filter((g) => g.chuyen === 'PL06' && g.diaChi === 'M570');
+  assert.deepEqual(ds.map((g) => g.noiDung), ['Đã đổi sang cảm biến mới', 'Thêm nút dừng phụ'], 'giữ cả hai lần ghi');
+  assert.equal(rawRows(b, 'GhiChuPLC').length, 3);
+  const tay = ok(b.call('plcNoteSave', { chuyen: 'PL06', diaChi: 'X1002', noiDung: 'abc', noiDungDich: '手改' }, b.tk)).ghiChuPLC;
+  assert.deepEqual(tay.dichTay, { noiDung: 1 });
+});
+
+test('ghi chú địa chỉ PLC: chặn rỗng, chuyền không có; xoá lần ghi nhầm chỉ đánh dấu, có nhật ký; cần đăng nhập', () => {
+  const b = setup('demo');
+  err(b.call('plcNoteSave', { chuyen: 'PL06', diaChi: '', noiDung: 'a' }, b.tk), 'TRONG');
+  err(b.call('plcNoteSave', { chuyen: 'PL06', diaChi: 'M1', noiDung: '  ' }, b.tk), 'TRONG');
+  err(b.call('plcNoteSave', { chuyen: 'CV06', diaChi: 'M1', noiDung: 'a' }, b.tk), 'KHONG_THAY');
+  const x = ok(b.call('plcNoteSave', { chuyen: 'PL06', diaChi: '=M1', noiDung: '-24V' }, b.tk)).ghiChuPLC;
+  const cot = b.ctx.BANG.GhiChuPLC, dong = b.ctx.thanhDong('GhiChuPLC', x);
+  assert.equal(dong[cot.indexOf('NoiDung')], "'-24V");
+  ok(b.call('plcNoteDelete', { id: x.id }, b.tk));
+  assert.ok(!ok(b.call('data', {}, b.tk)).ghiChuPLC.some((g) => g.id === x.id));
+  assert.ok(rawRows(b, 'GhiChuPLC').some((r) => r[0] === x.id));
+  assert.deepEqual(ok(b.call('audit', { bang: 'GhiChuPLC', khoa: x.id }, b.tk)).nhatKy.map((n) => n.hanhDong), ['xoa', 'tao']);
+  err(b.call('plcNoteDelete', { id: 'GPKHONG' }, b.tk), 'KHONG_THAY');
+  for (const a of ['plcNoteSave', 'plcNoteDelete']) err(b.call(a, {}, 'gia.mao'), 'HET_PHIEN');
+});
