@@ -15,7 +15,7 @@
  * App chỉ có MỘT người dùng (chủ app), nên không chia vai trò. Mọi thao tác trừ ping/đăng nhập vẫn phải có
  * token hợp lệ: link /exec là công khai, không kiểm token thì ai biết link cũng đọc được tài liệu.
  */
-var PHIEN_BAN = '1.3.0';
+var PHIEN_BAN = '1.4.0';
 var TZ = 'Asia/Ho_Chi_Minh';
 var HAN_PHIEN_NGAY = 30;            // đăng nhập giữ 30 ngày
 var TEP_TOI_DA = 25 * 1024 * 1024;  // 25 MB/tệp: Apps Script nhận tối đa ~50 MB mỗi lần gửi, base64 làm to thêm 1/3
@@ -60,17 +60,20 @@ var BANG = {
   BangMay: ['ID', 'Chuyen', 'MaTL', 'CapNhat', 'OpId', 'Xoa'],
   // Chuyền sản xuất của phần PLC — danh sách riêng, KHÔNG dùng chung với 9 chuyền của máy in (trang Chuyen):
   // nhà máy có nhiều chuyền hơn số máy in, và chuyền có PLC chưa chắc có máy in. BangMay.Chuyen trỏ vào trang này.
-  ChuyenPLC: ['ID', 'Ma', 'GhiChu', 'ThuTu', 'HoatDong', 'CapNhat', 'OpId']
+  ChuyenPLC: ['ID', 'Ma', 'GhiChu', 'ThuTu', 'HoatDong', 'CapNhat', 'OpId'],
+  // Ghi chú của người dùng cho một địa chỉ PLC của một chuyền (thêm địa chỉ mới, hoặc ghi lại đã sửa gì).
+  // KHÔNG sửa dòng cũ: mỗi lần lưu một dòng mới → dòng mới nhất là ghi chú hiện tại, các dòng trước là lịch sử.
+  GhiChuPLC: ['ID', 'Chuyen', 'DiaChi', 'NoiDung', 'NoiDungDich', 'LucTao', 'OpId', 'Xoa', 'DichTay']
 };
 // Cột lưu dạng số (còn lại để dạng chữ "@" — tránh Sheets tự đổi "1-2" thành ngày, "007" thành 7)
 var COT_SO = {
   NguoiDung: ['HoatDong'], GhiChu: ['Xoa'], NhomTL: ['ThuTu', 'HoatDong'], TaiLieu: ['KichThuoc', 'PhienBan', 'HienHanh', 'Xoa'],
   DayDien: ['Trang', 'Xoa'], CauHinhMay: ['EncoderPPR', 'DuongKinh', 'SoCanh', 'Divider', 'DaiSP', 'TocDo', 'KhoangJA', 'KhoangPB', 'BuPB', 'GioiHan', 'Xoa'],
-  NhatKy: [], Chuyen: ['SoMau', 'ThuTu', 'HoatDong'], SanPham: ['HoatDong'], ChuyenSP: ['HoatDong'], ChaySP: ['Xoa'], ThongSo: ['SoMau', 'Xoa'], BangMay: ['Xoa'], ChuyenPLC: ['ThuTu', 'HoatDong']
+  NhatKy: [], Chuyen: ['SoMau', 'ThuTu', 'HoatDong'], SanPham: ['HoatDong'], ChuyenSP: ['HoatDong'], ChaySP: ['Xoa'], ThongSo: ['SoMau', 'Xoa'], BangMay: ['Xoa'], ChuyenPLC: ['ThuTu', 'HoatDong'], GhiChuPLC: ['Xoa']
 };
 var COT_DD = { CauHinhMay: { DuongKinh: '0.###', KhoangJA: '0.####', KhoangPB: '0.####', BuPB: '0.###', GioiHan: '0.##', DaiSP: '0.##' } };
 var HANH_DONG_GHI = ['changePin', 'noteSave', 'noteDelete', 'groupSave', 'docUpload', 'docLink', 'docSave', 'docCurrent', 'docDelete',
-  'wireSave', 'wireImport', 'wireDelete', 'cfgSave', 'cfgDelete', 'lineSave', 'productSave', 'lineProduct', 'runSet', 'paramSave', 'paramDelete', 'plcUpload', 'plcDelete', 'plcLineSave'];
+  'wireSave', 'wireImport', 'wireDelete', 'cfgSave', 'cfgDelete', 'lineSave', 'productSave', 'lineProduct', 'runSet', 'paramSave', 'paramDelete', 'plcUpload', 'plcDelete', 'plcLineSave', 'plcNoteSave', 'plcNoteDelete'];
 var KIEU_TL = ['FILE', 'LINK'];
 var NHOM_MAU = [['Sổ tay thiết bị', '设备手册'], ['Bản vẽ điện', '电气图纸'], ['Quy trình', '操作规程'], ['Khác', '其他']];
 // Thông số máy in hiện tại (đầu in Galaxy 80 HM, bộ điều khiển Merlin D CE). Khoảng cách JA/PB lấy theo bảng tính của nhà cung cấp.
@@ -154,6 +157,8 @@ function dieuHuong(a, p, req) {
     case 'plcUpload': return taiBangMay(p, op);
     case 'plcDelete': return xoaBangMay(p);
     case 'plcLineSave': return luuChuyenPLC(p, op);
+    case 'plcNoteSave': return luuGhiChuPLC(p, op);
+    case 'plcNoteDelete': return xoaGhiChuPLC(p);
     case 'translate': return dichMotDong(p);
   }
   throw loi('KHONG_HIEU', 'Máy chủ chưa hiểu yêu cầu này · 服务器无法识别: ' + a);
@@ -369,7 +374,7 @@ function apDich(x, cu, p, truong, truongDich, dichTay) {
 
 // ===================== Dữ liệu tổng =====================
 function layDuLieu() {
-  ['GhiChu', 'NhomTL', 'TaiLieu', 'DayDien', 'CauHinhMay', 'NhatKy', 'Chuyen', 'SanPham', 'ChuyenSP', 'ChaySP', 'ThongSo', 'BangMay', 'ChuyenPLC'].forEach(trang);
+  ['GhiChu', 'NhomTL', 'TaiLieu', 'DayDien', 'CauHinhMay', 'NhatKy', 'Chuyen', 'SanPham', 'ChuyenSP', 'ChaySP', 'ThongSo', 'BangMay', 'ChuyenPLC', 'GhiChuPLC'].forEach(trang);
   var chuyenPLC = docBang('ChuyenPLC');
   if (!chuyenPLC.length) chuyenPLC = taoChuyenPLC();
   chuyenPLC = doiBangMayCu(chuyenPLC);
@@ -392,6 +397,7 @@ function layDuLieu() {
     chaySP: docBang('ChaySP').filter(function (x) { return !x.xoa; }).map(congKhai),
     thongSo: docBang('ThongSo').filter(function (x) { return !x.xoa; }).map(sachTS),
     bangMay: docBang('BangMay').filter(function (x) { return !x.xoa; }).map(congKhai),
+    ghiChuPLC: docBang('GhiChuPLC').filter(function (x) { return !x.xoa; }).map(sachGCP),
     chuyenPLC: chuyenPLC.filter(function (x) { return x.hoatDong; }).map(sachCPLC).sort(function (a, b) { return a.thuTu - b.thuTu; })
   };
 }
@@ -936,6 +942,36 @@ function doiBangMayCu(dsPLC) {
     ghiNhatKy('nang_cap', 'BangMay', x.id, truoc, congKhai(x));
   });
   return dsPLC;
+}
+// Địa chỉ PLC viết hoa, bỏ dấu cách: "m 570" và "M570" là một
+function chuanDiaChi(v) { return s(v).toUpperCase().replace(/\s+/g, '').slice(0, 40); }
+function sachGCP(x) { var o = congKhai(x); o.dichTay = docJson(x.dichTay, {}); return o; }
+function luuGhiChuPLC(p, op) {
+  var ds = docBang('GhiChuPLC');
+  if (op) { var t = ds.filter(function (x) { return x.opId === op; })[0]; if (t) return { dup: true, ghiChuPLC: sachGCP(t) }; }
+  var cv = timChuyenPLC(p.chuyen), dc = chuanDiaChi(p.diaChi), nd = catNhieuDong(p.noiDung, 1000);
+  if (!dc) throw loi('TRONG', 'Nhập địa chỉ · 请输入地址');
+  if (!nd) throw loi('TRONG', 'Nhập nội dung ghi chú · 请输入备注内容');
+  var x = { id: op ? maTuOp('GP', op) : idMoi('GP', dsIdCo(ds)), chuyen: cv.id, diaChi: dc, noiDung: nd };
+  var dichTay = {};
+  apDich(x, null, p, 'noiDung', 'noiDungDich', dichTay);
+  x.dichTay = Object.keys(dichTay).length ? JSON.stringify(dichTay) : '';
+  x.lucTao = thoiGianStr(); x.opId = op || ''; x.xoa = 0;
+  themNhieu('GhiChuPLC', [thanhDong('GhiChuPLC', x)]);
+  var sau = sachGCP(x);
+  ghiNhatKy('tao', 'GhiChuPLC', x.id, null, sau);
+  return { ghiChuPLC: sau };
+}
+// Xoá một lần ghi nhầm: chỉ đánh dấu, lần ghi trước đó tự thành ghi chú hiện tại
+function xoaGhiChuPLC(p) {
+  var ds = docBang('GhiChuPLC'), x = ds.filter(function (t) { return t.id === s(p.id); })[0];
+  if (!x) throw loi('KHONG_THAY', 'Không thấy ghi chú · 找不到备注');
+  if (x.xoa) return { id: x.id, dup: true };
+  var truoc = sachGCP(x);
+  x.xoa = 1;
+  suaDong('GhiChuPLC', x._r, thanhDong('GhiChuPLC', x));
+  ghiNhatKy('xoa', 'GhiChuPLC', x.id, truoc, null);
+  return { id: x.id };
 }
 function timChuyenPLC(id) {
   var cv = docBang('ChuyenPLC').filter(function (c) { return c.id === s(id) && c.hoatDong; })[0];

@@ -458,8 +458,48 @@ try {
   await page.click('.chips.plcl button[data-cv="PL01"]');
   await wait();
   assert.match(await text('#plcTT'), /chưa có bảng/);
-  assert.equal(await page.isDisabled('#pq'), true);
+  assert.equal(await page.isDisabled('#pq'), false, 'chuyền chưa có bảng vẫn gõ được để ghi chú địa chỉ');
   ok('Chương trình: 16 chuyền PLC riêng, chọn chuyền rồi tra địa chỉ ra chú thích, dịch, mở đúng ô');
+
+  // 20b2. Tra đúng tên: M1 chỉ ra ô "M1" (không ra M10, M11, M100…); ghi chú theo địa chỉ có lịch sử
+  await page.click('.chips.plcl button[data-cv="PL06"]');
+  await page.waitForFunction(() => /4 sheet/.test((document.querySelector('#plcTT') || {}).textContent || ''), null, { timeout: 15000 });
+  await page.fill('#pq', 'm1');
+  await wait(600);
+  const oKhop = await page.locator('#plcKq .plch .cell.on').allTextContents();
+  assert.ok(oKhop.length >= 1, 'phải có ô M1');
+  assert.ok(oKhop.every((v) => v === 'M1'), 'chỉ ô đúng tên M1, không ra M10/M100: ' + oKhop.join(','));
+  assert.match(await text('#plcKq .traloi'), /M1 → 主机停止_1#/);
+  await page.click('#gcpAdd');
+  await wait();
+  await page.fill('#gcpND', 'Đã đổi sang cảm biến mới');
+  await page.click('#gcpSave');
+  await wait(700);
+  assert.match(await text('#plcKq .card.gcp'), /Đã đổi sang cảm biến mới/);
+  assert.match(await text('#plcKq .card.gcp'), /已更换为新传感器/);
+  await page.click('#gcpEdit');
+  await wait();
+  assert.equal(await page.inputValue('#gcpND'), 'Đã đổi sang cảm biến mới', 'điền sẵn ghi chú mới nhất');
+  await page.fill('#gcpND', 'Thêm nút dừng phụ');
+  await page.click('#gcpSave');
+  await wait(700);
+  assert.match(await text('#plcKq .card.gcp'), /Thêm nút dừng phụ/);
+  assert.match(await text('#plcKq .card.gcp'), /Lịch sử: 2 lần/);
+  await page.click('#gcpEdit');
+  await wait();
+  assert.equal(await page.locator('#ov .gcph').count(), 2);
+  assert.match(await page.locator('#ov .gcph').nth(1).textContent(), /Đã đổi sang cảm biến mới/);
+  await shot('14-ghi-chu-dia-chi');
+  await page.click('#ov [data-act="close"]');
+  // Địa chỉ không có trong bảng vẫn thêm ghi chú được (địa chỉ mới thêm vào chương trình)
+  await page.fill('#pq', 'M5999');
+  await wait(600);
+  assert.match(await text('#plcKq'), /Không có ô nào đúng tên M5999/);
+  assert.equal(await page.locator('#gcpAdd').count(), 1);
+  await page.fill('#pq', '');
+  await page.click('.chips.plcl button[data-cv="PL01"]');
+  await wait();
+  ok('Tra đúng tên (M1 không ra M10); ghi chú địa chỉ có lịch sử, tự dịch; địa chỉ mới vẫn ghi chú được');
 
   // 20c. Tải bảng cho chuyền 01 (file .xlsx thật, nén); file hỏng bị báo trước khi tải lên; thêm chuyền PLC mới
   await page.click('#plcTT [data-act="plcForm"]');

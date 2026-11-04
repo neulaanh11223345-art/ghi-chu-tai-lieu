@@ -54,7 +54,9 @@ ul.doi{margin:6px 0 0;padding-left:18px}
 .cells{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .cell{background:#F1F4F9;border-radius:8px;padding:4px 8px;font-size:14px;word-break:break-word}
 .cell.on{background:#FFF4C2;font-weight:600}
-.traloi{font-size:18px;margin-top:6px;line-height:1.35}.traloi b{color:var(--pri)}
+.traloi{font-size:18px;margin-top:6px;line-height:1.35}
+.card.gcp{border-color:#9DB4D8;background:#F6F9FF}.card.gcp.trong{background:#fff;border-style:dashed}
+.card.gcp.gon{margin:8px 0 0;padding:8px 10px}.traloi b{color:var(--pri)}
 .card.plch.dung{border-color:#9BD3B5}
 .chips.plcl{flex-wrap:wrap}.chips.plcl button{min-width:48px;font-variant-numeric:tabular-nums}.chips.plcl button.trong:not(.on){color:#9AA6B8;border-style:dashed}
 .dichkq:not(:empty){margin-top:6px;background:#F6F8FC;border-left:3px solid #9DB4D8;padding:6px 8px;border-radius:6px;color:#33475F}
@@ -152,7 +154,7 @@ mark{background:#FFF0A8;border-radius:3px;padding:0 1px}
 <script>
 const API_URL = "";
 const MODE = "live";
-const APP_VER = "1.3.0";
+const APP_VER = "1.4.0";
 const DemoBackend = null;
 'use strict';
 // ============ Tiện ích chung ============
@@ -362,6 +364,8 @@ function gopKetQua(action, d) {
   if (action === 'cfgDelete') D.cauHinh = D.cauHinh.filter((x) => x.id !== d.id);
   if (d.thongSo) { D.thongSo = D.thongSo || []; upsert(D.thongSo, d.thongSo); }
   if (d.chaySP) { D.chaySP = D.chaySP || []; upsert(D.chaySP, d.chaySP); }
+  if (d.ghiChuPLC) { D.ghiChuPLC = D.ghiChuPLC || []; upsert(D.ghiChuPLC, d.ghiChuPLC); }
+  if (action === 'plcNoteDelete') D.ghiChuPLC = (D.ghiChuPLC || []).filter((x) => x.id !== d.id);
   if (d.sanPham) { D.sanPham = D.sanPham || []; if (d.sanPham.hoatDong === 0) D.sanPham = D.sanPham.filter((x) => x.id !== d.sanPham.id); else upsert(D.sanPham, d.sanPham); }
   if (d.chuyenSP) {
     const l = d.chuyenSP; D.chuyenSP = (D.chuyenSP || []).filter((x) => !(x.chuyen === l.chuyen && x.sanPham === l.sanPham));
@@ -407,6 +411,12 @@ const APDUNG = {
     S.data.thongSo = S.data.thongSo || []; upsert(S.data.thongSo, x);
     APDUNG.lineProduct(op, { chuyen: p.chuyen, sanPham: p.sanPham });
   },
+  plcNoteSave(op, p) {
+    S.data.ghiChuPLC = S.data.ghiChuPLC || [];
+    upsert(S.data.ghiChuPLC, { id: maTuOp('GP', op), chuyen: p.chuyen, diaChi: chuanDC(p.diaChi), noiDung: p.noiDung, noiDungDich: p.noiDungDich || '',
+      lucTao: new Date(Date.now() + 7 * 3600000).toISOString().slice(0, 19).replace('T', ' '), dichTay: {}, _cho: op });
+  },
+  plcNoteDelete(op, p) { S.data.ghiChuPLC = (S.data.ghiChuPLC || []).filter((x) => x.id !== p.id); },
   paramDelete(op, p) { S.data.thongSo = (S.data.thongSo || []).filter((x) => x.id !== p.id); },
   runSet(op, p) {
     S.data.chaySP = S.data.chaySP || [];
@@ -1325,24 +1335,22 @@ function moTa(row, ci) {
   for (let i = ci - 1; i >= Math.max(0, ci - 3); i--) if (laChu(row[i])) return row[i];
   return '';
 }
-// Tìm trong bảng của MỘT chuyền (loc.cv), hoặc mọi chuyền khi tìm ở ô Tìm chung.
-// Xếp: khớp đúng cả ô và có chú thích → khớp đúng cả ô → ô bắt đầu bằng chữ gõ → ô có chứa. Dòng trùng nội dung chỉ giữ một.
+// Tra ĐÚNG TÊN: gõ M570 chỉ ra ô có đúng "M570" (không ra M5701, M57…); không phân biệt hoa thường, bỏ dấu cách.
+// loc.cv = một chuyền; bỏ trống khi tìm ở ô Tìm chung (mọi chuyền). Dòng trùng nội dung chỉ giữ một.
+const chuanDC = (v) => String(v || '').toUpperCase().replace(/\s+/g, '');
 function plcTim(q, loc, toiDa) {
-  const ws = norm(q).split(' ').filter(Boolean), qn = norm(q); if (!ws.length) return [];
+  const qn = norm(chuanDC(q)); if (!qn) return [];
   const out = [], daCo = {};
   Object.keys(PLC.nap).forEach((cv) => {
     if (loc.cv && loc.cv !== cv) return;
     PLC.nap[cv].sheets.forEach((sh, si) => {
       sh.n.forEach((rn, ri) => {
-        if (!ws.every((w) => rn.indexOf(w) >= 0)) return;
-        const row = sh.rows[ri]; let best = -1, d0 = 9;
-        row.forEach((v, ci) => { if (!v) return; const n = norm(v); const d = n === qn ? 0 : n.indexOf(qn) === 0 ? 2 : n.indexOf(ws[0]) >= 0 ? 3 : 9; if (d < d0) { d0 = d; best = ci; } });
-        if (best < 0) best = row.findIndex((v) => v);
-        const mt = moTa(row, best);
-        const diem = d0 === 0 ? (mt ? 0 : 1) : d0;
-        const k = cv + '|' + cuaSo(row, best).map((x) => x[1]).join('|');
+        if (rn.indexOf(qn) < 0) return;
+        const row = sh.rows[ri], ci = row.findIndex((v) => v && norm(chuanDC(v)) === qn);
+        if (ci < 0) return;
+        const mt = moTa(row, ci), k = cv + '|' + cuaSo(row, ci).map((x) => x[1]).join('|');
         if (daCo[k]) return; daCo[k] = 1;
-        out.push({ cv, si, ri, ci: best, diem, mt });
+        out.push({ cv, si, ri, ci, diem: mt ? 0 : 1, mt });
       });
     });
   });
@@ -1357,6 +1365,7 @@ function rowPLC(h, q, nhan) {
   return `<div class="card plch${h.diem === 0 ? ' dung' : ''}" data-k="${esc(key)}"><div class="muted">${nhan ? `<span class="chip pb0">${esc(c ? c.ma : h.cv)}</span> ` : ''}${esc(sh.name)} · <span class="mono">${cotAZ(h.ci)}${h.ri + 1}</span></div>
     ${h.diem <= 1 && h.mt ? `<div class="traloi"><span class="mono">${esc(row[h.ci])}</span> → <b>${esc(h.mt)}</b></div>` : ''}
     <div class="cells">${o.map(([i, v]) => `<span class="cell${i === h.ci ? ' on' : ''}">${hl(v, q || '')}</span>`).join('')}</div>
+    ${nhan ? theGCP(h.cv, row[h.ci], true) : ''}
     <div class="dichkq muted" data-k="${esc(key)}">${PLC_DICH[key] ? esc(PLC_DICH[key]) : ''}</div>
     <div class="btns"><button class="btn sm ghost" data-act="plcDich" data-k="${esc(key)}">${L('Dịch', '翻译')}</button><button class="btn sm ghost" data-act="plcMo" data-k="${esc(key)}">${L('Mở bảng', '打开表格')}</button></div></div>`;
 }
@@ -1383,6 +1392,44 @@ function plcMo(cv, si, ri, ci) {
   });
 }
 const tongDong = (p) => p.sheets.reduce((s, x) => s + x.rows.filter((r) => r.length).length, 0);
+// ----- Ghi chú theo địa chỉ (thêm địa chỉ mới / ghi lại đã sửa gì), có lịch sử -----
+const gcpCua = (cv, dc) => (DL().ghiChuPLC || []).filter((g) => g.chuyen === cv && g.diaChi === chuanDC(dc)).sort((a, b) => String(a.lucTao + a.id).localeCompare(String(b.lucTao + b.id)));
+function theGCP(cv, dc, gon) {
+  const ds = gcpCua(cv, dc), g = ds[ds.length - 1];
+  if (!g) return gon ? '' : `<div class="card gcp trong"><div class="muted">${L('Chưa có ghi chú của bạn cho ' + esc(chuanDC(dc)), '尚无备注')}</div>
+    <div class="btns"><button class="btn sm" id="gcpAdd" data-act="gcpForm" data-cv="${esc(cv)}" data-dc="${esc(chuanDC(dc))}">${IC.plus}${L('Thêm ghi chú', '添加备注')}</button></div></div>`;
+  return `<div class="card gcp${gon ? ' gon' : ''}"><div class="muted">${L('Ghi chú của bạn', '我的备注')} · ${esc(String(g.lucTao).slice(0, 16))}${g._cho ? ` <span class="chip warn">${T.choGui[0]}</span>` : ''}</div>
+    <div class="pre" style="margin-top:4px"><b>${esc(g.noiDung)}</b></div>${g.noiDungDich ? `<div class="muted pre">${esc(g.noiDungDich)}</div>` : ''}
+    ${gon ? '' : `<div class="btns"><button class="btn sm" id="gcpEdit" data-act="gcpForm" data-cv="${esc(cv)}" data-dc="${esc(g.diaChi)}">${L('Sửa / ghi thêm', '修改')}</button>
+    <span class="muted" style="align-self:center">${ds.length > 1 ? L('Lịch sử: ' + ds.length + ' lần', '历史：' + ds.length + '次') : ''}</span></div>`}</div>`;
+}
+function gcpForm(cv, dc) {
+  const c = plcOf(cv), ds = gcpCua(cv, dc), g = ds[ds.length - 1];
+  sheet(`${L('Ghi chú', '备注')} · Chuyền ${esc(c ? c.ma : cv)} · <span class="mono">${esc(dc)}</span>`, `
+    <label class="f"><span class="l">${L('Nội dung (thêm mới hoặc đã sửa gì)', '内容（新增或修改了什么）')}</span><textarea class="i" id="gcpND" style="min-height:90px">${esc(g ? g.noiDung : '')}</textarea></label>
+    ${oTs('gcpZh', 'Tiếng Trung (để trống = tự dịch)', '中文（留空自动翻译）', '', 'autocomplete="off"')}
+    <div class="btns"><button class="btn wide" id="gcpSave" data-act="gcpSave" data-cv="${esc(cv)}" data-dc="${esc(dc)}">${L(T.luu[0], T.luu[1])}</button></div>
+    <div class="sec">${L('Lịch sử', '历史')}<span>${ds.length}</span></div>
+    ${ds.slice().reverse().map((x, i) => `<div class="card gcph"><div class="muted">${esc(String(x.lucTao).slice(0, 16))}${i === 0 ? ` <span class="chip ok">${T.hienTai[0]} · ${T.hienTai[1]}</span>` : ''}${x._cho ? ` <span class="chip warn">${T.choGui[0]}</span>` : ''}</div>
+      <div class="pre">${esc(x.noiDung)}</div>${x.noiDungDich ? `<div class="muted pre">${esc(x.noiDungDich)}</div>` : ''}
+      ${x._cho ? '' : `<div class="btns"><button class="btn sm bad" data-act="gcpDel" data-id="${esc(x.id)}" data-cv="${esc(cv)}" data-dc="${esc(dc)}">${L(T.xoaNham[0], T.xoaNham[1])}</button></div>`}</div>`).join('') || `<div class="card empty">—</div>`}`);
+}
+async function gcpSave(cv, dc) {
+  const p = { chuyen: cv, diaChi: dc, noiDung: $('#gcpND').value.trim() };
+  if ($('#gcpZh').value.trim()) p.noiDungDich = $('#gcpZh').value.trim();
+  if (!p.noiDung) { toast(L('Nhập nội dung ghi chú', '请输入备注内容'), true); return; }
+  const g = gcpCua(cv, dc).pop();
+  if (g && g.noiDung === p.noiDung && !p.noiDungDich) { toast(L('Nội dung không đổi', '内容未改变'), true); return; }
+  $('#gcpSave').disabled = true;
+  const r = await ghi('plcNoteSave', p, 'Ghi chú ' + dc, (op) => APDUNG.plcNoteSave(op, p));
+  if (!r.ok) { $('#gcpSave').disabled = false; return; }
+  closeSheet(); if (!r.queued) tt('daLuu'); veKqPLC();
+}
+async function gcpDel(id, cv, dc) {
+  if (!confirmXoa()) return;
+  const r = await ghi('plcNoteDelete', { id }, 'Xoá ghi chú ' + dc, (op) => APDUNG.plcNoteDelete(op, { id }));
+  if (r.ok) { if (!r.queued) tt('daXoa'); veKqPLC(); gcpForm(cv, dc); }
+}
 // Chuyền đang chọn: lần trước chọn chuyền nào thì mở lại chuyền đó; chưa chọn thì lấy chuyền đầu tiên đã có bảng
 function chuyenChon() {
   if (S.pcv && plcOf(S.pcv)) return S.pcv;
@@ -1405,18 +1452,20 @@ function ttPLC() {
 }
 function veKqPLC() {
   const box = $('#plcKq'); if (!box) return;
-  const q = S.pq || '', cv = chuyenChon();
-  if (!norm(q) || !bangCua(cv)) { box.innerHTML = ''; return; }
-  if (!PLC.nap[cv]) { box.innerHTML = `<div class="card empty">${L('Đang đọc bảng…', '正在读取…')}</div>`; return; }
-  const ds = plcTim(q, { cv }, 100);
-  box.innerHTML = `<div class="sec">${L('Kết quả', '结果')}<span>${ds.length >= 100 ? '100+' : ds.length}</span></div>` + (ds.map((h) => rowPLC(h, q)).join('') || `<div class="card empty">${TT('khongThay')}</div>`);
+  const q = S.pq || '', cv = chuyenChon(), dc = chuanDC(q);
+  if (!dc) { box.innerHTML = ''; return; }
+  const gc = theGCP(cv, dc, false);
+  if (bangCua(cv) && !PLC.nap[cv]) { box.innerHTML = gc + `<div class="card empty">${L('Đang đọc bảng…', '正在读取…')}</div>`; return; }
+  const ds = bangCua(cv) ? plcTim(q, { cv }, 100) : [];
+  box.innerHTML = gc + `<div class="sec">${L('Trong bảng chương trình', '程序表中')}<span>${ds.length >= 100 ? '100+' : ds.length}</span></div>` +
+    (ds.map((h) => rowPLC(h, q)).join('') || `<div class="card empty">${L('Không có ô nào đúng tên ' + esc(dc), '没有完全匹配 ' + esc(dc) + ' 的单元格')}</div>`);
 }
 VIEWS.ct = {
   html() {
     const cv = chuyenChon(), c = plcOf(cv);
     return `<div class="sec" style="margin-top:0">${L('Chuyền sản xuất', '生产线')}<button class="btn sm ghost" style="padding:4px 10px" data-act="plcLines">${L('Sửa danh sách', '编辑')}</button></div>
       <div class="chips plcl">${dsCPLC().map((x) => `<button class="${x.id === cv ? 'on' : ''}${bangCua(x.id) ? '' : ' trong'}" data-act="plcCv" data-cv="${esc(x.id)}">${esc(x.ma)}</button>`).join('')}</div>
-      <div class="search">${IC.tim}<input id="pq" type="search" placeholder="${c ? 'Chuyền ' + esc(c.ma) + ': ' : ''}X1002, M600, D120…" value="${esc(S.pq || '')}" autocomplete="off" ${bangCua(cv) ? '' : 'disabled'}></div>
+      <div class="search">${IC.tim}<input id="pq" type="search" placeholder="${c ? 'Chuyền ' + esc(c.ma) + ': ' : ''}X1002, M570, D120…" value="${esc(S.pq || '')}" autocomplete="off" autocapitalize="characters"></div>
       <div id="plcKq"></div><div id="plcTT">${ttPLC()}</div>
       <button class="btn fab" id="fabPLC" data-act="plcForm" data-cv="${esc(cv)}">${IC.up}${L('Tải bảng', '上传')}</button>`;
   },
@@ -1658,7 +1707,7 @@ const ACT = {
   runForm: (b) => runForm(b.dataset.cv, b.dataset.sp), runSave: (b) => runSave(b.dataset.cv, b.dataset.sp),
   lineAddSp: (b) => lineAddSp(b.dataset.id), lineAddSpOk: (b) => lineAddSpOk(b.dataset.cv, $('#addSp').value), lineProdOff: (b) => lineProdOff(b.dataset.cv, b.dataset.sp),
   spView: (b) => spView(b.dataset.id), spEdit: (b) => spEdit(b.dataset.id, b.dataset.cv), spSave: (b) => spSave(b.dataset.id, b.dataset.cv),
-  sub: (b) => go(b.dataset.v), plcCv: (b) => chonCPLC(b.dataset.cv), plcLines, plcLineAdd: () => plcLineSave({ ma: $('#plcLineMa').value.trim() }),
+  sub: (b) => go(b.dataset.v), plcCv: (b) => chonCPLC(b.dataset.cv), gcpForm: (b) => gcpForm(b.dataset.cv, b.dataset.dc), gcpSave: (b) => gcpSave(b.dataset.cv, b.dataset.dc), gcpDel: (b) => gcpDel(b.dataset.id, b.dataset.cv, b.dataset.dc), plcLines, plcLineAdd: () => plcLineSave({ ma: $('#plcLineMa').value.trim() }),
   plcLineOff: (b) => { const c = plcOf(b.dataset.id); if (c && confirmXoa()) plcLineSave({ id: c.id, ma: c.ma, hoatDong: 0 }); }, plcForm: (b) => plcForm(b.dataset.cv), plcSave, plcDel: (b) => plcDel(b.dataset.id),
   plcDich: (b) => plcDich(b.dataset.k), plcMo: (b) => { const h = keyHit(b.dataset.k); plcMo(h.cv, h.si, h.ri, h.ci); },
   plcTrang: (b) => plcMo(b.dataset.cv, Number(b.dataset.si), Number(b.dataset.ri), -1), plcThuLai: () => { PLC.loi = {}; plcNap(); },

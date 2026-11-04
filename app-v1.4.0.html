@@ -1,0 +1,1768 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1E3A5F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Tra cứu">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<title>Ghi chú & Tài liệu · 笔记与资料</title>
+<style>
+:root{--bg:#F3F6FB;--card:#fff;--ink:#14213D;--sub:#5B6B82;--line:#DCE3EE;--pri:#1E3A5F;--pri2:#2F6FDB;--ok:#16794C;--okbg:#E3F5EC;
+--warn:#A65B00;--warnbg:#FFF1DD;--bad:#B42318;--badbg:#FDE8E7;--r:14px;--tab:64px}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Noto Sans SC",sans-serif;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+.zh{display:block;font-size:.78em;color:var(--sub);line-height:1.3}
+.inl .zh{display:inline;margin-left:6px}
+header.bar{position:sticky;top:0;z-index:20;background:var(--pri);color:#fff;padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;display:flex;align-items:center;gap:10px}
+header.bar h1{font-size:18px;margin:0;flex:1;line-height:1.2}
+header.bar h1 .zh{color:#C9D6EA}
+header.bar button svg{width:20px;height:20px}
+header.bar button{background:rgba(255,255,255,.14);border:0;color:#fff;border-radius:10px;padding:8px 10px;display:flex;align-items:center;gap:6px}
+.net{font-size:12px;padding:3px 8px;border-radius:999px;background:#F59E0B;color:#1b1300;font-weight:600}
+main{padding:14px 16px calc(var(--tab) + 90px + env(safe-area-inset-bottom));max-width:860px;margin:0 auto}
+.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;background:#fff;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.tab{flex:1;border:0;background:none;padding:7px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:var(--sub)}
+.tab .zh{font-size:10px}
+.tab{font-size:11px}
+table.ts td{text-align:center}
+.chip.pb1{background:#1D4ED8;color:#fff}.chip.pb2{background:#7E22CE;color:#fff}.chip.pb0{background:#1f2937;color:#fff}
+.dot{display:inline-block;width:8px;height:8px;border-radius:9px;background:#16A34A;margin-right:5px}
+.card.spl.on{border:2px solid #16A34A}
+.scr{background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden}
+.scr .h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;background:#EEF3FA;padding:8px 12px;border-bottom:1px solid var(--line)}
+.scr .h .en,.en{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.scr .h .en{font-weight:700;font-size:13.5px;color:#1E3A5F}.scr .h .vi{font-weight:600}.scr .h .zh{display:inline}
+.scr .h .ref{margin-left:auto;font-size:11px;color:var(--sub);white-space:nowrap}
+.scr .kv{display:grid;grid-template-columns:1fr auto;padding:2px 12px 6px}.scr .kv:empty{display:none}
+.scr .kv>div{padding:7px 0;border-bottom:1px dashed #E6EBF3}.scr .kv>div:nth-last-child(-n+2){border-bottom:0}
+.scr .kv .k .en{font-size:12.5px;display:block}.scr .kv .k .vi{font-size:12px;color:var(--sub)}
+.scr .kv .v{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}.scr .kv .v small{font-weight:400;color:var(--sub)}
+.scr .doi,table.t td.doi{background:#FFF1DD}
+.scr table.t{border-radius:0}.scr table.ja td,.scr table.ja th{text-align:center}.scr table.ja td.l{text-align:left}
+.scr table.pbt td{text-align:center}.scr table.pbt td.l{text-align:left}.scr table.pbt .en{display:block;font-size:12px}.scr table.pbt .vi{font-size:11.5px;color:var(--sub)}
+.scr .fbody{padding:10px 12px 2px}.scr .fbody table.ja input{text-align:center;padding:8px 2px}
+input.chg,select.chg{border-color:#F59E0B !important;background:#FFF8EC}
+ul.doi{margin:6px 0 0;padding-left:18px}
+.seg{display:flex;background:#E5EAF2;border-radius:12px;padding:3px;margin-bottom:12px}
+.seg button{flex:1;border:0;background:none;border-radius:10px;padding:7px 4px;font-size:14px;color:var(--sub)}
+.seg button .zh{font-size:11px}.seg button.on{background:#fff;color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.cells{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.cell{background:#F1F4F9;border-radius:8px;padding:4px 8px;font-size:14px;word-break:break-word}
+.cell.on{background:#FFF4C2;font-weight:600}
+.traloi{font-size:18px;margin-top:6px;line-height:1.35}
+.card.gcp{border-color:#9DB4D8;background:#F6F9FF}.card.gcp.trong{background:#fff;border-style:dashed}
+.card.gcp.gon{margin:8px 0 0;padding:8px 10px}.traloi b{color:var(--pri)}
+.card.plch.dung{border-color:#9BD3B5}
+.chips.plcl{flex-wrap:wrap}.chips.plcl button{min-width:48px;font-variant-numeric:tabular-nums}.chips.plcl button.trong:not(.on){color:#9AA6B8;border-style:dashed}
+.dichkq:not(:empty){margin-top:6px;background:#F6F8FC;border-left:3px solid #9DB4D8;padding:6px 8px;border-radius:6px;color:#33475F}
+table.plct td.on,table.plct tr.on th{background:#FFF4C2}table.plct tr.on td{background:#FFFBE6}
+table.plct th{position:sticky;left:0}
+.diffbox{background:#FFF8EC;border-color:#F3C37E}
+table.kvt th{width:45%}
+.runh{padding:3px 0}
+.tab svg{width:22px;height:22px}
+.tab.on{color:var(--pri2);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin:0 0 12px}
+.sec{font-size:13px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.03em;margin:18px 2px 8px;display:flex;justify-content:space-between;align-items:baseline}
+.sec .zh{display:inline;margin-left:6px;text-transform:none}
+.row{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin:0 0 8px}
+.row .main{flex:1;min-width:0}
+.row .nm{font-weight:600;word-break:break-word}
+.row .sub{font-size:13px;color:var(--sub);margin-top:2px;word-break:break-word}
+.row svg{flex:none;width:22px;height:22px;color:var(--pri2)}
+.chip{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:#EAF0FA;color:#29446B;margin:3px 4px 0 0;white-space:nowrap}
+.chip.ok{background:var(--okbg);color:var(--ok)} .chip.warn{background:var(--warnbg);color:var(--warn)} .chip.bad{background:var(--badbg);color:var(--bad)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
+.chips button{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font-size:14px}
+.chips button.on{background:var(--pri);border-color:var(--pri);color:#fff}
+.chips button.on .zh{color:#C9D6EA}
+.search{display:flex;gap:8px;align-items:center;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:12px}
+.search:focus-within{border-color:var(--pri2)}
+.search input{flex:1;border:0;outline:0;background:none;font-size:17px;min-width:0}
+.search svg{width:20px;height:20px;color:var(--sub)}
+label.f{display:block;margin:0 0 12px}
+label.f>span.l{display:block;font-size:14px;font-weight:600;margin-bottom:4px}
+label.f>span.l .zh{display:inline;margin-left:6px;font-weight:400}
+input.i,select.i,textarea.i{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff;font-size:16px}
+textarea.i{min-height:120px;resize:vertical}
+input.i:focus,select.i:focus,textarea.i:focus{outline:0;border-color:var(--pri2)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.grid2>*{min-width:0}
+.btn{border:0;border-radius:12px;padding:12px 16px;background:var(--pri2);color:#fff;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-align:center}
+.btn .zh{color:#DCE7FF;display:inline;margin-left:4px;font-weight:400}
+.btn.ghost{background:#EAF0FA;color:var(--pri)} .btn.ghost .zh{color:#4D6587}
+.btn.bad{background:var(--badbg);color:var(--bad)} .btn.bad .zh{color:var(--bad)}
+.btn.sm{padding:8px 12px;font-size:14px;border-radius:10px}
+.btn.wide{width:100%}
+.btn svg{width:18px;height:18px}
+.btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.fab{position:fixed;right:18px;bottom:calc(var(--tab) + 18px + env(safe-area-inset-bottom));z-index:15;border-radius:999px;box-shadow:0 6px 18px rgba(30,58,95,.28);padding:14px 18px}
+.empty{text-align:center;color:var(--sub);padding:28px 10px}
+.muted{color:var(--sub);font-size:13px}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.pre{white-space:pre-wrap;word-break:break-word}
+.zhbox{background:#F6F8FC;border-left:3px solid #9DB4D8;padding:8px 10px;border-radius:6px;margin-top:8px;color:#33475F}
+.thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.thumbs .th{position:relative;width:84px;height:84px;border-radius:10px;overflow:hidden;background:#E5EAF2;border:1px solid var(--line)}
+.thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.thumbs .x{position:absolute;top:2px;right:2px;border:0;border-radius:999px;width:24px;height:24px;background:rgba(0,0,0,.6);color:#fff;font-size:14px;line-height:24px;padding:0}
+.ov{position:fixed;inset:0;z-index:40;background:rgba(10,20,35,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);width:100%;max-width:720px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:14px 16px calc(18px + env(safe-area-inset-bottom))}
+.sheet .hd{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px}
+.sheet .hd h2{flex:1;font-size:18px;margin:0}
+.sheet .hd button{border:0;background:#E5EAF2;border-radius:999px;width:34px;height:34px;font-size:18px;flex:none}
+#viewer{position:fixed;inset:0;z-index:50;background:#1c2533;display:flex;flex-direction:column}
+#viewer .vb{display:flex;gap:8px;align-items:center;padding:calc(env(safe-area-inset-top) + 8px) 10px 8px;color:#fff}
+#viewer .vb .t{flex:1;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#viewer .vb a,#viewer .vb button{background:rgba(255,255,255,.15);color:#fff;border:0;border-radius:8px;padding:7px 10px;font-size:14px;text-decoration:none}
+#viewer iframe,#viewer img{flex:1;width:100%;border:0;background:#fff;object-fit:contain}
+#viewer .nov{flex:1;display:flex;align-items:center;justify-content:center;color:#fff;text-align:center;padding:20px}
+.toast{position:fixed;left:16px;right:16px;margin:0 auto;width:fit-content;bottom:calc(var(--tab) + 86px + env(safe-area-inset-bottom));z-index:60;background:#14213D;color:#fff;border-radius:12px;padding:10px 14px;max-width:92%;font-size:14px;box-shadow:0 8px 20px rgba(0,0,0,.25)}
+.toast .zh{color:#B9C6DB}
+.toast.bad{background:var(--bad)} .toast.bad .zh{color:#FFD7D3}
+table.t{width:100%;border-collapse:collapse;font-size:14px;background:#fff;border-radius:10px;overflow:hidden}
+table.t th,table.t td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:top}
+table.t th{background:#EEF3FA;font-size:12px;color:#33475F}
+table.t td.n{text-align:center;font-variant-numeric:tabular-nums}
+table.t td.n b{font-size:17px}
+#rDelay th{text-align:center}
+.big{font-size:28px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.kpi .k{font-size:12px;color:var(--sub)}
+.kpi.ok{border-color:#9BD3B5;background:var(--okbg)} .kpi.warn{border-color:#F3C37E;background:var(--warnbg)} .kpi.bad{border-color:#F3A29B;background:var(--badbg)}
+.login{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:linear-gradient(180deg,#1E3A5F,#2F6FDB)}
+.login .box{background:#fff;border-radius:20px;padding:22px 20px;width:100%;max-width:340px;text-align:center}
+.login h1{font-size:20px;margin:4px 0 2px}
+.dots{display:flex;justify-content:center;gap:12px;margin:18px 0 6px}
+.dots i{width:14px;height:14px;border-radius:999px;border:2px solid var(--pri2)}
+.dots i.on{background:var(--pri2)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.keypad button{border:0;background:#EEF3FA;border-radius:14px;padding:14px 0;font-size:22px;font-weight:600}
+.err{color:var(--bad);font-size:14px;min-height:20px}
+mark{background:#FFF0A8;border-radius:3px;padding:0 1px}
+@media (min-width:900px){.fab{right:calc(50% - 420px)}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+const API_URL = "";
+const MODE = "live";
+const APP_VER = "1.4.0";
+const DemoBackend = null;
+'use strict';
+// ============ Tiện ích chung ============
+const IS_DEMO = MODE === 'demo';
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const esc = (v) => String(v === null || v === undefined ? '' : v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const TODAY = () => { const d = new Date(Date.now() + 7 * 3600000); return d.toISOString().slice(0, 10); };
+// Bỏ dấu tiếng Việt, chữ thường: tìm "loc muc" ra "Lọc mực". Chữ Trung giữ nguyên.
+function norm(s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'd').toLowerCase().replace(/\s+/g, ' ').trim(); }
+// Nhãn song ngữ: tiếng Việt chữ lớn, tiếng Trung nhỏ bên dưới
+const L = (vi, zh) => `<span class="vi">${vi}</span>${zh ? `<span class="zh">${zh}</span>` : ''}`;
+const TT = (k) => L(T[k][0], T[k][1]);
+const T = {
+  tim: ['Tìm', '搜索'], gc: ['Ghi chú', '笔记'], tl: ['Tài liệu', '资料'], day: ['Tra dây', '查线号'], tinh: ['Tính toán', '计算'],
+  cai: ['Cài đặt', '设置'], app: ['Ghi chú & Tài liệu', '笔记与资料'],
+  timGoiY: ['Tìm ghi chú, tài liệu, số dây… không dấu cũng được', '搜索笔记、资料、线号…'],
+  ganDay: ['Ghi chú gần đây', '最近笔记'], tlHH: ['Tài liệu đang hiệu lực', '现行资料'], khongThay: ['Không thấy kết quả', '没有找到结果'],
+  themGC: ['Ghi chú', '笔记'], themTL: ['Tài liệu', '资料'], themDay: ['Dây', '线号'],
+  tieuDe: ['Tiêu đề', '标题'], noiDung: ['Nội dung', '内容'], the: ['Thẻ (cách nhau bởi dấu phẩy)', '标签（用逗号分隔）'], maMay: ['Mã máy', '设备编号'],
+  anh: ['Ảnh chụp tại chỗ', '现场照片'], chupAnh: ['Chụp / chọn ảnh', '拍照/选择图片'], banDich: ['Bản dịch tiếng Trung (sửa tay được)', '中文翻译（可手动修改）'],
+  tdZh: ['Tiêu đề tiếng Trung', '中文标题'], ndZh: ['Nội dung tiếng Trung', '中文内容'], dichSau: ['Sẽ tự dịch khi lưu', '保存时自动翻译'],
+  luu: ['Lưu', '保存'], huy: ['Huỷ', '取消'], sua: ['Sửa', '编辑'], xoa: ['Xoá', '删除'], dong: ['Đóng', '关闭'],
+  xacXoa: ['Xoá mục này? (vẫn khôi phục được trên Google Sheet)', '删除此项？（可在Google表格中恢复）'],
+  daLuu: ['Đã lưu', '已保存'], luuMay: ['Đã lưu trên máy, sẽ gửi khi có mạng', '已保存在本机，联网后发送'], daXoa: ['Đã xoá', '已删除'],
+  ten: ['Tên tài liệu', '资料名称'], tenZh: ['Tên tiếng Trung', '中文名称'], nhom: ['Nhóm', '分组'], tatCa: ['Tất cả', '全部'],
+  tep: ['Tải tệp lên', '上传文件'], link: ['Dán link Google Drive', '粘贴Drive链接'], chonTep: ['Chọn tệp (PDF, Word, Excel, ảnh)', '选择文件（PDF、Word、Excel、图片）'],
+  url: ['Link (https://…)', '链接（https://…）'], phienBan: ['Phiên bản', '版本'], hieuLuc: ['Đang hiệu lực', '现行版本'], datHL: ['Đặt hiệu lực', '设为现行'],
+  moTL: ['Mở', '打开'], luuNgoai: ['Lưu xem khi mất mạng', '离线保存'], daLuuNgoai: ['Đã lưu xem khi mất mạng', '已离线保存'], boLuu: ['Bỏ lưu', '取消离线'],
+  banMoi: ['Tải phiên bản mới', '上传新版本'], cacPB: ['Các phiên bản', '所有版本'], soBan: ['bản', '个版本'],
+  soDay: ['Số dây', '线号'], banVe: ['Bản vẽ', '图号'], to: ['Tờ', '图页'], tuDiem: ['Từ điểm', '起点'], denDiem: ['Đến điểm', '终点'],
+  mau: ['Màu dây', '颜色'], tinHieu: ['Tín hiệu', '信号'], tinHieuZh: ['Tín hiệu tiếng Trung', '中文信号'], ghiChu: ['Ghi chú', '备注'],
+  tlBanVe: ['Tệp bản vẽ (PDF)', '图纸文件（PDF）'], trang: ['Trang trong PDF', 'PDF页码'], moBanVe: ['Mở bản vẽ', '打开图纸'], khongGan: ['— Không gắn —', '— 不关联 —'],
+  nhapExcel: ['Nhập từ Excel', '从Excel导入'], fileMau: ['Tải file mẫu', '下载模板'], timDay: ['Số dây, điểm đầu/cuối, tín hiệu, tờ…', '线号、起止点、信号、图页…'],
+  ganTLNhap: ['Gắn các dòng chưa có tệp bản vẽ với', '未关联图纸的行关联到'], chonFile: ['Chọn file .xlsx', '选择 .xlsx 文件'],
+  hangCho: ['Hàng chờ gửi', '待发送'], guiLai: ['Gửi lại', '重新发送'], boViec: ['Bỏ việc này', '删除此项'], khongCho: ['Không còn việc chờ gửi', '没有待发送的项目'],
+  matMang: ['Mất mạng', '离线'], giaLap: ['Giả lập mất mạng', '模拟离线'], xuat: ['Xuất Excel song ngữ', '导出双语Excel'], doiPin: ['Đổi PIN', '修改PIN'],
+  dangXuat: ['Đăng xuất', '退出登录'], nhatKy: ['Nhật ký sửa đổi', '修改记录'], nhomTL: ['Nhóm tài liệu', '资料分组'], themNhom: ['Thêm nhóm', '添加分组'],
+  pinCu: ['PIN cũ', '旧PIN'], pinMoi: ['PIN mới (6 số)', '新PIN（6位）'], nhapPin: ['Nhập PIN 6 số', '请输入6位PIN'],
+  pinMacDinh: ['Bạn đang dùng PIN mặc định — hãy đổi trong Cài đặt', '您正在使用默认PIN，请在设置中修改'],
+  mayChu: ['Link máy chủ (…/exec)', '服务器链接（…/exec）'], lienKet: ['Kết nối', '连接'], phienBanApp: ['Phiên bản', '版本'],
+  bo: ['Bộ thông số', '参数组'], luuBo: ['Lưu bộ thông số', '保存参数组'], luuBoMoi: ['Lưu thành bộ mới', '另存为新参数组'],
+  dangTai: ['Đang tải…', '加载中…'], loiMang: ['Không kết nối được máy chủ', '无法连接服务器'], demo: ['BẢN XEM THỬ', '演示版'],
+  choGui: ['chờ gửi', '待发送'], may: ['Thông số', '参数'], apDung: ['Ngày áp dụng', '生效日期'], chuaGhi: ['Chưa ghi thông số', '尚未记录参数'],
+  capNhatTs: ['Cập nhật thông số', '更新参数'], lichSuTs: ['Lịch sử thông số', '参数历史'], hienTai: ['Hiện tại', '当前'], xoaNham: ['Xoá lần ghi nhầm', '删除误记'],
+  soSanh: ['So sánh các chuyền', '产线对比'], mayin: ['Máy in', '喷码机'], ct: ['Chương trình', 'PLC程序'], dangChay: ['Đang chạy', '运行中'], dsChuyen: ['Chuyền sản xuất', '生产线'], dangGui: ['Đang gửi…', '发送中…'], daGui: ['Đã gửi hết', '已全部发送'], loiGui: ['gửi lỗi', '发送失败']
+};
+const IC = {
+  tim: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>',
+  gc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h14v16H5z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>',
+  tl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg>',
+  day: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h5a3 3 0 0 1 3 3v4a3 3 0 0 0 3 3h5"/><circle cx="4" cy="7" r="2"/><circle cx="20" cy="17" r="2"/></svg>',
+  mayin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 17v4h10v-4"/></svg>',
+  ct: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M12 15h5"/></svg>',
+  may: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>',
+  tinh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h2M12 12h2M16 12v5M8 16h2M12 16h2"/></svg>',
+  cai: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+  plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>',
+  cam: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',
+  link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
+  img: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 17-5-5-8 7"/></svg>',
+  xls: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h8l4 4v14H6z"/><path d="m9 11 4 5M13 11l-4 5"/></svg>',
+  up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>'
+};
+
+// ============ Lưu trên máy: IndexedDB (hàng chờ kèm ảnh/tệp, bản sao dữ liệu, tài liệu xem khi mất mạng) ============
+const store = (() => {
+  let db = null; const mem = {};
+  const open = () => new Promise((res) => {
+    try {
+      const r = indexedDB.open('gctl', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('kv');
+      r.onsuccess = () => { db = r.result; res(); };
+      r.onerror = () => res();
+    } catch (e) { res(); }
+  });
+  const tx = (mode, fn) => new Promise((res, rej) => {
+    if (!db) { res(fn(null)); return; }
+    const t = db.transaction('kv', mode), st = t.objectStore('kv'); let out;
+    const r = fn(st); if (r && 'onsuccess' in r) r.onsuccess = () => { out = r.result; };
+    t.oncomplete = () => res(out); t.onerror = () => rej(t.error);
+  });
+  return {
+    ready: open(),
+    async get(k, d) { await this.ready; if (!db) return k in mem ? mem[k] : d; const v = await tx('readonly', (s) => s.get(k)); return v === undefined ? d : v; },
+    async set(k, v) { await this.ready; if (!db) { mem[k] = v; return; } await tx('readwrite', (s) => s.put(v, k)); },
+    async del(k) { await this.ready; if (!db) { delete mem[k]; return; } await tx('readwrite', (s) => s.delete(k)); }
+  };
+})();
+
+// ============ Trạng thái ============
+const S = { tk: '', data: null, Q: [], view: 'tim', q: '', the: '', nhom: '', wq: '', cfgId: '', soMau: 0, offline: false, simOff: false, sending: false, anh: {}, offDocs: {} };
+const DEV = (() => { try { let d = localStorage.getItem('gctl_dev'); if (!d) { d = 'D' + Math.random().toString(36).slice(2, 12); localStorage.setItem('gctl_dev', d); } return d; } catch (e) { return 'D-nostore'; } })();
+
+function apiUrl() { return (typeof API_URL === 'string' && API_URL) || S.api || ''; }
+async function api(action, payload, opts) {
+  opts = opts || {};
+  const req = { action, payload: payload || {}, token: S.tk, device: DEV };
+  if (opts.opId) req.opId = opts.opId;
+  let j;
+  if (IS_DEMO) {
+    await sleep(80 + Math.random() * 120);
+    if (S.simOff) throw { code: 'MANG' };
+    j = DemoBackend.call(req);
+  } else {
+    const url = apiUrl();
+    if (!url) throw { code: 'CHUA_CAI' };
+    const ctrl = new AbortController(), to = setTimeout(() => ctrl.abort(), (opts.timeout || 60) * 1000);
+    try {
+      let txt;
+      // Gửi dạng text (không đặt Content-Type JSON) để trình duyệt không gửi preflight — Apps Script không trả lời preflight
+      try { txt = await (await fetch(url, { method: 'POST', body: JSON.stringify(req), signal: ctrl.signal, redirect: 'follow' })).text(); }
+      catch (e) { throw { code: 'MANG' }; }
+      try { j = JSON.parse(txt); } catch (e) { throw { code: /accounts\.google\.com|signin/i.test(txt) ? 'CAN_QUYEN' : 'MANG' }; }
+    } finally { clearTimeout(to); }
+  }
+  setOffline(false);
+  if (!j || !j.ok) {
+    const e = { code: (j && j.code) || 'LOI', message: j && j.message };
+    if (e.code === 'HET_PHIEN' && action !== 'login') setTimeout(() => logout(), 0);
+    throw e;
+  }
+  return j.data;
+}
+function setOffline(v) { if (S.offline !== v) { S.offline = v; renderBar(); } }
+function errMsg(e) {
+  if (e && e.code === 'MANG') return L(T.loiMang[0], T.loiMang[1]);
+  if (e && e.code === 'CAN_QUYEN') return L('Máy chủ chưa cho truy cập "Bất kỳ ai"', '服务器未开放访问');
+  const m = String((e && e.message) || (e && e.code) || e), i = m.indexOf(' · ');
+  return i > 0 ? L(esc(m.slice(0, i)), esc(m.slice(i + 3))) : esc(m);
+}
+function toast(html, bad) {
+  $$('.toast').forEach((x) => x.remove());
+  const d = document.createElement('div'); d.className = 'toast' + (bad ? ' bad' : ''); d.innerHTML = html;
+  document.body.appendChild(d); setTimeout(() => d.remove(), bad ? 4500 : 2600);
+}
+const tt = (k) => toast(TT(k));
+
+// ============ Hàng chờ ghi: mất mạng vẫn ghi được, có mạng tự gửi ============
+// Mỗi thao tác một opId; máy chủ nhận lại cùng opId thì trả bản đã có, không tạo trùng.
+const newOp = () => 'op' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+// Mã bản ghi máy chủ sẽ cấp cho opId này — tính trước để sửa/xem được ngay khi bản ghi còn nằm trong hàng chờ
+const maTuOp = (tien, op) => tien + op.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(-18);
+async function saveQ() { await store.set('q', S.Q); renderBar(); }
+async function saveSnap() { await store.set('snap', S.data); }
+async function ghi(action, payload, label, apDung) {
+  const op = newOp();
+  if (S.Q.length || S.offline) return xepHang(op, action, payload, label, apDung);
+  try {
+    const d = await api(action, payload, { opId: op });
+    gopKetQua(action, d);
+    return { ok: true, data: d };
+  } catch (e) {
+    if (e && e.code === 'MANG') { setOffline(true); return xepHang(op, action, payload, label, apDung); }
+    toast(errMsg(e), true);
+    return { ok: false, err: e };
+  }
+}
+async function xepHang(op, action, payload, label, apDung) {
+  S.Q.push({ op, action, payload, label, at: new Date().toISOString(), err: '' });
+  await saveQ();
+  if (apDung) { apDung(op); await saveSnap(); }
+  tt('luuMay');
+  return { ok: true, queued: true, op };
+}
+async function guiHangCho(tay) {
+  if (S.sending || !S.Q.length || !S.tk) return;
+  S.sending = true; renderBar();
+  try {
+    while (S.Q.length) {
+      const q = S.Q[0];
+      if (q.err && !tay) break;
+      try {
+        const d = await api(q.action, q.payload, { opId: q.op });
+        gopKetQua(q.action, d);
+        S.Q.shift(); await saveQ();
+      } catch (e) {
+        if (e && e.code === 'MANG') { setOffline(true); break; }
+        q.err = (e && e.message) || (e && e.code) || 'Lỗi'; await saveQ();
+        break;
+      }
+      tay = false;
+    }
+  } finally { S.sending = false; renderBar(); }
+  if (!S.Q.length) { await refresh(true); }
+  render();
+}
+// Gộp kết quả máy chủ vào dữ liệu đang hiện, khỏi tải lại cả bộ
+function upsert(arr, x) { const i = arr.findIndex((y) => y.id === x.id); if (i >= 0) arr[i] = x; else arr.push(x); }
+function gopKetQua(action, d) {
+  const D = S.data; if (!D || !d) return;
+  if (d.ghiChu && !Array.isArray(d.ghiChu)) upsert(D.ghiChu, d.ghiChu);
+  if (action === 'noteDelete') D.ghiChu = D.ghiChu.filter((x) => x.id !== d.id);
+  if (d.taiLieu && !Array.isArray(d.taiLieu)) {
+    // Bản mới đang hiệu lực thì các bản khác cùng tài liệu thôi hiệu lực (máy chủ chỉ trả về bản mới)
+    if (d.taiLieu.hienHanh) D.taiLieu.forEach((x) => { if (x.maTL === d.taiLieu.maTL && x.id !== d.taiLieu.id) x.hienHanh = false; });
+    upsert(D.taiLieu, d.taiLieu);
+  }
+  if (Array.isArray(d.taiLieu)) { const ids = d.taiLieu.map((x) => x.id); const ma = d.taiLieu[0] && d.taiLieu[0].maTL; D.taiLieu = D.taiLieu.filter((x) => x.maTL !== ma && ids.indexOf(x.id) < 0).concat(d.taiLieu); }
+  if (action === 'docDelete') D.taiLieu = D.taiLieu.filter((x) => x.id !== d.id);
+  if (d.nhom) { upsert(D.nhom, d.nhom); }
+  if (d.day) upsert(D.dayDien, d.day);
+  if (d.dayDien) D.dayDien = d.dayDien;
+  if (action === 'wireDelete') D.dayDien = D.dayDien.filter((x) => x.id !== d.id);
+  if (d.cauHinh) upsert(D.cauHinh, d.cauHinh);
+  if (action === 'cfgDelete') D.cauHinh = D.cauHinh.filter((x) => x.id !== d.id);
+  if (d.thongSo) { D.thongSo = D.thongSo || []; upsert(D.thongSo, d.thongSo); }
+  if (d.chaySP) { D.chaySP = D.chaySP || []; upsert(D.chaySP, d.chaySP); }
+  if (d.ghiChuPLC) { D.ghiChuPLC = D.ghiChuPLC || []; upsert(D.ghiChuPLC, d.ghiChuPLC); }
+  if (action === 'plcNoteDelete') D.ghiChuPLC = (D.ghiChuPLC || []).filter((x) => x.id !== d.id);
+  if (d.sanPham) { D.sanPham = D.sanPham || []; if (d.sanPham.hoatDong === 0) D.sanPham = D.sanPham.filter((x) => x.id !== d.sanPham.id); else upsert(D.sanPham, d.sanPham); }
+  if (d.chuyenSP) {
+    const l = d.chuyenSP; D.chuyenSP = (D.chuyenSP || []).filter((x) => !(x.chuyen === l.chuyen && x.sanPham === l.sanPham));
+    if (l.hoatDong) D.chuyenSP.push({ id: l.id, chuyen: l.chuyen, sanPham: l.sanPham });
+  }
+  // Lưu thông số / chuyển SP cho cặp chưa gắn: máy chủ tự gắn, app gắn theo cho khớp
+  const cap = d.thongSo || d.chaySP;
+  if (cap && !(D.chuyenSP || []).some((x) => x.chuyen === cap.chuyen && x.sanPham === cap.sanPham)) { D.chuyenSP = D.chuyenSP || []; D.chuyenSP.push({ id: 'tam', chuyen: cap.chuyen, sanPham: cap.sanPham }); }
+  if (action === 'paramDelete') D.thongSo = (D.thongSo || []).filter((x) => x.id !== d.id);
+  saveSnap();
+}
+async function refresh(im) {
+  try {
+    const d = await api('data');
+    S.data = d; await saveSnap();
+    // Thao tác còn trong hàng chờ: áp lại lên dữ liệu mới để không "biến mất" trên màn hình
+    S.Q.forEach((q) => { if (APDUNG[q.action]) APDUNG[q.action](q.op, q.payload); });
+    if (!im) render();
+  } catch (e) {
+    if (e && e.code === 'MANG') setOffline(true);
+    else if (!im) toast(errMsg(e), true);
+  }
+}
+// Áp tạm thao tác chưa gửi được lên dữ liệu trên máy (ghi chú, dây, bộ thông số)
+const APDUNG = {
+  noteSave(op, p) {
+    const D = S.data, id = p.id || maTuOp('GC', op), cu = D.ghiChu.find((x) => x.id === id);
+    const x = Object.assign({ id, tieuDeDich: '', noiDungDich: '', anh: [], lucTao: '', dichTay: {} }, cu || {}, {
+      tieuDe: p.tieuDe || (p.noiDung || '').split('\n')[0].slice(0, 80), noiDung: p.noiDung || '', the: theTu(p.the), maMay: p.maMay || '',
+      capNhat: new Date().toISOString().slice(0, 19).replace('T', ' '), _cho: op });
+    if (p.tieuDeDich !== undefined) x.tieuDeDich = p.tieuDeDich;
+    if (p.noiDungDich !== undefined) x.noiDungDich = p.noiDungDich;
+    if (Array.isArray(p.anh)) x.anh = p.anh.slice();
+    x._anhMoi = (p.anhMoi || []).map((a) => 'data:' + a.mime + ';base64,' + a.b64);
+    upsert(D.ghiChu, x);
+  },
+  noteDelete(op, p) { S.data.ghiChu = S.data.ghiChu.filter((x) => x.id !== p.id); },
+  wireSave(op, p) { const id = p.id || maTuOp('DD', op); upsert(S.data.dayDien, Object.assign({}, S.data.dayDien.find((x) => x.id === id) || {}, p, { id, _cho: op })); },
+  wireDelete(op, p) { S.data.dayDien = S.data.dayDien.filter((x) => x.id !== p.id); },
+  paramSave(op, p) {
+    const c = (S.data.chuyen || []).find((x) => x.id === p.chuyen) || { soMau: 1 }, x = Object.assign({}, p, { id: maTuOp('TS', op), soMau: c.soMau,
+      ghiChuDich: p.ghiChuDich || '', lucTao: new Date().toISOString().slice(0, 19).replace('T', ' '), dichTay: {}, _cho: op });
+    S.data.thongSo = S.data.thongSo || []; upsert(S.data.thongSo, x);
+    APDUNG.lineProduct(op, { chuyen: p.chuyen, sanPham: p.sanPham });
+  },
+  plcNoteSave(op, p) {
+    S.data.ghiChuPLC = S.data.ghiChuPLC || [];
+    upsert(S.data.ghiChuPLC, { id: maTuOp('GP', op), chuyen: p.chuyen, diaChi: chuanDC(p.diaChi), noiDung: p.noiDung, noiDungDich: p.noiDungDich || '',
+      lucTao: new Date(Date.now() + 7 * 3600000).toISOString().slice(0, 19).replace('T', ' '), dichTay: {}, _cho: op });
+  },
+  plcNoteDelete(op, p) { S.data.ghiChuPLC = (S.data.ghiChuPLC || []).filter((x) => x.id !== p.id); },
+  paramDelete(op, p) { S.data.thongSo = (S.data.thongSo || []).filter((x) => x.id !== p.id); },
+  runSet(op, p) {
+    S.data.chaySP = S.data.chaySP || [];
+    upsert(S.data.chaySP, { id: maTuOp('CY', op), chuyen: p.chuyen, sanPham: p.sanPham, tuNgay: p.tuNgay, lucTao: new Date().toISOString().slice(0, 19).replace('T', ' '), _cho: op });
+    APDUNG.lineProduct(op, { chuyen: p.chuyen, sanPham: p.sanPham });
+  },
+  lineProduct(op, p) {
+    const ds = (S.data.chuyenSP || []).filter((x) => !(x.chuyen === p.chuyen && x.sanPham === p.sanPham));
+    if (p.hoatDong !== 0) ds.push({ id: 'tam', chuyen: p.chuyen, sanPham: p.sanPham });
+    S.data.chuyenSP = ds;
+  },
+  productSave(op, p) {
+    S.data.sanPham = S.data.sanPham || [];
+    const id = p.id || maTuOp('SP', op), cu = S.data.sanPham.find((x) => x.id === id) || {};
+    upsert(S.data.sanPham, Object.assign({ tenDich: '' }, cu, p, { id, _cho: op }));
+  },
+  cfgSave(op, p) { const id = p.id || maTuOp('CH', op); upsert(S.data.cauHinh, Object.assign({}, p, { id, _cho: op })); S.cfgId = id; }
+};
+function theTu(v) { const o = [], co = {}; (Array.isArray(v) ? v : String(v || '').split(/[,;#\n]/)).forEach((t) => { t = t.trim().replace(/^#/, ''); if (t && !co[t.toLowerCase()]) { co[t.toLowerCase()] = 1; o.push(t); } }); return o.slice(0, 12); }
+
+// ============ Khung giao diện ============
+const VIEWS = {};
+const TABS = ['tim', 'gc', 'tl', 'mayin', 'ct'];
+// Tab "Máy in" gom ba màn của máy in phun: Thông số, Tính toán, Tra dây (bản vẽ máy in); nhớ màn con mở lần trước
+const SUB_MAYIN = ['may', 'tinh', 'day'];
+function go(v) { if (v === 'mayin') v = S.subMay || 'may'; if (SUB_MAYIN.indexOf(v) >= 0) S.subMay = v; S.view = v; render(); window.scrollTo(0, 0); }
+function renderBar() {
+  const b = $('header.bar'); if (!b) return;
+  const n = S.Q.length, loi = S.Q.some((q) => q.err);
+  $('#netInfo').innerHTML = (S.offline ? `<span class="net">${T.matMang[0]} · ${T.matMang[1]}</span> ` : '') +
+    (n ? `<button id="qBtn" data-act="qOpen" style="${loi ? 'background:#B42318' : ''}">${S.sending ? T.dangGui[0] + ' · ' + T.dangGui[1] : n + ' ' + (loi ? T.loiGui[0] + ' · ' + T.loiGui[1] : T.choGui[0] + ' · ' + T.choGui[1])}</button>` : '');
+}
+function render() {
+  const app = $('#app');
+  if (!S.tk) { renderLogin(); return; }
+  if (!S.data) { app.innerHTML = `<div class="empty" style="padding-top:40vh">${TT('dangTai')}</div>`; return; }
+  const v = VIEWS[S.view] || VIEWS.tim, laMay = SUB_MAYIN.indexOf(S.view) >= 0, tab = laMay ? 'mayin' : TABS.indexOf(S.view) >= 0 ? S.view : 'cai';
+  const seg = laMay ? `<div class="seg">${SUB_MAYIN.map((k) => `<button class="${S.view === k ? 'on' : ''}" data-act="sub" data-v="${k}">${L(T[k][0], T[k][1])}</button>`).join('')}</div>` : '';
+  app.innerHTML = `<header class="bar"><h1>${IS_DEMO ? `<span class="net" style="background:#fff;color:#1E3A5F">${T.demo[0]}</span> ` : ''}${L(T[tab][0], T[tab][1])}</h1>
+    <span id="netInfo"></span><button data-act="goCai" aria-label="Cài đặt" id="caiBtn">${IC.cai}</button></header>
+    <main id="main">${seg}${v.html()}</main>
+    <nav class="tabs">${TABS.map((k) => `<button class="tab${tab === k ? ' on' : ''}" data-v="${k}">${IC[k]}${L(T[k][0], T[k][1])}</button>`).join('')}</nav>`;
+  renderBar();
+  if (v.after) v.after();
+}
+function sheet(title, body, after) {
+  closeSheet();
+  const o = document.createElement('div'); o.className = 'ov'; o.id = 'ov';
+  o.innerHTML = `<div class="sheet" role="dialog"><div class="hd"><h2>${title}</h2><button data-act="close" aria-label="Đóng">✕</button></div>${body}</div>`;
+  o.addEventListener('click', (e) => { if (e.target === o) closeSheet(); });
+  document.body.appendChild(o);
+  if (after) after(o);
+  return o;
+}
+function closeSheet() { const o = $('#ov'); if (o) o.remove(); }
+const confirmXoa = () => window.confirm(T.xacXoa[0] + '\n' + T.xacXoa[1]);
+
+// ============ Đăng nhập ============
+let PIN = '';
+function renderLogin() {
+  if (!IS_DEMO && !apiUrl()) {
+    $('#app').innerHTML = `<div class="login"><div class="box"><h1>${TT('app')}</h1>
+      <p class="muted">${L('Lần đầu dùng: dán link máy chủ Apps Script', '首次使用：粘贴Apps Script服务器链接')}</p>
+      <label class="f"><span class="l">${TT('mayChu')}</span><input class="i" id="apiIn" placeholder="https://script.google.com/macros/s/…/exec"></label>
+      <button class="btn wide" data-act="setApi">${TT('lienKet')}</button><div class="err" id="lErr"></div></div></div>`;
+    return;
+  }
+  $('#app').innerHTML = `<div class="login"><div class="box">
+    <h1>${T.app[0]}</h1><div class="muted">${T.app[1]}${IS_DEMO ? ` · ${T.demo[0]} (PIN 111111)` : ''}</div>
+    <div class="dots" id="pinDots">${[0, 1, 2, 3, 4, 5].map((i) => `<i class="${i < PIN.length ? 'on' : ''}"></i>`).join('')}</div>
+    <div class="muted">${TT('nhapPin')}</div><div class="err" id="lErr"></div>
+    <div class="keypad" id="pinPad">${['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'].map((k) => `<button data-k="${k}">${k}</button>`).join('')}</div></div></div>`;
+}
+async function pinKey(k) {
+  if (k === 'C') PIN = ''; else if (k === '⌫') PIN = PIN.slice(0, -1); else if (PIN.length < 6) PIN += k;
+  $$('#pinDots i').forEach((d, i) => d.classList.toggle('on', i < PIN.length));
+  if (PIN.length < 6) return;
+  const pin = PIN; PIN = '';
+  try {
+    const d = await api('login', { pin });
+    S.tk = d.token; await store.set('tk', S.tk);
+    S.data = await store.get('snap', null);
+    render();
+    if (d.macDinh) setTimeout(() => toast(TT('pinMacDinh'), true), 400);
+    await guiHangCho(); await refresh(); if (S.data) plcNap();
+  } catch (e) {
+    renderLogin(); $('#lErr').innerHTML = errMsg(e);
+  }
+}
+async function logout() {
+  S.tk = ''; await store.del('tk'); render();
+}
+
+// ============ Tìm kiếm chung ============
+function hayGC(x) { return norm([x.tieuDe, x.tieuDeDich, x.noiDung, x.noiDungDich, (x.the || []).join(' '), x.maMay, x.id].join(' ')); }
+function hayTL(x) { return norm([x.ten, x.tenDich, x.tenTep, (x.the || []).join(' '), tenNhom(x.nhom), 'v' + x.phienBan].join(' ')); }
+function hayDay(x) { return norm([x.soDay, x.banVe, 'to ' + x.to, x.tuDiem, x.denDiem, x.mau, x.tinHieu, x.tinHieuZh, x.ghiChu].join(' ')); }
+function khop(hay, q) { const ws = norm(q).split(' ').filter(Boolean); return ws.every((w) => hay.indexOf(w) >= 0); }
+function tenNhom(id) { const n = ((S.data && S.data.nhom) || []).find((x) => x.id === id); return n ? n.ten + ' · ' + n.tenZh : ''; }
+function nhomObj(id) { return ((S.data && S.data.nhom) || []).find((x) => x.id === id); }
+// Mỗi tài liệu (MaTL) hiện một dòng: bản đang hiệu lực, kèm số phiên bản
+function tlNhom() {
+  const by = {};
+  S.data.taiLieu.forEach((x) => { (by[x.maTL] = by[x.maTL] || []).push(x); });
+  return Object.keys(by).map((k) => {
+    const ds = by[k].sort((a, b) => b.phienBan - a.phienBan);
+    return { maTL: k, hh: ds.find((x) => x.hienHanh) || ds[0], ds };
+  }).sort((a, b) => String(b.hh.capNhat).localeCompare(String(a.hh.capNhat)));
+}
+function hl(t, q) {
+  t = esc(t); const ws = norm(q).split(' ').filter((w) => w.length > 1); if (!ws.length) return t;
+  // Đánh dấu chữ khớp (so trên chữ đã bỏ dấu để "loc" khớp "lọc")
+  const n = norm(t); let out = '', i = 0;
+  if (n.length !== t.length) return t;
+  const marks = new Array(t.length).fill(false);
+  ws.forEach((w) => { let p = n.indexOf(w); while (p >= 0) { for (let k = p; k < p + w.length; k++) marks[k] = true; p = n.indexOf(w, p + w.length); } });
+  while (i < t.length) { if (marks[i]) { let j = i; while (j < t.length && marks[j]) j++; out += '<mark>' + t.slice(i, j) + '</mark>'; i = j; } else { out += t[i++]; } }
+  return out;
+}
+const rowGC = (x, q) => `<button class="row note" data-act="noteView" data-id="${esc(x.id)}">${IC.gc}<div class="main"><div class="nm">${hl(x.tieuDe, q || '')}</div>
+  ${x.tieuDeDich ? `<div class="sub">${hl(x.tieuDeDich, q || '')}</div>` : ''}<div class="sub">${esc((x.noiDung || '').slice(0, 90))}</div>
+  <div>${(x.the || []).map((t) => `<span class="chip">#${esc(t)}</span>`).join('')}${x._cho ? `<span class="chip warn">${T.choGui[0]} · ${T.choGui[1]}</span>` : ''}${(x.anh || []).length + (x._anhMoi || []).length ? `<span class="chip">${(x.anh || []).length + (x._anhMoi || []).length} ảnh</span>` : ''}</div></div></button>`;
+const rowTL = (g, q) => { const x = g.hh; return `<button class="row doc" data-act="docView" data-matl="${esc(g.maTL)}">${x.kieu === 'LINK' ? IC.link : IC.tl}<div class="main">
+  <div class="nm">${hl(x.ten, q || '')}</div>${x.tenDich ? `<div class="sub">${hl(x.tenDich, q || '')}</div>` : ''}
+  <div><span class="chip">${esc(tenNhom(x.nhom))}</span><span class="chip ok">v${x.phienBan}</span>${g.ds.length > 1 ? `<span class="chip">${g.ds.length} ${T.soBan[0]}</span>` : ''}${S.offDocs[x.id] ? `<span class="chip ok">offline</span>` : ''}${(x.the || []).map((t) => `<span class="chip">#${esc(t)}</span>`).join('')}</div></div></button>`; };
+const rowDay = (x, q) => `<button class="row wire" data-act="wireView" data-id="${esc(x.id)}">${IC.day}<div class="main"><div class="nm mono">${hl(x.soDay, q || '')}
+  <span class="muted">${esc(x.banVe)}${x.to ? ' · ' + T.to[0] + ' ' + esc(x.to) : ''}</span></div>
+  <div class="sub">${hl(x.tuDiem, q || '')} → ${hl(x.denDiem, q || '')}${x.mau ? ' · ' + esc(x.mau) : ''}</div>
+  <div class="sub">${hl(x.tinHieu, q || '')}${x.tinHieuZh ? ' · ' + esc(x.tinHieuZh) : ''}${x._cho ? ` <span class="chip warn">${T.choGui[0]}</span>` : ''}</div></div></button>`;
+
+VIEWS.tim = {
+  html() {
+    const q = S.q, D = S.data;
+    let o = `<div class="search">${IC.tim}<input id="q" type="search" placeholder="${T.timGoiY[0]}" value="${esc(q)}" autocomplete="off"></div>`;
+    if (!norm(q)) {
+      const gc = D.ghiChu.slice().sort((a, b) => String(b.capNhat).localeCompare(String(a.capNhat))).slice(0, 5);
+      o += `<div class="sec">${L(T.ganDay[0], T.ganDay[1])}</div>` + (gc.length ? gc.map((x) => rowGC(x)).join('') : `<div class="card empty">—</div>`);
+      o += `<div class="sec">${L(T.tlHH[0], T.tlHH[1])}</div>` + tlNhom().slice(0, 5).map((g) => rowTL(g)).join('');
+      return o;
+    }
+    const cv = (D.chuyen || []).filter((c) => khop(norm(['chuyen ' + c.ma, c.ghiChu, c.seriDau, c.mauPB1, c.mauPB2].join(' ')), q));
+    const sps = (D.sanPham || []).filter((x) => khop(norm([x.ma, x.ten, x.tenDich].join(' ')), q));
+    const gc = D.ghiChu.filter((x) => khop(hayGC(x), q)), tl = tlNhom().filter((g) => g.ds.some((x) => khop(hayTL(x), q))), dd = D.dayDien.filter((x) => khop(hayDay(x), q));
+    if (cv.length + sps.length) o += `<div class="sec">${L(T.may[0], T.may[1])}<span>${cv.length + sps.length}</span></div>` + cv.map(rowLine).join('') + sps.map(rowSP).join('');
+    const plc = plcTim(q, {}, 5);
+    if (plc.length) o += `<div class="sec">${L(T.ct[0], T.ct[1])}<span>${plc.length >= 5 ? '5+' : plc.length}</span></div>` + plc.map((h) => rowPLC(h, q, true)).join('');
+    if (!gc.length && !tl.length && !dd.length && !cv.length && !sps.length && !plc.length) return o + `<div class="card empty">${TT('khongThay')}</div>`;
+    if (gc.length) o += `<div class="sec">${L(T.gc[0], T.gc[1])}<span>${gc.length}</span></div>` + gc.slice(0, 30).map((x) => rowGC(x, q)).join('');
+    if (tl.length) o += `<div class="sec">${L(T.tl[0], T.tl[1])}<span>${tl.length}</span></div>` + tl.slice(0, 30).map((g) => rowTL(g, q)).join('');
+    if (dd.length) o += `<div class="sec">${L(T.day[0], T.day[1])}<span>${dd.length}</span></div>` + dd.slice(0, 50).map((x) => rowDay(x, q)).join('');
+    return o;
+  },
+  after() { const i = $('#q'); i.addEventListener('input', debounce(() => { if (!i.isConnected) return; S.q = i.value; const p = i.selectionStart; render(); const j = $('#q'); if (j) { j.focus(); j.setSelectionRange(p, p); } }, 180)); }
+};
+function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+
+// ============ Ghi chú ============
+VIEWS.gc = {
+  html() {
+    const D = S.data, tags = {};
+    D.ghiChu.forEach((x) => (x.the || []).forEach((t) => { tags[t] = (tags[t] || 0) + 1; }));
+    const ds = D.ghiChu.filter((x) => !S.the || (x.the || []).indexOf(S.the) >= 0).sort((a, b) => String(b.capNhat).localeCompare(String(a.capNhat)));
+    return `<div class="chips"><button class="${!S.the ? 'on' : ''}" data-act="theChon" data-t="">${L(T.tatCa[0], T.tatCa[1])}</button>${Object.keys(tags).sort().map((t) => `<button class="${S.the === t ? 'on' : ''}" data-act="theChon" data-t="${esc(t)}">#${esc(t)} <span class="muted">${tags[t]}</span></button>`).join('')}</div>
+      ${ds.length ? ds.map((x) => rowGC(x)).join('') : `<div class="card empty">—</div>`}
+      <button class="btn fab" id="fabNote" data-act="noteNew">${IC.plus}${L(T.themGC[0], T.themGC[1])}</button>`;
+  }
+};
+async function anhUrl(id) {
+  if (S.anh[id]) return S.anh[id];
+  let v = await store.get('anh:' + id, null);
+  if (!v) { const d = await api('photo', { id }); v = 'data:' + d.mime + ';base64,' + d.b64; store.set('anh:' + id, v); }
+  S.anh[id] = v; return v;
+}
+async function napAnh(root) {
+  for (const img of $$('img[data-anh]', root)) { try { img.src = await anhUrl(img.dataset.anh); } catch (e) { img.alt = '!'; } }
+}
+function noteView(id) {
+  const x = S.data.ghiChu.find((n) => n.id === id); if (!x) return;
+  sheet(esc(x.tieuDe), `<div class="card">${x.tieuDeDich ? `<div class="zhbox"><b>${esc(x.tieuDeDich)}</b></div>` : ''}
+    <div class="pre" style="margin-top:10px">${esc(x.noiDung)}</div>${x.noiDungDich ? `<div class="zhbox pre">${esc(x.noiDungDich)}</div>` : ''}
+    <div style="margin-top:8px">${(x.the || []).map((t) => `<span class="chip">#${esc(t)}</span>`).join('')}${x.maMay ? `<span class="chip">${T.maMay[0]}: ${esc(x.maMay)}</span>` : ''}</div>
+    <div class="thumbs">${(x.anh || []).map((a) => `<div class="th"><img data-anh="${esc(a)}" alt=""></div>`).join('')}${(x._anhMoi || []).map((u) => `<div class="th"><img src="${u}" alt=""></div>`).join('')}</div>
+    <div class="muted" style="margin-top:8px">${esc(x.id)} · ${esc(x.capNhat)}</div></div>
+    <div class="btns"><button class="btn" data-act="noteEdit" data-id="${esc(x.id)}">${L(T.sua[0], T.sua[1])}</button>
+    <button class="btn bad" data-act="noteDel" data-id="${esc(x.id)}">${L(T.xoa[0], T.xoa[1])}</button></div>`, napAnh);
+}
+let ANH_MOI = [], ANH_GIU = [];
+function noteEdit(id) {
+  const x = id ? S.data.ghiChu.find((n) => n.id === id) : null;
+  ANH_MOI = []; ANH_GIU = x ? (x.anh || []).slice() : [];
+  sheet(x ? L(T.sua[0], T.sua[1]) : L(T.themGC[0], T.themGC[1]), `
+    <label class="f"><span class="l">${L(T.tieuDe[0], T.tieuDe[1])}</span><input class="i" id="nTitle" value="${esc(x ? x.tieuDe : '')}" maxlength="200"></label>
+    <label class="f"><span class="l">${L(T.noiDung[0], T.noiDung[1])}</span><textarea class="i" id="nBody">${esc(x ? x.noiDung : '')}</textarea></label>
+    <div class="grid2"><label class="f"><span class="l">${L(T.the[0], T.the[1])}</span><input class="i" id="nTags" value="${esc(x ? (x.the || []).join(', ') : (S.the || ''))}"></label>
+    <label class="f"><span class="l">${L(T.maMay[0], T.maMay[1])}</span><input class="i" id="nMay" value="${esc(x ? x.maMay : '')}"></label></div>
+    <div class="f"><span class="l" style="font-weight:600;font-size:14px">${L(T.anh[0], T.anh[1])}</span>
+    <div class="thumbs" id="nThumbs"></div>
+    <label class="btn ghost sm" style="margin-top:8px">${IC.cam}${L(T.chupAnh[0], T.chupAnh[1])}<input type="file" id="nPhoto" accept="image/*" capture="environment" multiple hidden></label></div>
+    <div class="card" style="margin-top:14px"><div style="font-weight:600;font-size:14px;margin-bottom:8px">${L(T.banDich[0], T.banDich[1])}</div>
+    <label class="f"><span class="l">${L(T.tdZh[0], T.tdZh[1])}</span><input class="i" id="nTitleZh" value="${esc(x ? x.tieuDeDich : '')}" placeholder="${T.dichSau[0]} · ${T.dichSau[1]}"></label>
+    <label class="f" style="margin:0"><span class="l">${L(T.ndZh[0], T.ndZh[1])}</span><textarea class="i" id="nBodyZh" style="min-height:70px" placeholder="${T.dichSau[0]} · ${T.dichSau[1]}">${esc(x ? x.noiDungDich : '')}</textarea></label></div>
+    <div class="btns"><button class="btn wide" id="nSave" data-act="noteSave" data-id="${esc(x ? x.id : '')}">${L(T.luu[0], T.luu[1])}</button></div>`, (o) => {
+    o.dataset.zh0 = x ? x.tieuDeDich || '' : ''; o.dataset.zhb0 = x ? x.noiDungDich || '' : '';
+    veAnhSua();
+    $('#nPhoto').addEventListener('change', async (e) => {
+      for (const f of Array.from(e.target.files || [])) { if (ANH_GIU.length + ANH_MOI.length >= 6) break; try { ANH_MOI.push(await nenAnh(f)); } catch (x) { toast('Ảnh lỗi · 图片错误', true); } }
+      e.target.value = ''; veAnhSua();
+    });
+  });
+}
+function veAnhSua() {
+  const b = $('#nThumbs'); if (!b) return;
+  b.innerHTML = ANH_GIU.map((a, i) => `<div class="th"><img data-anh="${esc(a)}" alt=""><button class="x" data-act="anhBoGiu" data-i="${i}">✕</button></div>`).join('') +
+    ANH_MOI.map((a, i) => `<div class="th"><img src="data:${a.mime};base64,${a.b64}" alt=""><button class="x" data-act="anhBoMoi" data-i="${i}">✕</button></div>`).join('');
+  napAnh(b);
+}
+// Thu nhỏ ảnh chụp về cạnh dài 1600 px, JPEG 80%: ảnh iPhone 3–5 MB còn khoảng 300 KB, gửi được cả khi sóng yếu
+function nenAnh(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const k = Math.min(1, 1600 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+      c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+      res({ mime: 'image/jpeg', b64: c.toDataURL('image/jpeg', 0.8).split(',')[1] });
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('img')); };
+    img.src = url;
+  });
+}
+async function noteSave(id) {
+  const o = $('#ov'), p = { id: id || '', tieuDe: $('#nTitle').value.trim(), noiDung: $('#nBody').value, the: theTu($('#nTags').value), maMay: $('#nMay').value.trim(), anh: ANH_GIU.slice(), anhMoi: ANH_MOI.slice() };
+  if (!p.tieuDe && !p.noiDung.trim()) { toast(L('Nhập tiêu đề hoặc nội dung', '请输入标题或内容'), true); return; }
+  // Chỉ gửi bản dịch khi người dùng tự sửa ô dịch: máy chủ đánh dấu "sửa tay" và không dịch đè về sau
+  const zh = $('#nTitleZh').value.trim(), zhb = $('#nBodyZh').value.trim();
+  if (zh !== o.dataset.zh0) p.tieuDeDich = zh;
+  if (zhb !== o.dataset.zhb0) p.noiDungDich = zhb;
+  $('#nSave').disabled = true;
+  const r = await ghi('noteSave', p, (p.tieuDe || p.noiDung).slice(0, 60), (op) => APDUNG.noteSave(op, p));
+  if (!r.ok) { $('#nSave').disabled = false; return; }
+  closeSheet(); if (!r.queued) tt('daLuu'); render();
+}
+async function noteDel(id) {
+  if (!confirmXoa()) return;
+  const r = await ghi('noteDelete', { id }, 'Xoá ghi chú ' + id, (op) => APDUNG.noteDelete(op, { id }));
+  if (r.ok) { closeSheet(); if (!r.queued) tt('daXoa'); render(); }
+}
+
+// ============ Tài liệu ============
+VIEWS.tl = {
+  html() {
+    const ds = tlNhom().filter((g) => !S.nhom || g.hh.nhom === S.nhom);
+    return `<div class="chips"><button class="${!S.nhom ? 'on' : ''}" data-act="nhomChon" data-n="">${L(T.tatCa[0], T.tatCa[1])}</button>${S.data.nhom.map((n) => `<button class="${S.nhom === n.id ? 'on' : ''}" data-act="nhomChon" data-n="${esc(n.id)}">${L(esc(n.ten), esc(n.tenZh))}</button>`).join('')}</div>
+      ${ds.length ? ds.map((g) => rowTL(g)).join('') : `<div class="card empty">—</div>`}
+      <button class="btn fab" id="fabDoc" data-act="docNew">${IC.plus}${L(T.themTL[0], T.themTL[1])}</button>`;
+  }
+};
+const kb = (n) => n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
+function docView(maTL) {
+  const ds = S.data.taiLieu.filter((x) => x.maTL === maTL).sort((a, b) => b.phienBan - a.phienBan); if (!ds.length) { closeSheet(); return; }
+  const hh = ds.find((x) => x.hienHanh) || ds[0];
+  sheet(esc(hh.ten), `<div class="card">${hh.tenDich ? `<div class="zhbox"><b>${esc(hh.tenDich)}</b></div>` : ''}
+    <div style="margin-top:8px"><span class="chip">${esc(tenNhom(hh.nhom))}</span>${(hh.the || []).map((t) => `<span class="chip">#${esc(t)}</span>`).join('')}</div>
+    <div class="btns"><button class="btn sm ghost" data-act="docEdit" data-id="${esc(hh.id)}">${L(T.sua[0], T.sua[1])}</button>
+    <button class="btn sm ghost" data-act="docNewVer" data-matl="${esc(maTL)}">${IC.up}${L(T.banMoi[0], T.banMoi[1])}</button></div></div>
+    <div class="sec">${L(T.cacPB[0], T.cacPB[1])}</div>
+    ${ds.map((x) => `<div class="card ver" data-id="${esc(x.id)}"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <b>v${x.phienBan}</b>${x.hienHanh ? `<span class="chip ok">${T.hieuLuc[0]} · ${T.hieuLuc[1]}</span>` : ''}${S.offDocs[x.id] ? `<span class="chip ok">offline</span>` : ''}
+      <span class="muted">${esc(x.kieu === 'LINK' ? 'Link' : (x.tenTep + ' · ' + kb(x.kichThuoc)))} · ${esc(String(x.lucTao).slice(0, 10))}</span></div>
+      <div class="btns"><button class="btn sm" data-act="verOpen" data-id="${esc(x.id)}">${L(T.moTL[0], T.moTL[1])}</button>
+      ${x.kieu === 'FILE' ? `<button class="btn sm ghost" data-act="verOffline" data-id="${esc(x.id)}">${S.offDocs[x.id] ? L(T.boLuu[0], T.boLuu[1]) : L(T.luuNgoai[0], T.luuNgoai[1])}</button>` : ''}
+      ${!x.hienHanh ? `<button class="btn sm ghost" data-act="verCurrent" data-id="${esc(x.id)}">${L(T.datHL[0], T.datHL[1])}</button>` : ''}
+      <button class="btn sm bad" data-act="verDel" data-id="${esc(x.id)}">${L(T.xoa[0], T.xoa[1])}</button></div></div>`).join('')}`);
+}
+function docForm(opt) {
+  // opt: { maTL } = tải phiên bản mới; { id } = sửa thông tin
+  opt = opt || {};
+  const sua = opt.id ? S.data.taiLieu.find((x) => x.id === opt.id) : null, goc = opt.maTL ? S.data.taiLieu.find((x) => x.maTL === opt.maTL && x.hienHanh) || S.data.taiLieu.find((x) => x.maTL === opt.maTL) : null;
+  const ref = sua || goc, kieu0 = sua ? sua.kieu : (goc ? goc.kieu : 'FILE');
+  sheet(sua ? L(T.sua[0], T.sua[1]) : goc ? L(T.banMoi[0], T.banMoi[1]) : L(T.themTL[0], T.themTL[1]), `
+    ${!sua ? `<div class="chips" id="dKieu"><button class="${kieu0 === 'FILE' ? 'on' : ''}" data-act="dKieu" data-k="FILE">${L(T.tep[0], T.tep[1])}</button><button class="${kieu0 === 'LINK' ? 'on' : ''}" data-act="dKieu" data-k="LINK">${L(T.link[0], T.link[1])}</button></div>` : ''}
+    <label class="f"><span class="l">${L(T.ten[0], T.ten[1])}</span><input class="i" id="dName" value="${esc(ref ? ref.ten : '')}"></label>
+    ${sua ? `<label class="f"><span class="l">${L(T.tenZh[0], T.tenZh[1])}</span><input class="i" id="dNameZh" value="${esc(sua.tenDich)}"></label>` : ''}
+    <div class="grid2"><label class="f"><span class="l">${L(T.nhom[0], T.nhom[1])}</span><select class="i" id="dGroup">${S.data.nhom.map((n) => `<option value="${esc(n.id)}" ${(ref ? ref.nhom : S.nhom) === n.id ? 'selected' : ''}>${esc(n.ten)} · ${esc(n.tenZh)}</option>`).join('')}</select></label>
+    <label class="f"><span class="l">${L(T.the[0], T.the[1])}</span><input class="i" id="dTags" value="${esc(ref ? (ref.the || []).join(', ') : '')}"></label></div>
+    ${!sua ? `<label class="f" id="dFileBox" ${kieu0 === 'LINK' ? 'hidden' : ''}><span class="l">${L(T.chonTep[0], T.chonTep[1])}</span><input class="i" type="file" id="dFile" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,image/*"></label>
+    <label class="f" id="dUrlBox" ${kieu0 === 'FILE' ? 'hidden' : ''}><span class="l">${L(T.url[0], T.url[1])}</span><input class="i" id="dUrl" inputmode="url" placeholder="https://drive.google.com/…"></label>` :
+    (sua.kieu === 'LINK' ? `<label class="f"><span class="l">${L(T.url[0], T.url[1])}</span><input class="i" id="dUrl" value="${esc(sua.url)}"></label>` : '')}
+    <div class="btns"><button class="btn wide" id="dSave" data-act="docSave" data-id="${esc(sua ? sua.id : '')}" data-matl="${esc(goc ? goc.maTL : '')}" data-kieu="${kieu0}">${L(T.luu[0], T.luu[1])}</button></div>`, (o) => {
+    const f = $('#dFile', o);
+    if (f) f.addEventListener('change', () => { if (f.files[0] && !$('#dName').value.trim()) $('#dName').value = f.files[0].name.replace(/\.[^.]+$/, ''); });
+  });
+}
+const docBase64 = (file) => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1] || ''); r.onerror = rej; r.readAsDataURL(file); });
+async function docSave(btn) {
+  const id = btn.dataset.id, maTL = btn.dataset.matl, kieu = btn.dataset.kieu, ten = $('#dName').value.trim();
+  const p = { ten, nhom: $('#dGroup').value, the: theTu($('#dTags').value) };
+  if (!ten) { toast(L('Nhập tên tài liệu', '请输入资料名称'), true); return; }
+  let action;
+  if (id) { action = 'docSave'; p.id = id; const z = $('#dNameZh'); const cu = S.data.taiLieu.find((x) => x.id === id); if (z && z.value.trim() !== (cu.tenDich || '')) p.tenDich = z.value.trim(); if ($('#dUrl')) p.url = $('#dUrl').value.trim(); }
+  else if (kieu === 'LINK') { action = 'docLink'; p.url = $('#dUrl').value.trim(); if (maTL) p.maTL = maTL; if (!/^https:\/\//.test(p.url)) { toast(L('Link phải bắt đầu bằng https://', '链接须以https://开头'), true); return; } }
+  else {
+    const f = $('#dFile').files[0]; if (!f) { toast(L('Chọn tệp', '请选择文件'), true); return; }
+    if (f.size > 25 * 1048576) { toast(L('Tệp quá 25 MB — hãy dán link Google Drive', '文件超过25MB，请粘贴Drive链接'), true); return; }
+    action = 'docUpload'; Object.assign(p, { tenTep: f.name, mime: f.type || 'application/octet-stream', b64: await docBase64(f) }); if (maTL) p.maTL = maTL;
+  }
+  btn.disabled = true; btn.innerHTML = TT('dangGui');
+  const r = await ghi(action, p, ten);
+  if (!r.ok) { btn.disabled = false; btn.innerHTML = TT('luu'); return; }
+  if (r.queued) { closeSheet(); render(); return; }
+  tt('daLuu'); render();
+  const x = r.data.taiLieu; docView(x.maTL || maTL);
+}
+async function verCall(action, id) {
+  if (action === 'docDelete' && !confirmXoa()) return;
+  const x = S.data.taiLieu.find((t) => t.id === id), maTL = x && x.maTL;
+  const r = await ghi(action, { id }, action + ' ' + id);
+  if (r.ok && !r.queued) { tt(action === 'docDelete' ? 'daXoa' : 'daLuu'); render(); docView(maTL); }
+}
+// Mở tài liệu: link thì mở link; tệp thì lấy qua máy chủ (Drive để riêng tư) hoặc bản đã lưu trên máy
+async function layBlob(id) {
+  let v = await store.get('doc:' + id, null);
+  if (!v) { const d = await api('docGet', { id }, { timeout: 120 }); v = { mime: d.mime, b64: d.b64, tenTep: d.tenTep }; }
+  const bin = atob(v.b64), u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  return { blob: new Blob([u8], { type: v.mime }), v };
+}
+async function moTL(id, trang) {
+  const x = S.data.taiLieu.find((t) => t.id === id); if (!x) return;
+  if (x.kieu === 'LINK') { window.open(x.url, '_blank', 'noopener'); return; }
+  const vw = document.createElement('div'); vw.id = 'viewer';
+  vw.innerHTML = `<div class="vb"><div class="t">${esc(x.ten)}${trang ? ' · ' + T.trang[0] + ' ' + trang : ''}</div><button data-act="viewClose">✕ ${T.dong[0]}</button></div><div class="nov">${TT('dangTai')}</div>`;
+  document.body.appendChild(vw);
+  try {
+    const { blob, v } = await layBlob(id), url = URL.createObjectURL(blob), conMo = $('#viewer'); if (!conMo) return;
+    const laPdf = /pdf/.test(v.mime), laAnh = /^image\//.test(v.mime);
+    conMo.dataset.url = url;
+    conMo.innerHTML = `<div class="vb"><div class="t">${esc(x.ten)} · v${x.phienBan}${trang ? ' · ' + T.trang[0] + ' ' + trang : ''}</div>
+      <a href="${url}" download="${esc(v.tenTep || x.tenTep || 'tai-lieu')}">${T.moTL[0]} · ${T.moTL[1]}</a><button data-act="viewClose">✕</button></div>` +
+      (laPdf ? `<iframe id="vFrame" src="${url}${trang ? '#page=' + trang : ''}" title="pdf"></iframe>` : laAnh ? `<img src="${url}" alt="">` :
+        `<div class="nov">${L('Tệp Word/Excel: bấm "Mở" để mở bằng ứng dụng trên máy', 'Word/Excel文件：点击"打开"用本机应用打开')}</div>`);
+  } catch (e) { const c = $('#viewer'); if (c) c.querySelector('.nov').innerHTML = errMsg(e); }
+}
+async function verOffline(id) {
+  if (S.offDocs[id]) { await store.del('doc:' + id); delete S.offDocs[id]; }
+  else {
+    toast(TT('dangTai'));
+    try { const d = await api('docGet', { id }, { timeout: 120 }); await store.set('doc:' + id, { mime: d.mime, b64: d.b64, tenTep: d.tenTep }); S.offDocs[id] = 1; tt('daLuuNgoai'); }
+    catch (e) { toast(errMsg(e), true); return; }
+  }
+  await store.set('offDocs', S.offDocs);
+  const x = S.data.taiLieu.find((t) => t.id === id); render(); if (x) docView(x.maTL);
+}
+
+// ============ Tra dây ============
+VIEWS.day = {
+  html() {
+    const q = S.wq, ds = S.data.dayDien.filter((x) => !norm(q) || khop(hayDay(x), q))
+      .sort((a, b) => String(a.banVe + a.to).localeCompare(String(b.banVe + b.to), 'vi', { numeric: true }) || String(a.soDay).localeCompare(String(b.soDay), 'vi', { numeric: true }));
+    return `<div class="search">${IC.tim}<input id="wq" type="search" placeholder="${T.timDay[0]}" value="${esc(q)}" autocomplete="off"></div>
+      <div class="btns" style="margin:0 0 12px"><button class="btn sm ghost" data-act="wireImport">${IC.xls}${L(T.nhapExcel[0], T.nhapExcel[1])}</button><button class="btn sm ghost" data-act="wireTpl">${L(T.fileMau[0], T.fileMau[1])}</button></div>
+      <div class="muted" style="margin:0 2px 8px">${ds.length} / ${S.data.dayDien.length}</div>
+      ${ds.slice(0, 200).map((x) => rowDay(x, q)).join('') || `<div class="card empty">${TT('khongThay')}</div>`}
+      <button class="btn fab" id="fabWire" data-act="wireNew">${IC.plus}${L(T.themDay[0], T.themDay[1])}</button>`;
+  },
+  after() { const i = $('#wq'); i.addEventListener('input', debounce(() => { if (!i.isConnected) return; S.wq = i.value; const p = i.selectionStart; render(); const j = $('#wq'); if (j) { j.focus(); j.setSelectionRange(p, p); } }, 180)); }
+};
+const tepPdf = () => S.data.taiLieu.filter((x) => x.kieu === 'FILE');
+function wireView(id) {
+  const x = S.data.dayDien.find((d) => d.id === id); if (!x) return;
+  const tl = S.data.taiLieu.find((t) => t.id === x.taiLieuId);
+  const r = (k, v) => v ? `<tr><th>${L(T[k][0], T[k][1])}</th><td>${esc(v)}</td></tr>` : '';
+  sheet(`<span class="mono">${esc(x.soDay)}</span>`, `<table class="t">${r('banVe', x.banVe)}${r('to', x.to)}${r('tuDiem', x.tuDiem)}${r('denDiem', x.denDiem)}${r('mau', x.mau)}${r('tinHieu', x.tinHieu)}${r('tinHieuZh', x.tinHieuZh)}${r('ghiChu', x.ghiChu)}
+    ${tl ? `<tr><th>${L(T.tlBanVe[0], T.tlBanVe[1])}</th><td>${esc(tl.ten)} · v${tl.phienBan}${x.trang ? ' · ' + T.trang[0] + ' ' + x.trang : ''}</td></tr>` : ''}</table>
+    <div class="btns">${tl ? `<button class="btn" data-act="wireOpenDoc" data-id="${esc(x.id)}">${IC.tl}${L(T.moBanVe[0], T.moBanVe[1])}</button>` : ''}
+    <button class="btn ghost" data-act="wireEdit" data-id="${esc(x.id)}">${L(T.sua[0], T.sua[1])}</button><button class="btn bad" data-act="wireDel" data-id="${esc(x.id)}">${L(T.xoa[0], T.xoa[1])}</button></div>`);
+}
+function wireEdit(id) {
+  const x = id ? S.data.dayDien.find((d) => d.id === id) : null, v = (k) => esc(x ? (x[k] === undefined ? '' : x[k]) : '');
+  const f = (k, idEl, extra) => `<label class="f"><span class="l">${L(T[k][0], T[k][1])}</span><input class="i" id="${idEl}" value="${v(k)}" ${extra || ''}></label>`;
+  sheet(x ? L(T.sua[0], T.sua[1]) : L(T.themDay[0], T.themDay[1]), `${f('soDay', 'wSo', 'class="i mono"')}
+    <div class="grid2">${f('banVe', 'wBanVe')}${f('to', 'wTo')}${f('tuDiem', 'wTu')}${f('denDiem', 'wDen')}</div>${f('mau', 'wMau')}${f('tinHieu', 'wTin')}
+    ${f('tinHieuZh', 'wTinZh', `placeholder="${T.dichSau[0]} · ${T.dichSau[1]}"`)}
+    <div class="grid2"><label class="f"><span class="l">${L(T.tlBanVe[0], T.tlBanVe[1])}</span><select class="i" id="wDoc"><option value="">${T.khongGan[0]}</option>${tepPdf().map((t) => `<option value="${esc(t.id)}" ${x && x.taiLieuId === t.id ? 'selected' : ''}>${esc(t.ten)} · v${t.phienBan}</option>`).join('')}</select></label>
+    ${f('trang', 'wTrang', 'type="number" min="0" inputmode="numeric"')}</div>${f('ghiChu', 'wGhi')}
+    <div class="btns"><button class="btn wide" id="wSave" data-act="wireSave" data-id="${esc(x ? x.id : '')}">${L(T.luu[0], T.luu[1])}</button></div>`, (o) => { o.dataset.zh0 = x ? x.tinHieuZh || '' : ''; });
+}
+async function wireSave(id) {
+  const o = $('#ov'), g = (e) => $(e).value.trim();
+  const p = { id: id || '', soDay: g('#wSo'), banVe: g('#wBanVe'), to: g('#wTo'), tuDiem: g('#wTu'), denDiem: g('#wDen'), mau: g('#wMau'), tinHieu: g('#wTin'), taiLieuId: g('#wDoc'), trang: Number(g('#wTrang')) || 0, ghiChu: g('#wGhi') };
+  if (g('#wTinZh') !== o.dataset.zh0) p.tinHieuZh = g('#wTinZh');
+  if (!p.soDay) { toast(L('Nhập số dây', '请输入线号'), true); return; }
+  const r = await ghi('wireSave', p, 'Dây ' + p.soDay, (op) => APDUNG.wireSave(op, p));
+  if (r.ok) { closeSheet(); if (!r.queued) tt('daLuu'); render(); }
+}
+async function wireDel(id) {
+  if (!confirmXoa()) return;
+  const r = await ghi('wireDelete', { id }, 'Xoá dây ' + id, (op) => APDUNG.wireDelete(op, { id }));
+  if (r.ok) { closeSheet(); if (!r.queued) tt('daXoa'); render(); }
+}
+// Cột của file mẫu nhập dây: [khoá, tiếng Việt, tiếng Trung]. Thứ tự: cột "(中文)" đứng trước để không bị nhận nhầm là cột tín hiệu.
+const COT_DAY = [['soDay', 'Số dây', '线号'], ['banVe', 'Bản vẽ', '图号'], ['to', 'Tờ', '图页'], ['tuDiem', 'Từ điểm', '起点'], ['denDiem', 'Đến điểm', '终点'],
+  ['mau', 'Màu dây', '颜色'], ['tinHieu', 'Tín hiệu', '信号'], ['tinHieuZh', 'Tín hiệu (中文)', '中文信号'], ['trang', 'Trang PDF', 'PDF页码'], ['ghiChu', 'Ghi chú', '备注']];
+function nhanCot(h) {
+  const n = norm(h);
+  if (/中文/.test(h)) return 'tinHieuZh';
+  const c = COT_DAY.find((c) => n === norm(c[1]) || n.indexOf(norm(c[1]) + ' ') === 0 || n.indexOf(norm(c[1]) + '·') === 0 || h.indexOf(c[2]) >= 0 || n === c[0].toLowerCase());
+  return c ? c[0] : '';
+}
+function wireImportForm() {
+  sheet(L(T.nhapExcel[0], T.nhapExcel[1]), `<div class="card muted">${L('Dòng 1 là tiêu đề cột như file mẫu. Trùng số dây + bản vẽ + tờ thì cập nhật, không thì thêm mới.', '第1行为列标题（同模板）。线号+图号+图页相同则更新，否则新增。')}</div>
+    <label class="f"><span class="l">${L(T.ganTLNhap[0], T.ganTLNhap[1])}</span><select class="i" id="wImpDoc"><option value="">${T.khongGan[0]}</option>${tepPdf().map((t) => `<option value="${esc(t.id)}">${esc(t.ten)} · v${t.phienBan}</option>`).join('')}</select></label>
+    <label class="btn wide">${IC.xls}${L(T.chonFile[0], T.chonFile[1])}<input type="file" id="wImport" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></label>
+    <div id="wImpKq"></div>`, (o) => {
+    $('#wImport', o).addEventListener('change', async (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      try {
+        const rows = await docXlsx(await f.arrayBuffer()); if (rows.length < 2) throw new Error('File không có dòng dữ liệu · 文件没有数据');
+        const map = rows[0].map((h) => nhanCot(String(h || '')));
+        if (map.indexOf('soDay') < 0) throw new Error('Không thấy cột "Số dây" · 找不到"线号"列');
+        const doc = $('#wImpDoc').value;
+        const ds = rows.slice(1).filter((r) => r.some((v) => String(v || '').trim())).map((r) => { const o2 = {}; map.forEach((k, i) => { if (k) o2[k] = String(r[i] === undefined ? '' : r[i]).trim(); }); if (doc) o2.taiLieuId = doc; return o2; });
+        $('#wImpKq').innerHTML = `<div class="card">${TT('dangGui')} ${ds.length}</div>`;
+        const r = await ghi('wireImport', { rows: ds, tenTep: f.name }, 'Nhập ' + f.name + ' (' + ds.length + ')');
+        if (!r.ok) { $('#wImpKq').innerHTML = ''; return; }
+        if (r.queued) { closeSheet(); render(); return; }
+        const d = r.data;
+        $('#wImpKq').innerHTML = `<div class="card" id="wImpOk"><b>${L('Thêm ' + d.them + ' · Cập nhật ' + d.sua + ' · Lỗi ' + d.loi.length, '新增 ' + d.them + ' · 更新 ' + d.sua + ' · 错误 ' + d.loi.length)}</b>
+          ${d.loi.map((x) => `<div class="muted">Dòng · 行 ${x.dong}: ${esc(x.loi)}</div>`).join('')}</div>`;
+        render();
+      } catch (x) { toast(errMsg(x), true); }
+      e.target.value = '';
+    });
+  });
+}
+
+// ============ Tính toán: DPI, tần số phun, delay ============
+// Công thức theo sổ tay Merlin D CE: DPI = (xung/vòng × số cạnh ÷ divider) ÷ chu vi trục (inch).
+// Delay tính THẲNG từ khoảng cách (mm) rồi mới làm tròn — không nhân tỉ lệ từ số đã làm tròn như bảng cũ của nhà cung cấp
+// (cách đó nhân sai số làm tròn lên, lệch tới 6 chấm ≈ 1,4 mm ở 112 dpi).
+function tinh(c) {
+  const chuVi = c.duongKinh / 25.4 * Math.PI, dpi = c.encoderPPR * c.soCanh / c.divider / chuVi;
+  const chamSP = c.daiSP / 25.4 * dpi, f = chamSP * c.tocDo / 60, mPhut = c.daiSP / 1000 * c.tocDo;
+  const toiDa = chamSP > 0 ? c.gioiHan * 1000 / chamSP * 60 : 0;
+  const dpiMax = c.tocDo > 0 ? c.gioiHan * 1000 / (c.daiSP / 25.4 * c.tocDo / 60) : Infinity;
+  const divMin = Math.ceil(c.encoderPPR * c.soCanh / chuVi / dpiMax - 1e-9);
+  const tre = (mm) => Math.round(mm / 25.4 * dpi);
+  const delay = [];
+  for (let n = 0; n < 4; n++) delay.push({ k: 'PB1-' + (n + 1), mm: n * c.khoangJA, d: tre(n * c.khoangJA) });
+  for (let n = 0; n < 4; n++) { const mm = 3 * c.khoangJA + c.khoangPB + c.buPB + n * c.khoangJA; delay.push({ k: 'PB2-' + (n + 1), mm, d: tre(mm) }); }
+  const muc = f <= c.gioiHan * 1000 ? 'ok' : f <= 20000 ? 'warn' : 'bad';
+  return { dpi, mmCham: 25.4 / dpi, f, mPhut, toiDa, divMin, delay, muc };
+}
+const CAU = [['encoderPPR', 'Xung encoder / vòng', '编码器每转脉冲', 'cPPR'], ['duongKinh', 'Đường kính trục encoder (mm)', '编码辊直径（mm）', 'cD'],
+  ['soCanh', 'Số cạnh giải mã (1, 2, 4)', '解码边沿（1、2、4）', 'cEdge'], ['divider', 'Divider', '分频', 'cDiv'], ['daiSP', 'Chiều dài 1 sản phẩm (mm)', '单片长度（mm）', 'cLen'],
+  ['tocDo', 'Tốc độ (miếng/phút)', '速度（片/分钟）', 'cPpm'], ['khoangJA', 'Khoảng cách JA (mm)', 'JA间距（mm）', 'cJA'], ['khoangPB', 'Khoảng PB1→PB2 (mm)', 'PB1→PB2间距（mm）', 'cPB'],
+  ['buPB', 'Bù lệch PB2 (mm)', 'PB2补偿（mm）', 'cBu'], ['gioiHan', 'Giới hạn ổn định (kHz)', '稳定上限（kHz）', 'cLim']];
+const so = (v, n) => Number(v).toLocaleString('vi-VN', { maximumFractionDigits: n === undefined ? 2 : n, minimumFractionDigits: 0 });
+VIEWS.tinh = {
+  html() {
+    const ds = S.data.cauHinh; if (!S.cfgId || !ds.find((x) => x.id === S.cfgId)) S.cfgId = ds[0] ? ds[0].id : '';
+    const c = ds.find((x) => x.id === S.cfgId) || {};
+    return `<label class="f"><span class="l">${L(T.bo[0], T.bo[1])}</span><select class="i" id="cBo">${ds.map((x) => `<option value="${esc(x.id)}" ${x.id === S.cfgId ? 'selected' : ''}>${esc(x.ten)}</option>`).join('')}</select></label>
+      <div id="cKq"></div>
+      <div class="card"><label class="f"><span class="l">${L('Tên bộ thông số', '参数组名称')}</span><input class="i" id="cTen" value="${esc(c.ten || '')}"></label>
+      <div class="grid2">${CAU.map((k) => `<label class="f"><span class="l">${L(k[1], k[2])}</span><input class="i" id="${k[3]}" type="number" step="any" inputmode="decimal" value="${esc(c[k[0]])}"></label>`).join('')}</div>
+      <div class="btns"><button class="btn" data-act="cfgSave">${L(T.luuBo[0], T.luuBo[1])}</button><button class="btn ghost" data-act="cfgSaveNew">${L(T.luuBoMoi[0], T.luuBoMoi[1])}</button></div></div>
+      <div class="card muted">${L('Tần số phun = số chấm trên 1 sản phẩm × tốc độ. Đầu in Galaxy ổn định 0–8 kHz; 8–20 kHz chỉ chạy tốt ở một số tần số rời rạc và có thể phải chỉnh xung kích (sổ tay đầu in).',
+        '喷射频率 = 单片点数 × 速度。Galaxy喷头0–8 kHz稳定；8–20 kHz仅在部分离散频率下良好，可能需调整发火脉冲。')}</div>`;
+  },
+  after() {
+    $('#cBo').addEventListener('change', (e) => { S.cfgId = e.target.value; render(); });
+    $$('#main input[type=number]').forEach((i) => i.addEventListener('input', veKetQua));
+    veKetQua();
+  }
+};
+function docCau() { const c = { ten: $('#cTen').value.trim() }; CAU.forEach((k) => { c[k[0]] = Number($('#' + k[3]).value); }); return c; }
+function veKetQua() {
+  const c = docCau(), box = $('#cKq');
+  if (!(c.encoderPPR > 0 && c.duongKinh > 0 && [1, 2, 4].indexOf(c.soCanh) >= 0 && c.divider > 0 && c.daiSP > 0 && c.gioiHan > 0)) {
+    box.innerHTML = `<div class="card" style="color:var(--bad)">${L('Kiểm tra lại thông số (số cạnh chỉ là 1, 2 hoặc 4)', '请检查参数（解码边沿只能为1、2或4）')}</div>`; return;
+  }
+  const r = tinh(c), nhan = { ok: ['Trong vùng ổn định', '稳定范围内'], warn: ['Vượt vùng ổn định — chỉ ổn ở vài tần số', '超出稳定范围'], bad: ['Vượt 20 kHz — ngoài khả năng đầu in', '超过20 kHz'] }[r.muc];
+  box.innerHTML = `<div class="kpis">
+    <div class="kpi"><div class="k">${L('DPI hướng chạy', '走纸方向DPI')}</div><div class="big" id="rDpi">${so(r.dpi, 2)}</div><div class="muted">${so(r.mmCham, 3)} mm/chấm</div></div>
+    <div class="kpi ${r.muc}" id="rStatus" data-muc="${r.muc}"><div class="k">${L('Tần số phun', '喷射频率')}</div><div class="big" id="rF">${so(r.f / 1000, 2)} kHz</div><div>${L(nhan[0], nhan[1])}</div></div>
+    <div class="kpi"><div class="k">${L('Tốc độ băng', '线速度')}</div><div class="big">${so(r.mPhut, 1)}</div><div class="muted">m/phút · ${so(r.mPhut / 60, 2)} m/s</div></div>
+    <div class="kpi"><div class="k">${L('Tốc độ tối đa (≤ ' + so(c.gioiHan) + ' kHz)', '最高速度')}</div><div class="big" id="rMax">${so(Math.floor(r.toiDa), 0)}</div><div class="muted">miếng/phút · 片/分钟</div><div class="muted">Divider tối thiểu · 最小分频: <b id="rDivMin">${r.divMin}</b></div></div></div>
+    <div class="sec">${L('Delay (tính thẳng từ khoảng cách)', '延时（按距离直接计算）')}</div>
+    <table class="t" id="rDelay"><tr><th></th><th>JA1</th><th>JA2</th><th>JA3</th><th>JA4</th></tr>
+    ${['PB1', 'PB2'].map((pb) => `<tr><th>${pb}</th>${[1, 2, 3, 4].map((n) => { const d = r.delay.find((x) => x.k === pb + '-' + n); return `<td class="n" data-d="${pb}-${n}"><b>${d.d}</b><div class="muted">${so(d.mm, 1)} mm</div></td>`; }).join('')}</tr>`).join('')}</table>`;
+}
+async function cfgSave(moi) {
+  const c = docCau();
+  if (!c.ten) { toast(L('Nhập tên bộ thông số', '请输入名称'), true); return; }
+  if (moi) { const ds = S.data.cauHinh; if (ds.some((x) => x.ten === c.ten)) c.ten += ' (2)'; } else c.id = S.cfgId;
+  const r = await ghi('cfgSave', c, c.ten, (op) => APDUNG.cfgSave(op, c));
+  if (r.ok) { if (!r.queued) { S.cfgId = r.data.cauHinh.id; tt('daLuu'); } render(); }
+}
+
+// ============ Thông số máy: chuyền → sản phẩm → thông số (theo màn hình bộ điều khiển Merlin D CE) ============
+// Mỗi cặp chuyền + sản phẩm có bộ thông số riêng. Mỗi lần lưu là một lần ghi mới (máy chủ không sửa dòng cũ);
+// thông số hiện tại = lần ghi mới nhất theo ngày áp dụng. Máy 1 màu chỉ có PB1 (JA1–4); máy 2 màu thêm PB2 (JA5–8).
+// Tên tiếng Anh giữ đúng chữ trên màn hình máy để nhìn app là tìm được ô cần chỉnh trên bộ điều khiển.
+const CHON = { encDir: ['Forward', 'Reverse'], encDecode: ['Single Edge', 'Two Edges', 'All Four Edges'], triggerMode: ['Auto', 'Once per Image'], fireMode: ['External', 'Internal'] };
+// Khối: [khoá, tên màn hình (tiếng Anh như trên máy), tiếng Việt, tiếng Trung, mục sổ tay, các ô]; ô: [khoá, nhãn máy, tiếng Việt, tiếng Trung, đơn vị]
+const KHOI = [
+  ['enc', 'Encoders', 'Encoder', '编码器', '§2.4', [['encDir', 'Encoder Direction', 'Chiều encoder', '编码器方向'], ['encDecode', 'Encoder Decode', 'Kiểu giải mã', '解码方式'],
+    ['encDPI', 'Encoder DPI', 'DPI encoder', '编码器DPI'], ['divider', 'Divider', 'Chia xung', '分频']]],
+  ['pc', 'Print Control', 'Điều khiển in', '打印控制', '§2.3.1', [['triggerMode', 'Trigger Mode', 'Chế độ trigger', '触发模式'], ['fireMode', 'Fire Mode', 'Chế độ phun', '喷射模式']]],
+  ['fs', 'Form Specification', 'Định vị ảnh', '图像定位', '§2.3.2', [['_len', 'Length', 'Khoảng cách ảnh = dài SP', '图像间距', 'in'], ['formDelay', 'Delay', 'Trễ từ trigger', '触发延时', 'in']]],
+  ['al', 'Head Alignments', 'Căn chỉnh JA', '喷嘴组对齐', '§2.3.3 · pixel', [['registration', 'Image Registration', 'Dịch ảnh', '图像偏移', 'pixel']], 'align'],
+  ['fp', 'Fire Pulses', 'Điện áp xung kích', '发火电压', '§2.6 · VDC', [], 'volt'],
+  ['pn', 'Pneumatics', 'Khí nén', '气动', '§2.5', [['meniscus', 'Meniscus Set point', 'Điểm đặt meniscus', '弯月面设定'], ['lungVac', 'Lung Vacuum Set point', 'Chân không lung', '真空设定'],
+    ['purgeShort', 'Short Purge', 'Xả ngắn', '短清洗', 's'], ['purgeLong', 'Long Purge', 'Xả dài', '长清洗', 's']]],
+  ['hd', 'Heads · Temperatures / Ink Levels', 'Nhiệt độ & mực', '温度与墨位', '§2.7', [['nhietTam', 'Plate (Jetting) Set point', 'Nhiệt tấm phun', '喷板温度', '°C']]],
+  ['sx', '', 'Sản xuất', '生产', '', [['tocDo', 'Tốc độ chạy', 'Tốc độ chạy', '速度', 'sp/ph']]]
+];
+const O_PB = [['nhietBinh', 'Reservoir Set point', 'Nhiệt bình mực', '墨盒温度', '°C'], ['lois', 'LOIS Set point', 'Mức mực', '墨位', ''], ['muc', 'Ink', 'Loại mực', '墨水', '']];
+const DL = () => S.data;
+const dsChuyen = () => (DL().chuyen || []);
+const dsSP = () => (DL().sanPham || []);
+const cvOf = (id) => dsChuyen().find((x) => x.id === id);
+const spOf = (id) => dsSP().find((x) => x.id === id);
+const tenChuyen = (c) => 'Chuyền ' + c.ma;
+const nhanMau = (n) => n === 2 ? '2 màu · 双色' : '1 màu · 单色';
+const tenPB = (c, m) => 'PB' + m + (c && c['mauPB' + m] ? ' · ' + c['mauPB' + m] : '');
+const khoaTs = (t) => String(t.apDung) + String(t.lucTao) + String(t.id);
+const lichSu = (cv, sp) => (DL().thongSo || []).filter((t) => t.chuyen === cv && t.sanPham === sp).sort((a, b) => khoaTs(a).localeCompare(khoaTs(b)));
+const hienTai = (cv, sp) => { const ds = lichSu(cv, sp); return ds[ds.length - 1] || null; };
+const lichSuChay = (cv) => (DL().chaySP || []).filter((x) => x.chuyen === cv).sort((a, b) => String(b.tuNgay + b.lucTao + b.id).localeCompare(String(a.tuNgay + a.lucTao + a.id)));
+const dangChay = (cv) => { const x = lichSuChay(cv)[0]; return x ? x.sanPham : ''; };
+const spCuaChuyen = (cv) => (DL().chuyenSP || []).filter((l) => l.chuyen === cv).map((l) => spOf(l.sanPham)).filter(Boolean).sort((a, b) => String(a.ma).localeCompare(String(b.ma), 'vi', { numeric: true }));
+const chuyenCuaSP = (sp) => (DL().chuyenSP || []).filter((l) => l.sanPham === sp).map((l) => cvOf(l.chuyen)).filter(Boolean);
+const soTs = (v) => (v === '' || v === undefined || v === null) ? '' : (isFinite(Number(v)) && String(v).trim() !== '' ? so(Number(v), 3) : String(v));
+const dayJA = (v) => String(v || '').split('/').map((x) => x.trim()).filter((x, i, a) => a.slice(i).some((y) => y !== ''));
+const coBo = () => DL().cauHinh[0] || {};
+const daiSPmm = (sp) => Number((spOf(sp) || {}).daiSP) || 0;
+// DPI để tính tần số: lấy Encoder DPI đã ghi; chưa ghi thì tính từ divider theo encoder/trục ở bộ thông số đầu tiên màn Tính toán
+function dpiTs(t) {
+  if (Number(t.encDPI) > 0) return Number(t.encDPI);
+  const b = coBo(), dv = Number(t.divider);
+  return dv > 0 && b.encoderPPR > 0 && b.duongKinh > 0 ? b.encoderPPR * (b.soCanh || 1) / dv / (b.duongKinh / 25.4 * Math.PI) : 0;
+}
+function tanSoTs(t) { const f = daiSPmm(t.sanPham) / 25.4 * dpiTs(t) * Number(t.tocDo) / 60; return isFinite(f) && f > 0 ? f : 0; }
+function chipKhz(t) {
+  const f = t ? tanSoTs(t) : 0, lim = (coBo().gioiHan || 8) * 1000; if (!f) return '';
+  return `<span class="chip ${f <= lim ? 'ok' : f <= 20000 ? 'warn' : 'bad'}" data-khz="${(f / 1000).toFixed(1)}">${so(f / 1000, 1)} kHz${f > lim ? ' > ' + so(lim / 1000) : ''}</span>`;
+}
+const chipPB = (c, m) => `<span class="chip pb${m}${c.soMau === 1 ? ' pb0' : ''}">${esc(tenPB(c, m))}</span>`;
+const rowLine = (c) => {
+  const spId = dangChay(c.id), sp = spOf(spId), t = spId ? hienTai(c.id, spId) : null, n = spCuaChuyen(c.id).length;
+  return `<button class="row line" data-act="lineView" data-id="${esc(c.id)}">${IC.may}<div class="main"><div class="nm">${esc(tenChuyen(c))} <span class="chip ${c.soMau === 2 ? 'pb2' : 'pb0'}">${nhanMau(c.soMau)}</span></div>
+  ${sp ? `<div class="sub"><span class="dot"></span>${T.dangChay[0]} · ${T.dangChay[1]}: <b class="mono">${esc(sp.ma)}</b> ${esc(sp.ten)}</div>` : `<div class="sub muted">${L('Chưa chọn sản phẩm đang chạy', '未选择运行产品')}</div>`}
+  ${t ? `<div class="sub">Divider ${esc(soTs(t.divider) || '—')} · ${esc(soTs(t.encDPI) || '—')} dpi · ${esc(soTs(t.tocDo) || '—')} sp/ph ${chipKhz(t)}${t._cho ? ` <span class="chip warn">${T.choGui[0]}</span>` : ''}</div>`
+    : sp ? `<div><span class="chip warn">${T.chuaGhi[0]} · ${T.chuaGhi[1]}</span></div>` : ''}
+  <div class="sub muted">${n} ${L('sản phẩm', '个产品').replace(/<\/?span[^>]*>/g, ' ')}</div></div></button>`;
+};
+const rowSP = (sp) => `<button class="row prod" data-act="spView" data-id="${esc(sp.id)}">${IC.tl}<div class="main"><div class="nm"><span class="mono">${esc(sp.ma)}</span> ${esc(sp.ten)}</div>
+  ${sp.tenDich ? `<div class="sub">${esc(sp.tenDich)}</div>` : ''}<div class="sub">${sp.daiSP ? esc(soTs(sp.daiSP)) + ' mm · ' : ''}${chuyenCuaSP(sp.id).map((c) => `<span class="chip">${esc(c.ma)}${dangChay(c.id) === sp.id ? ' ●' : ''}</span>`).join('') || '—'}</div></div></button>`;
+VIEWS.may = {
+  html() {
+    const loc = S.soMau;
+    const chips = `<div class="chips">${[[0, 'Tất cả', '全部'], [1, '1 màu', '单色'], [2, '2 màu', '双色'], [9, 'Sản phẩm', '产品']].map((x) => `<button class="${loc === x[0] ? 'on' : ''}" data-act="mauChon" data-m="${x[0]}">${L(x[1], x[2])}</button>`).join('')}</div>`;
+    if (loc === 9) {
+      return chips + (dsSP().slice().sort((a, b) => String(a.ma).localeCompare(String(b.ma), 'vi', { numeric: true })).map(rowSP).join('') || `<div class="card empty">${L('Chưa có sản phẩm', '暂无产品')}</div>`) +
+        `<button class="btn fab" id="fabSP" data-act="spEdit" data-id="">${IC.plus}${L('Sản phẩm', '产品')}</button>`;
+    }
+    const ds = dsChuyen().filter((c) => !loc || c.soMau === loc);
+    return chips + `<div class="btns" style="margin:0 0 12px"><button class="btn sm ghost" data-act="tsCompare">${L(T.soSanh[0], T.soSanh[1])}</button></div>` + (ds.map(rowLine).join('') || `<div class="card empty">—</div>`);
+  }
+};
+// ----- Màn một chuyền -----
+function lineView(id) {
+  const c = cvOf(id); if (!c) return;
+  const run = dangChay(id), ds = spCuaChuyen(id), ls = lichSuChay(id);
+  const the = (sp, on) => { const t = hienTai(id, sp.id); return `<div class="card spl${on ? ' on' : ''}" data-sp="${esc(sp.id)}"><div style="display:flex;gap:8px;align-items:flex-start"><div style="flex:1;min-width:0">
+    <div class="mono muted">${esc(sp.ma)}</div><b>${esc(sp.ten)}</b>${sp.tenDich ? ` <span class="muted">${esc(sp.tenDich)}</span>` : ''}
+    <div class="muted">${t ? `${T.apDung[0]} ${esc(t.apDung)} ${chipKhz(t)}` : `<span style="color:var(--warn)">${T.chuaGhi[0]} · ${T.chuaGhi[1]}</span>`}</div></div>
+    ${on ? `<span class="chip ok">${T.dangChay[0]}</span>` : ''}</div>
+    <div class="btns"><button class="btn sm${on ? '' : ' ghost'}" data-act="tsView" data-cv="${esc(id)}" data-sp="${esc(sp.id)}">${L('Xem thông số', '查看参数')}</button>
+    <button class="btn sm ghost" data-act="tsNew" data-cv="${esc(id)}" data-sp="${esc(sp.id)}">${L(T.capNhatTs[0], T.capNhatTs[1])}</button>
+    ${on ? '' : `<button class="btn sm ghost" style="background:var(--okbg);color:var(--ok)" data-act="runForm" data-cv="${esc(id)}" data-sp="${esc(sp.id)}">${L('Chuyển sang SP này', '切换到此产品')}</button>
+    <button class="btn sm bad" data-act="lineProdOff" data-cv="${esc(id)}" data-sp="${esc(sp.id)}">${L('Gỡ', '移除')}</button>`}</div></div>`; };
+  const runSp = spOf(run);
+  sheet(`${esc(tenChuyen(c))} <span class="chip ${c.soMau === 2 ? 'pb2' : 'pb0'}">${nhanMau(c.soMau)}</span>`, `
+    <div class="muted" style="margin:-6px 0 8px">${chipPB(c, 1)}${c.soMau === 2 ? chipPB(c, 2) : ''} ${c.soMau === 2 ? 'PB1 = JA1–4 · PB2 = JA5–8' : 'PB1 = JA1–4'}</div>
+    <div class="sec">${L(T.dangChay[0], T.dangChay[1])}</div>${runSp ? the(runSp, true) : `<div class="card empty">${L('Chưa chọn sản phẩm đang chạy', '未选择运行产品')}</div>`}
+    <div class="sec">${L('Sản phẩm của chuyền này', '本线产品')}<span>${ds.length}</span></div>
+    ${ds.filter((sp) => sp.id !== run).map((sp) => the(sp, false)).join('')}
+    <div class="btns"><button class="btn ghost wide" id="lineAddSp" data-act="lineAddSp" data-id="${esc(id)}">${IC.plus}${L('Thêm sản phẩm vào chuyền', '添加产品到本线')}</button></div>
+    <div class="sec">${L('Đầu in trên chuyền', '本线喷头')}</div>
+    <div class="card"><table class="t kvt"><tr><th>${L('Số seri đầu in', '喷头序列号')}</th><td>${esc(c.seriDau || '—')}</td></tr><tr><th>${L('Ngày thay đầu in', '换喷头日期')}</th><td>${esc(c.thayDau || '—')}</td></tr>
+    <tr><th>${L('Ngày thay lọc mực', '换滤芯日期')}</th><td>${esc(c.thayLoc || '—')}</td></tr></table>
+    <div class="btns"><button class="btn sm ghost" data-act="lineEdit" data-id="${esc(id)}">${L(T.sua[0], T.sua[1])}</button></div></div>
+    <div class="sec">${L('Lịch sử chạy', '运行记录')}</div>
+    <div class="card">${ls.length ? ls.map((x, i) => { const sp = spOf(x.sanPham); return `<div class="runh">${esc(x.tuNgay)} → ${i === 0 ? 'nay · 至今' : esc(ls[i - 1].tuNgay)}: <b class="mono">${esc(sp ? sp.ma : x.sanPham)}</b> ${esc(sp ? sp.ten : '')}</div>`; }).join('') : '—'}</div>`);
+}
+function runForm(cv, sp) {
+  const c = cvOf(cv), p = spOf(sp);
+  sheet(L('Chuyển sản phẩm đang chạy', '切换运行产品'), `<div class="card">${esc(tenChuyen(c))} → <b class="mono">${esc(p.ma)}</b> ${esc(p.ten)}</div>
+    <label class="f"><span class="l">${L('Chạy từ ngày', '开始日期')}</span><input class="i" type="date" id="runNgay" value="${TODAY()}"></label>
+    <button class="btn wide" id="runSave" data-act="runSave" data-cv="${esc(cv)}" data-sp="${esc(sp)}">${L(T.luu[0], T.luu[1])}</button>`);
+}
+async function runSave(cv, sp) {
+  const p = { chuyen: cv, sanPham: sp, tuNgay: $('#runNgay').value };
+  if (!p.tuNgay) { toast(L('Chọn ngày', '请选择日期'), true); return; }
+  const r = await ghi('runSet', p, 'Chạy ' + (spOf(sp) || {}).ma, (op) => APDUNG.runSet(op, p));
+  if (r.ok) { if (!r.queued) tt('daLuu'); render(); lineView(cv); }
+}
+function lineAddSp(cv) {
+  const co = spCuaChuyen(cv).map((x) => x.id), con = dsSP().filter((x) => co.indexOf(x.id) < 0);
+  sheet(L('Thêm sản phẩm vào chuyền', '添加产品到本线'), `${con.length ? `<label class="f"><span class="l">${L('Chọn sản phẩm đã có', '选择已有产品')}</span>
+    <select class="i" id="addSp">${con.map((x) => `<option value="${esc(x.id)}">${esc(x.ma)} · ${esc(x.ten)}</option>`).join('')}</select></label>
+    <button class="btn wide" id="addSpOk" data-act="lineAddSpOk" data-cv="${esc(cv)}">${L('Thêm', '添加')}</button>
+    <div class="sec">${L('Hoặc tạo sản phẩm mới', '或新建产品')}</div>` : ''}
+    <button class="btn ghost wide" id="addSpNew" data-act="spEdit" data-id="" data-cv="${esc(cv)}">${IC.plus}${L('Sản phẩm mới', '新产品')}</button>`);
+}
+async function lineAddSpOk(cv, sp) {
+  const p = { chuyen: cv, sanPham: sp };
+  const r = await ghi('lineProduct', p, 'Gắn SP vào chuyền', (op) => APDUNG.lineProduct(op, p));
+  if (r.ok) { render(); tsForm(cv, sp); }
+}
+async function lineProdOff(cv, sp) {
+  if (!window.confirm('Gỡ sản phẩm khỏi chuyền? Thông số cũ vẫn giữ trên Google Sheet. · 从本线移除产品？')) return;
+  const p = { chuyen: cv, sanPham: sp, hoatDong: 0 };
+  const r = await ghi('lineProduct', p, 'Gỡ SP khỏi chuyền', (op) => APDUNG.lineProduct(op, p));
+  if (r.ok) { render(); lineView(cv); }
+}
+// ----- Sản phẩm -----
+function spView(id) {
+  const sp = spOf(id); if (!sp) return;
+  const cvs = chuyenCuaSP(id);
+  sheet(`<span class="mono">${esc(sp.ma)}</span> ${esc(sp.ten)}`, `<div class="card">${sp.tenDich ? `<div class="zhbox">${esc(sp.tenDich)}</div>` : ''}
+    <table class="t kvt" style="margin-top:8px"><tr><th>${L('Chiều dài SP', '单片长度')}</th><td>${sp.daiSP ? esc(soTs(sp.daiSP)) + ' mm = ' + so(Number(sp.daiSP) / 25.4, 3) + ' in' : '—'}</td></tr>
+    ${sp.ghiChu ? `<tr><th>${L('Ghi chú', '备注')}</th><td>${esc(sp.ghiChu)}</td></tr>` : ''}</table>
+    <div class="btns"><button class="btn sm ghost" data-act="spEdit" data-id="${esc(id)}">${L(T.sua[0], T.sua[1])}</button></div></div>
+    <div class="sec">${L('Chạy ở các chuyền', '使用的产线')}<span>${cvs.length}</span></div>
+    ${cvs.map((c) => { const t = hienTai(c.id, id); return `<div class="card"><b>${esc(tenChuyen(c))}</b> <span class="chip ${c.soMau === 2 ? 'pb2' : 'pb0'}">${nhanMau(c.soMau)}</span>${dangChay(c.id) === id ? ` <span class="chip ok">${T.dangChay[0]}</span>` : ''}
+      <div class="muted">${t ? T.apDung[0] + ' ' + esc(t.apDung) + ' ' + chipKhz(t) : T.chuaGhi[0]}</div>
+      <div class="btns"><button class="btn sm" data-act="tsView" data-cv="${esc(c.id)}" data-sp="${esc(id)}">${L('Xem thông số', '查看参数')}</button></div></div>`; }).join('') || `<div class="card empty">—</div>`}`);
+}
+function spEdit(id, cv) {
+  const x = id ? spOf(id) : null;
+  sheet(x ? L(T.sua[0], T.sua[1]) : L('Sản phẩm mới', '新产品'), `<div class="grid2">${oTs('spMa', 'Mã sản phẩm', '产品编号', x ? x.ma : '', 'autocomplete="off"')}${oTs('spDai', 'Chiều dài (mm)', '长度（mm）', x ? x.daiSP : '')}</div>
+    ${oTs('spTen', 'Tên sản phẩm', '产品名称', x ? x.ten : '', 'autocomplete="off"')}
+    ${oTs('spZh', 'Tên tiếng Trung (để trống = tự dịch)', '中文名称（留空自动翻译）', x ? x.tenDich : '', 'autocomplete="off"')}
+    ${oTs('spGhi', 'Ghi chú', '备注', x ? x.ghiChu : '', 'autocomplete="off"')}
+    <div class="muted" style="margin:-4px 0 10px">${L('Chiều dài SP chính là Length ở màn Form Specification (máy hiện inch).', '单片长度即 Form Specification 中的 Length（机器显示英寸）。')}</div>
+    <div class="btns"><button class="btn wide" id="spSave" data-act="spSave" data-id="${esc(id || '')}" data-cv="${esc(cv || '')}">${L(T.luu[0], T.luu[1])}</button></div>`, (o) => { o.dataset.zh0 = x ? x.tenDich || '' : ''; });
+}
+async function spSave(id, cv) {
+  const o = $('#ov'), g = (e) => $(e).value.trim();
+  const p = { id: id || '', ma: g('#spMa'), ten: g('#spTen'), daiSP: g('#spDai'), ghiChu: g('#spGhi') };
+  if (g('#spZh') !== o.dataset.zh0) p.tenDich = g('#spZh');
+  if (!p.ma || !p.ten) { toast(L('Nhập mã và tên sản phẩm', '请输入产品编号和名称'), true); return; }
+  const r = await ghi('productSave', p, 'SP ' + p.ma, (op) => APDUNG.productSave(op, p));
+  if (!r.ok) return;
+  if (!r.queued) tt('daLuu');
+  const spId = r.queued ? maTuOp('SP', r.op) : r.data.sanPham.id;
+  render();
+  if (cv) await lineAddSpOk(cv, spId); else spView(spId);
+}
+// ----- Xem thông số một chuyền + sản phẩm -----
+const giaTri = (t, k, c) => k === '_len' ? (daiSPmm(t.sanPham) ? so(daiSPmm(t.sanPham) / 25.4, 3) : '') : soTs(t[k]);
+function bangJA(c, t, k, truoc, sua) {
+  const a = dayJA(t[k]), b = truoc ? dayJA(truoc[k]) : null;
+  return `<table class="t ja">${[1, 2].slice(0, c.soMau).map((m) => `<tr><th></th>${[1, 2, 3, 4].map((j) => `<th>JA${(m - 1) * 4 + j}</th>`).join('')}</tr>
+    <tr><td class="l">${chipPB(c, m)}</td>${[0, 1, 2, 3].map((j) => { const i = (m - 1) * 4 + j, doi = b && (b[i] || '') !== (a[i] || '');
+      return sua ? `<td><input class="i ja" data-k="${k}" data-i="${i}" id="f_${k}_${i}" inputmode="decimal" value="${esc(a[i] || '')}"></td>` : `<td${doi ? ' class="doi"' : ''}><b>${esc(soTs(a[i]) || '—')}</b></td>`; }).join('')}</tr>`).join('')}</table>`;
+}
+function bangTs(c, t, truoc) {
+  const doi = (k) => truoc && String(truoc[k] || '') !== String(t[k] || '') ? ' doi' : '';
+  return KHOI.map((kh) => `<div class="scr" data-k="${kh[0]}"><div class="h">${kh[1] ? `<span class="en">${kh[1]}</span>` : ''}<span class="vi">${kh[2]}</span><span class="zh">${kh[3]}</span><span class="ref">${kh[4]}</span></div>
+    ${kh[6] ? bangJA(c, t, kh[6], truoc) : ''}
+    ${kh[0] === 'hd' ? `<table class="t pbt"><tr><th></th>${[1, 2].slice(0, c.soMau).map((m) => `<th>${chipPB(c, m)}</th>`).join('')}</tr>
+      ${O_PB.map((f) => `<tr><td class="l"><span class="en">${f[1]}</span><span class="vi">${f[2]} · ${f[3]}</span></td>${[1, 2].slice(0, c.soMau).map((m) => `<td class="${doi(f[0] + m)}"><b>${esc(soTs(t[f[0] + m]) || '—')}</b>${t[f[0] + m] && f[4] ? ' ' + f[4] : ''}</td>`).join('')}</tr>`).join('')}</table>` : ''}
+    <div class="kv">${kh[5].map((f) => { const v = giaTri(t, f[0], c); return `<div class="k${doi(f[0])}"><span class="en">${f[1]}</span><span class="vi">${f[2]} · ${f[3]}</span></div><div class="v${doi(f[0])}">${esc(v || '—')}${v && f[4] ? ` <small>${f[4]}</small>` : ''}</div>`; }).join('')}</div></div>`).join('');
+}
+// Liệt kê các ô đổi so với lần ghi trước: "Fire Pulses JA5: 102 → 104"
+function cacThayDoi(c, t, truoc) {
+  if (!truoc) return [];
+  const out = [], s2 = (v) => soTs(v) || '—';
+  KHOI.forEach((kh) => {
+    kh[5].forEach((f) => { if (f[0][0] !== '_' && String(truoc[f[0]] || '') !== String(t[f[0]] || '')) out.push(`${f[1] || f[2]}: ${s2(truoc[f[0]])} → ${s2(t[f[0]])}`); });
+    if (kh[6]) { const a = dayJA(truoc[kh[6]]), b = dayJA(t[kh[6]]); for (let i = 0; i < c.soMau * 4; i++) if ((a[i] || '') !== (b[i] || '')) out.push(`${kh[1]} JA${i + 1}: ${s2(a[i])} → ${s2(b[i])}`); }
+    if (kh[0] === 'hd') [1, 2].slice(0, c.soMau).forEach((m) => O_PB.forEach((f) => { if (String(truoc[f[0] + m] || '') !== String(t[f[0] + m] || '')) out.push(`${f[1]} PB${m}: ${s2(truoc[f[0] + m])} → ${s2(t[f[0] + m])}`); }));
+  });
+  return out;
+}
+function tsView(cv, sp, id) {
+  const c = cvOf(cv), p = spOf(sp); if (!c || !p) return;
+  const ds = lichSu(cv, sp), t = id ? ds.find((x) => x.id === id) : ds[ds.length - 1], i = ds.indexOf(t), truoc = id ? ds[i - 1] : null;
+  sheet(`${esc(tenChuyen(c))} · <span class="mono">${esc(p.ma)}</span>`, `<div class="card top"><b>${esc(p.ten)}</b>${p.tenDich ? ` <span class="muted">${esc(p.tenDich)}</span>` : ''}
+    <div style="margin-top:6px">${t ? `<span class="chip">${T.apDung[0]} ${esc(t.apDung)}</span>${chipKhz(t)}${t === ds[ds.length - 1] ? `<span class="chip ok">${T.hienTai[0]} · ${T.hienTai[1]}</span>` : `<span class="chip warn">${L('Lần ghi cũ', '旧记录').replace(/<\/?span[^>]*>/g, ' ')}</span>`}` : ''}
+    ${chipPB(c, 1)}${c.soMau === 2 ? chipPB(c, 2) : ''}</div>
+    ${t && t.ghiChu ? `<div style="margin-top:6px">${esc(t.ghiChu)}${t.ghiChuDich ? ` <span class="muted">${esc(t.ghiChuDich)}</span>` : ''}</div>` : ''}
+    ${truoc ? `<div class="muted" style="margin-top:6px">${L('Ô tô cam: khác lần ghi trước (' + esc(truoc.apDung) + ')', '橙色：与上次记录不同')}</div>` : ''}</div>
+    ${t ? `<div class="sec">${L('Theo màn hình bộ điều khiển Merlin D CE', '按 Merlin D CE 控制器界面')}</div>${bangTs(c, t, truoc)}` : `<div class="card empty">${TT('chuaGhi')}</div>`}
+    <div class="btns"><button class="btn wide" id="tsNewBtn" data-act="tsNew" data-cv="${esc(cv)}" data-sp="${esc(sp)}">${L(T.capNhatTs[0], T.capNhatTs[1])}</button></div>
+    <div class="sec">${L(T.lichSuTs[0], T.lichSuTs[1])}<span>${ds.length}</span></div>
+    ${ds.slice().reverse().map((x) => { const j = ds.indexOf(x), dois = cacThayDoi(c, x, ds[j - 1]); return `<div class="card hist" data-id="${esc(x.id)}">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>${esc(x.apDung)}</b>${j === ds.length - 1 ? `<span class="chip ok">${T.hienTai[0]}</span>` : ''}${x._cho ? `<span class="chip warn">${T.choGui[0]}</span>` : ''}</div>
+      ${x.ghiChu ? `<div>${esc(x.ghiChu)}</div>` : ''}${x.ghiChuDich ? `<div class="muted">${esc(x.ghiChuDich)}</div>` : ''}
+      ${j === 0 ? `<div class="muted">${L('Lần ghi đầu tiên', '首次记录')}</div>` : dois.length ? `<ul class="doi">${dois.map((d) => `<li>${esc(d)}</li>`).join('')}</ul>` : `<div class="muted">${L('Không đổi thông số', '参数未变')}</div>`}
+      <div class="btns">${x !== t ? `<button class="btn sm ghost" data-act="tsShow" data-cv="${esc(cv)}" data-sp="${esc(sp)}" data-id="${esc(x.id)}">${L('Xem lần này', '查看此记录')}</button>` : ''}
+      ${x._cho ? '' : `<button class="btn sm bad" data-act="tsDel" data-id="${esc(x.id)}">${L(T.xoaNham[0], T.xoaNham[1])}</button>`}</div></div>`; }).join('')}
+    <div class="btns"><button class="btn ghost" data-act="lineView" data-id="${esc(cv)}">← ${esc(tenChuyen(c))}</button></div>`);
+}
+// ----- Form cập nhật -----
+const oTs = (id, nhan, zh, v, them) => `<label class="f"><span class="l">${L(nhan, zh)}</span><input class="i" id="${id}" value="${esc(v === undefined || v === null ? '' : v)}" ${them || 'inputmode="decimal" autocomplete="off"'}></label>`;
+let TS_GOC = null;   // lần ghi hiện tại (để tô ô đã sửa và liệt kê thay đổi)
+function nguonChep(cv, sp) {
+  // Chép được từ: sản phẩm khác cùng chuyền, hoặc cùng sản phẩm ở chuyền khác (đã có thông số)
+  const out = [];
+  spCuaChuyen(cv).forEach((x) => { if (x.id !== sp && hienTai(cv, x.id)) out.push([cv, x.id]); });
+  chuyenCuaSP(sp).forEach((c) => { if (c.id !== cv && hienTai(c.id, sp)) out.push([c.id, sp]); });
+  (DL().chuyenSP || []).forEach((l) => { if (!out.some((o) => o[0] === l.chuyen && o[1] === l.sanPham) && !(l.chuyen === cv && l.sanPham === sp) && hienTai(l.chuyen, l.sanPham)) out.push([l.chuyen, l.sanPham]); });
+  return out;
+}
+function tsForm(cv, sp, tu) {
+  const c = cvOf(cv), p = spOf(sp); if (!c || !p) return;
+  TS_GOC = hienTai(cv, sp);
+  const src = tu ? hienTai(tu[0], tu[1]) : TS_GOC, t = src || {}, g = (k) => (t[k] === undefined ? '' : t[k]);
+  const nguon = nguonChep(cv, sp);
+  const o1 = (f) => CHON[f[0]] ? `<label class="f"><span class="l"><span class="en">${f[1]}</span> <span class="zh" style="display:inline">${f[2]}</span></span><select class="i" id="f_${f[0]}"><option value="">—</option>${CHON[f[0]].map((v) => `<option ${g(f[0]) === v ? 'selected' : ''}>${v}</option>`).join('')}</select></label>`
+    : f[0] === '_len' ? `<div class="f"><span class="l"><span class="en">${f[1]}</span> <span class="zh" style="display:inline">${f[2]}</span></span><div class="muted" style="padding:10px 0">${daiSPmm(sp) ? so(daiSPmm(sp) / 25.4, 3) + ' in (' + so(daiSPmm(sp)) + ' mm)' : '—'}</div></div>`
+      : `<label class="f"><span class="l"><span class="en">${f[1]}</span>${f[4] ? ' (' + f[4] + ')' : ''} <span class="zh" style="display:inline">${f[2]}</span></span><input class="i" id="f_${f[0]}" inputmode="decimal" autocomplete="off" value="${esc(g(f[0]))}"></label>`;
+  sheet(`${L(T.capNhatTs[0], T.capNhatTs[1])} · ${esc(tenChuyen(c))} · <span class="mono">${esc(p.ma)}</span>`, `
+    <div class="card muted">${TS_GOC ? L('Điền sẵn theo thông số hiện tại — chỉ sửa ô thay đổi (ô sửa tô cam). Lưu xong là một lần ghi mới, lần cũ vẫn giữ.', '已按当前参数预填，只改有变化的项（橙色）。保存后新增一条记录。')
+      : L('Sản phẩm này chưa có thông số trên chuyền này. Có thể chép từ chuyền/sản phẩm khác rồi sửa.', '本线此产品尚无参数，可从其他产线/产品复制后修改。')}</div>
+    ${nguon.length ? `<label class="f"><span class="l">${L('Chép từ', '复制自')}</span><select class="i" id="f_chep"><option value="">${tu ? '' : '—'}</option>${nguon.map((n) => { const cc = cvOf(n[0]), pp = spOf(n[1]);
+      return `<option value="${esc(n[0] + '|' + n[1])}" ${tu && tu[0] === n[0] && tu[1] === n[1] ? 'selected' : ''}>${esc(tenChuyen(cc))} · ${esc(pp.ma)} ${esc(pp.ten)}${cc.soMau !== c.soMau ? ' (' + cc.soMau + ' màu)' : ''}</option>`; }).join('')}</select></label>` : ''}
+    <div class="grid2">${oTs('f_apDung', T.apDung[0], T.apDung[1], TODAY(), 'type="date"')}${oTs('f_ghiChu', 'Lý do thay đổi', '变更原因', tu ? 'Chép từ ' + tenChuyen(cvOf(tu[0])) + ' · ' + spOf(tu[1]).ma : '', 'autocomplete="off"')}</div>
+    ${oTs('f_ghiChuDich', 'Lý do (tiếng Trung, để trống = tự dịch)', '变更原因（中文，留空自动翻译）', '', 'autocomplete="off"')}
+    ${KHOI.map((kh) => `<div class="scr" data-k="${kh[0]}"><div class="h">${kh[1] ? `<span class="en">${kh[1]}</span>` : ''}<span class="vi">${kh[2]}</span><span class="ref">${kh[4]}</span></div><div class="fbody">
+      ${kh[6] ? bangJA(c, t, kh[6], null, true) + (kh[6] === 'align' ? `<button class="btn sm ghost" data-act="tsAlign">${L('Tính theo Divider', '按分频计算')}</button>` : '') : ''}
+      ${kh[0] === 'hd' ? [1, 2].slice(0, c.soMau).map((m) => `<div class="pbf"><div style="margin:4px 0">${chipPB(c, m)}</div><div class="grid2">${O_PB.map((f) => `<label class="f"><span class="l"><span class="en">${f[1]}</span> <span class="zh" style="display:inline">${f[2]}</span></span><input class="i" id="f_${f[0]}${m}" ${f[0] === 'muc' ? 'autocomplete="off"' : 'inputmode="decimal"'} value="${esc(g(f[0] + m))}"></label>`).join('')}</div></div>`).join('') : ''}
+      <div class="grid2">${kh[5].map(o1).join('')}</div>${kh[0] === 'enc' ? `<div class="muted" id="f_kq"></div>` : ''}</div></div>`).join('')}
+    <div class="card diffbox" id="f_diff"></div>
+    <div class="btns"><button class="btn wide" id="tsSave" data-act="tsSave" data-cv="${esc(cv)}" data-sp="${esc(sp)}">${L(T.luu[0], T.luu[1])}</button></div>`, (o) => {
+    o.addEventListener('input', tsSoat); o.addEventListener('change', tsSoat);
+    const ch = $('#f_chep', o); if (ch) ch.addEventListener('change', () => { const v = ch.value; tsForm(cv, sp, v ? v.split('|') : null); });
+    tsSoat();
+  });
+}
+// Đọc form thành đối tượng thông số (cùng dạng máy chủ lưu)
+function tsDoc(cv, sp) {
+  const c = cvOf(cv), v = (id) => { const e = $('#' + id); return e ? e.value.trim() : ''; };
+  const p = { chuyen: cv, sanPham: sp, apDung: v('f_apDung'), ghiChu: v('f_ghiChu') };
+  if (v('f_ghiChuDich')) p.ghiChuDich = v('f_ghiChuDich');
+  KHOI.forEach((kh) => kh[5].forEach((f) => { if (f[0][0] !== '_') p[f[0]] = v('f_' + f[0]); }));
+  ['align', 'volt'].forEach((k) => {
+    const a = []; for (let i = 0; i < c.soMau * 4; i++) a.push(v(`f_${k}_${i}`));
+    while (a.length && a[a.length - 1] === '') a.pop();
+    p[k] = a.join('/');
+  });
+  [1, 2].slice(0, c.soMau).forEach((m) => O_PB.forEach((f) => { p[f[0] + m] = v(`f_${f[0]}${m}`); }));
+  return p;
+}
+const chuanSo = (v) => { const t = String(v === undefined || v === null ? '' : v).trim().replace(',', '.'); return t !== '' && isFinite(Number(t)) ? String(Number(t)) : t; };
+const chuanDay = (v) => dayJA(v).map(chuanSo).join('/');
+function tsSoat() {
+  const nut = $('#tsSave'); if (!nut) return;
+  const cv = nut.dataset.cv, sp = nut.dataset.sp, c = cvOf(cv), p = tsDoc(cv, sp), goc = TS_GOC || {};
+  // Tô cam ô khác lần ghi hiện tại
+  $$('#ov .fbody input, #ov .fbody select').forEach((e) => {
+    const m = /^f_(align|volt)_(\d+)$/.exec(e.id), k = e.id.slice(2);
+    const cu = m ? (dayJA(goc[m[1]])[Number(m[2])] || '') : (goc[k] === undefined ? '' : goc[k]);
+    e.classList.toggle('chg', chuanSo(e.value) !== chuanSo(cu));
+  });
+  const x = Object.assign({}, p); x.align = chuanDay(p.align); x.volt = chuanDay(p.volt);
+  Object.keys(x).forEach((k) => { if (k !== 'align' && k !== 'volt') x[k] = chuanSo(x[k]); });
+  const g2 = {}; Object.keys(goc).forEach((k) => { g2[k] = k === 'align' || k === 'volt' ? chuanDay(goc[k]) : chuanSo(goc[k]); });
+  const dois = TS_GOC ? cacThayDoi(c, x, g2) : [];
+  $('#f_diff').innerHTML = TS_GOC ? (dois.length ? `<b>${L('Sẽ thay đổi', '将变更')} (${dois.length}):</b><ul class="doi">${dois.map((d) => `<li>${esc(d)}</li>`).join('')}</ul>` : `<span class="muted">${L('Chưa sửa ô nào', '尚未修改')}</span>`)
+    : `<span class="muted">${L('Lần ghi đầu tiên cho chuyền + sản phẩm này', '本线此产品首次记录')}</span>`;
+  const kq = $('#f_kq'), t = Object.assign({}, x, { sanPham: sp });
+  if (kq) { const tinhDpi = dpiTs({ divider: x.divider }); kq.innerHTML = `${tinhDpi ? L('Theo encoder ' + so(coBo().encoderPPR || 0) + ' xung, trục ' + so(coBo().duongKinh || 0) + ' mm: ' + so(tinhDpi, 2) + ' dpi', '按编码器计算') : ''} ${chipKhz(t)}`; }
+}
+function tsAlign() {
+  const nut = $('#tsSave'), c = cvOf(nut.dataset.cv), dv = Number(chuanSo($('#f_divider').value)), b = coBo();
+  if (!(dv > 0)) { toast(L('Nhập Divider trước', '请先输入分频'), true); return; }
+  const r = tinh(Object.assign({}, b, { divider: dv, daiSP: daiSPmm(nut.dataset.sp) || b.daiSP }));
+  for (let i = 0; i < c.soMau * 4; i++) $(`#f_align_${i}`).value = r.delay[i].d;
+  tsSoat();
+}
+async function tsSave(cv, sp) {
+  const p = tsDoc(cv, sp), c = cvOf(cv);
+  for (const k of ['align', 'volt']) if (p[k].split('/').some((x, i, a) => x === '' && a.length > 1)) { toast(L((k === 'align' ? 'Head Alignments' : 'Fire Pulses') + ': không bỏ trống ô ở giữa', '中间不能留空'), true); return; }
+  if (!p.apDung) { toast(L('Chọn ngày áp dụng', '请选择生效日期'), true); return; }
+  $('#tsSave').disabled = true;
+  const kq = await ghi('paramSave', p, tenChuyen(c) + ' · ' + (spOf(sp) || {}).ma + ' · ' + p.apDung, (op) => APDUNG.paramSave(op, p));
+  if (!kq.ok) { $('#tsSave').disabled = false; return; }
+  if (!kq.queued) tt('daLuu');
+  render(); tsView(cv, sp);
+}
+async function tsDel(id) {
+  if (!confirmXoa()) return;
+  const x = (DL().thongSo || []).find((t) => t.id === id);
+  const r = await ghi('paramDelete', { id }, 'Xoá thông số ' + id, (op) => APDUNG.paramDelete(op, { id }));
+  if (r.ok) { if (!r.queued) tt('daXoa'); render(); if (x) tsView(x.chuyen, x.sanPham); }
+}
+// So sánh: mỗi chuyền một cột, sản phẩm đang chạy và thông số hiện tại của nó
+function tsCompare() {
+  const ds = dsChuyen().filter((c) => !S.soMau || S.soMau === 9 || c.soMau === S.soMau).map((c) => { const sp = dangChay(c.id); return { c, sp: spOf(sp), t: sp ? hienTai(c.id, sp) : null }; });
+  const pham = (a) => { const n = a.map(Number).filter((x) => isFinite(x) && String(x) !== ''); return n.length ? (Math.min(...n) === Math.max(...n) ? so(n[0]) : so(Math.min(...n)) + '–' + so(Math.max(...n))) : '—'; };
+  const pb = (x, k, m) => x.t && m <= x.c.soMau ? pham(dayJA(x.t[k]).slice((m - 1) * 4, m * 4).filter((v) => v !== '')) : '';
+  const hang = (ten, f) => `<tr><th>${ten}</th>${ds.map((x) => `<td>${x.t ? f(x) : ''}</td>`).join('')}</tr>`;
+  sheet(L(T.soSanh[0], T.soSanh[1]), `<div style="overflow-x:auto"><table class="t" id="tsCmp" style="white-space:nowrap"><tr><th></th>${ds.map((x) => `<th>${esc(x.c.ma)}</th>`).join('')}</tr>
+    <tr><th>${L('Đang chạy', '运行中')}</th>${ds.map((x) => `<td class="mono">${x.sp ? esc(x.sp.ma) : '—'}</td>`).join('')}</tr>
+    ${hang(L(T.apDung[0], T.apDung[1]), (x) => esc(x.t.apDung))}${hang('Encoder DPI', (x) => esc(soTs(x.t.encDPI)))}${hang('Divider', (x) => esc(soTs(x.t.divider)))}
+    ${hang(L('Tốc độ', '速度'), (x) => esc(soTs(x.t.tocDo)))}${hang('kHz', (x) => chipKhz(x.t))}
+    ${hang('Fire Pulses PB1', (x) => pb(x, 'volt', 1))}${hang('Fire Pulses PB2', (x) => pb(x, 'volt', 2))}
+    ${hang('Meniscus', (x) => esc(soTs(x.t.meniscus)))}${hang('Plate °C', (x) => esc(soTs(x.t.nhietTam)))}
+    ${hang('Reservoir PB1 °C', (x) => esc(soTs(x.t.nhietBinh1)))}${hang('Reservoir PB2 °C', (x) => esc(soTs(x.t.nhietBinh2)))}</table></div>`);
+}
+function linesForm() {
+  sheet(L(T.dsChuyen[0], T.dsChuyen[1]), dsChuyen().map((c) => `<div class="card" style="display:flex;gap:8px;align-items:center"><div style="flex:1"><b>${esc(tenChuyen(c))}</b> <span class="chip">${nhanMau(c.soMau)}</span>${c.ghiChu ? `<div class="muted">${esc(c.ghiChu)}</div>` : ''}</div>
+    <button class="btn sm ghost" data-act="lineEdit" data-id="${esc(c.id)}">${L(T.sua[0], T.sua[1])}</button></div>`).join('') +
+    `<div class="btns"><button class="btn wide" data-act="lineEdit" data-id="">${IC.plus}${L('Thêm chuyền', '添加产线')}</button></div>`);
+}
+function lineEdit(id) {
+  const c = id ? cvOf(id) : null, v = (k) => c ? c[k] : '';
+  sheet(c ? L(T.sua[0], T.sua[1]) + ' · ' + esc(tenChuyen(c)) : L('Thêm chuyền', '添加产线'), `<div class="grid2">${oTs('lMa', 'Mã chuyền', '产线编号', v('ma'), 'autocomplete="off"')}
+    <label class="f"><span class="l">${L('Số màu', '颜色数')}</span><select class="i" id="lMau"><option value="1" ${c && c.soMau === 1 ? 'selected' : ''}>1 màu · 单色 (PB1)</option><option value="2" ${c && c.soMau === 2 ? 'selected' : ''}>2 màu · 双色 (PB1+PB2)</option></select></label>
+    ${oTs('lPB1', 'Mực PB1 (JA1–4)', 'PB1墨水', v('mauPB1'), 'autocomplete="off"')}${oTs('lPB2', 'Mực PB2 (JA5–8)', 'PB2墨水', v('mauPB2'), 'autocomplete="off"')}
+    ${oTs('lSeri', 'Số seri đầu in', '喷头序列号', v('seriDau'), 'autocomplete="off"')}${oTs('lThayDau', 'Ngày thay đầu in', '换喷头日期', v('thayDau'), 'type="date"')}
+    ${oTs('lThayLoc', 'Ngày thay lọc mực', '换滤芯日期', v('thayLoc'), 'type="date"')}</div>
+    ${oTs('lGhi', 'Ghi chú', '备注', v('ghiChu'), 'autocomplete="off"')}
+    <div class="btns"><button class="btn" id="lSave" data-act="lineSave" data-id="${esc(c ? c.id : '')}">${L(T.luu[0], T.luu[1])}</button>
+    ${c ? `<button class="btn bad" data-act="lineOff" data-id="${esc(c.id)}">${L('Ngừng dùng', '停用')}</button>` : ''}</div>`);
+}
+async function lineSave(id, tat) {
+  const c = id ? cvOf(id) : null, g = (e) => $(e).value.trim();
+  if (tat && !confirmXoa()) return;
+  const p = tat ? Object.assign({}, c, { hoatDong: 0 }) : { id, ma: g('#lMa'), soMau: Number($('#lMau').value), mauPB1: g('#lPB1'), mauPB2: g('#lPB2'),
+    seriDau: g('#lSeri'), thayDau: g('#lThayDau'), thayLoc: g('#lThayLoc'), ghiChu: g('#lGhi') };
+  try {
+    const d = await api('lineSave', p, { opId: newOp() });
+    DL().chuyen = dsChuyen();
+    if (tat) DL().chuyen = dsChuyen().filter((x) => x.id !== id); else upsert(DL().chuyen, d.chuyen);
+    await saveSnap(); tt('daLuu'); render();
+    if (!tat && id) lineView(id); else linesForm();
+  } catch (e) { toast(errMsg(e), true); }
+}
+
+// ============ Chương trình: bảng PLC của từng chuyền (IO, báo lỗi, chú thích M/D/B/W…) ============
+// Tệp Excel nằm ở Drive (mục Tài liệu, nhóm "Chương trình PLC"); app tự đọc mọi sheet và lưu bản đã bóc tách
+// trong IndexedDB để tra khi mất mạng. Bảng thật vài chục nghìn dòng tiếng Trung nên không dịch sẵn: bấm "Dịch" từng dòng.
+const PLC = { nap: {}, dang: {}, loi: {} };   // nap[chuyenPLC] = { docId, ten, sheets:[{name, rows, n:[chuỗi bỏ dấu từng dòng]}] }
+// Chuyền của phần PLC là danh sách riêng (16 chuyền), không dùng chung 9 chuyền của máy in
+const dsCPLC = () => (DL().chuyenPLC || []);
+const plcOf = (id) => dsCPLC().find((x) => x.id === id);
+const dsBang = () => (DL().bangMay || []).filter((b) => plcOf(b.chuyen));
+const bangCua = (cv) => dsBang().find((b) => b.chuyen === cv);
+const tlHienHanh = (maTL) => { const ds = DL().taiLieu.filter((t) => t.maTL === maTL); return ds.find((t) => t.hienHanh) || ds.sort((a, b) => b.phienBan - a.phienBan)[0]; };
+// Đọc mọi sheet của .xlsx, giữ đúng số dòng (để "Mở bảng" đến đúng dòng trong Excel)
+async function docXlsxAll(buf) {
+  const f = await giaiNen(buf), dp = new DOMParser(), xml = (k) => f[k] ? dp.parseFromString(f[k], 'application/xml') : null;
+  const ssDoc = xml('xl/sharedStrings.xml');
+  // Bỏ phần phiên âm (rPh) của ô tiếng Trung/Nhật, chỉ lấy chữ hiển thị
+  const ss = ssDoc ? Array.from(ssDoc.getElementsByTagName('si')).map((si) => Array.from(si.getElementsByTagName('t')).filter((t) => !t.parentNode || t.parentNode.nodeName !== 'rPh').map((t) => t.textContent).join('')) : [];
+  const rels = {}, rd = xml('xl/_rels/workbook.xml.rels');
+  if (rd) Array.from(rd.getElementsByTagName('Relationship')).forEach((r) => { rels[r.getAttribute('Id')] = r.getAttribute('Target').replace(/^\/?(xl\/)?/, 'xl/'); });
+  const wb = xml('xl/workbook.xml'), out = [];
+  const ds = wb ? Array.from(wb.getElementsByTagName('sheet')).map((s, i) => ({ name: s.getAttribute('name'), file: rels[s.getAttribute('r:id') || s.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'id')] || 'xl/worksheets/sheet' + (i + 1) + '.xml' })) : [];
+  for (const sh of ds) {
+    const d = xml(sh.file); if (!d) continue;
+    const rows = [];
+    Array.from(d.getElementsByTagName('row')).forEach((r) => {
+      const o = [];
+      Array.from(r.getElementsByTagName('c')).forEach((c) => {
+        const ref = c.getAttribute('r') || '', col = ref.replace(/\d+/g, '').split('').reduce((s, ch) => s * 26 + ch.charCodeAt(0) - 64, 0) - 1, t = c.getAttribute('t');
+        const v = c.getElementsByTagName('v')[0];
+        const val = t === 's' ? ss[Number(v && v.textContent)] : t === 'inlineStr' ? Array.from(c.getElementsByTagName('t')).map((x) => x.textContent).join('') : (v ? v.textContent : '');
+        o[col >= 0 ? col : o.length] = String(val === undefined || val === null ? '' : val).trim();
+      });
+      for (let i = 0; i < o.length; i++) if (o[i] === undefined) o[i] = '';
+      while (o.length && o[o.length - 1] === '') o.pop();
+      if (o.length) rows[Number(r.getAttribute('r') || rows.length + 1) - 1] = o;
+    });
+    for (let i = 0; i < rows.length; i++) if (!rows[i]) rows[i] = [];
+    if (rows.some((r) => r.length)) out.push({ name: sh.name, rows });
+  }
+  if (!out.length) throw new Error('File không có dữ liệu · 文件没有数据');
+  return out;
+}
+function chuanBiTim(sheets) { sheets.forEach((s) => { s.n = s.rows.map((r) => norm(r.join(' \u0001 '))); }); return sheets; }
+// Nạp bảng của mọi chuyền: có bản bóc tách trong máy thì dùng ngay, chưa có thì tải tệp về rồi đọc
+async function plcNap(cv) {
+  const b = dsBang().filter((x) => !cv || x.chuyen === cv);
+  for (const x of b) {
+    const doc = tlHienHanh(x.maTL); if (!doc || PLC.dang[x.chuyen]) continue;
+    if (PLC.nap[x.chuyen] && PLC.nap[x.chuyen].docId === doc.id) continue;
+    PLC.dang[x.chuyen] = 1; delete PLC.loi[x.chuyen]; veCT();
+    try {
+      let sheets = await store.get('plc:' + doc.id, null);
+      if (!sheets) {
+        const { blob } = await layBlob(doc.id);
+        sheets = await docXlsxAll(await blob.arrayBuffer());
+        await store.set('plc:' + doc.id, sheets);
+        const cu = await store.get('plcIdx', {}); if (cu[x.chuyen] && cu[x.chuyen] !== doc.id) await store.del('plc:' + cu[x.chuyen]);
+        cu[x.chuyen] = doc.id; await store.set('plcIdx', cu);
+      }
+      PLC.nap[x.chuyen] = { docId: doc.id, ten: doc.tenTep, pb: doc.phienBan, sheets: chuanBiTim(sheets) };
+    } catch (e) { PLC.loi[x.chuyen] = e; }
+    delete PLC.dang[x.chuyen]; veCT();
+  }
+}
+// Ô trông như địa chỉ PLC (X1002, M600, D120, Y1F, B0A…) hoặc chỉ là số — không phải chú thích
+const laDiaChi = (v) => /^[A-Z]{1,3}\d[0-9A-F.]*$/i.test(String(v).trim()) || /^[-+]?\d+(\.\d+)?$/.test(String(v).trim());
+// Chú thích của ô tìm được: ô chữ gần nhất bên phải, không có thì bên trái
+const laChu = (v) => v && !laDiaChi(v) && /[A-Za-z\u4e00-\u9fff]/.test(v);   // "1#", "3.5" không tính là chú thích
+function moTa(row, ci) {
+  for (let i = ci + 1; i < Math.min(row.length, ci + 4); i++) if (laChu(row[i])) return row[i];
+  for (let i = ci - 1; i >= Math.max(0, ci - 3); i--) if (laChu(row[i])) return row[i];
+  return '';
+}
+// Tra ĐÚNG TÊN: gõ M570 chỉ ra ô có đúng "M570" (không ra M5701, M57…); không phân biệt hoa thường, bỏ dấu cách.
+// loc.cv = một chuyền; bỏ trống khi tìm ở ô Tìm chung (mọi chuyền). Dòng trùng nội dung chỉ giữ một.
+const chuanDC = (v) => String(v || '').toUpperCase().replace(/\s+/g, '');
+function plcTim(q, loc, toiDa) {
+  const qn = norm(chuanDC(q)); if (!qn) return [];
+  const out = [], daCo = {};
+  Object.keys(PLC.nap).forEach((cv) => {
+    if (loc.cv && loc.cv !== cv) return;
+    PLC.nap[cv].sheets.forEach((sh, si) => {
+      sh.n.forEach((rn, ri) => {
+        if (rn.indexOf(qn) < 0) return;
+        const row = sh.rows[ri], ci = row.findIndex((v) => v && norm(chuanDC(v)) === qn);
+        if (ci < 0) return;
+        const mt = moTa(row, ci), k = cv + '|' + cuaSo(row, ci).map((x) => x[1]).join('|');
+        if (daCo[k]) return; daCo[k] = 1;
+        out.push({ cv, si, ri, ci, diem: mt ? 0 : 1, mt });
+      });
+    });
+  });
+  out.sort((a, b) => a.diem - b.diem);
+  return out.slice(0, toiDa || 100);
+}
+// Vài ô quanh ô khớp: thường là cặp "địa chỉ | chú thích" nằm cạnh nhau
+const cuaSo = (row, ci) => { const o = []; for (let i = Math.max(0, ci - 3); i <= Math.min(row.length - 1, ci + 3); i++) if (row[i]) o.push([i, row[i]]); return o; };
+function rowPLC(h, q, nhan) {
+  const p = PLC.nap[h.cv], sh = p.sheets[h.si], row = sh.rows[h.ri], c = plcOf(h.cv);
+  const o = cuaSo(row, h.ci), key = h.cv + '|' + h.si + '|' + h.ri + '|' + h.ci;
+  return `<div class="card plch${h.diem === 0 ? ' dung' : ''}" data-k="${esc(key)}"><div class="muted">${nhan ? `<span class="chip pb0">${esc(c ? c.ma : h.cv)}</span> ` : ''}${esc(sh.name)} · <span class="mono">${cotAZ(h.ci)}${h.ri + 1}</span></div>
+    ${h.diem <= 1 && h.mt ? `<div class="traloi"><span class="mono">${esc(row[h.ci])}</span> → <b>${esc(h.mt)}</b></div>` : ''}
+    <div class="cells">${o.map(([i, v]) => `<span class="cell${i === h.ci ? ' on' : ''}">${hl(v, q || '')}</span>`).join('')}</div>
+    ${nhan ? theGCP(h.cv, row[h.ci], true) : ''}
+    <div class="dichkq muted" data-k="${esc(key)}">${PLC_DICH[key] ? esc(PLC_DICH[key]) : ''}</div>
+    <div class="btns"><button class="btn sm ghost" data-act="plcDich" data-k="${esc(key)}">${L('Dịch', '翻译')}</button><button class="btn sm ghost" data-act="plcMo" data-k="${esc(key)}">${L('Mở bảng', '打开表格')}</button></div></div>`;
+}
+const PLC_DICH = {};
+const keyHit = (k) => { const a = k.split('|'); return { cv: a[0], si: Number(a[1]), ri: Number(a[2]), ci: Number(a[3]) }; };
+async function plcDich(k) {
+  const h = keyHit(k), row = PLC.nap[h.cv].sheets[h.si].rows[h.ri], txt = cuaSo(row, h.ci).map((x) => x[1]).join(' | ');
+  const box = $(`.dichkq[data-k="${CSS.escape(k)}"]`); if (box) box.textContent = T.dangTai[0] + '…';
+  try { const d = await api('translate', { text: txt }); PLC_DICH[k] = d.dich; if (box) box.textContent = d.dich; }
+  catch (e) { if (box) box.innerHTML = errMsg(e); }
+}
+// Xem cả sheet quanh dòng tìm được (60 dòng mỗi trang, cuộn ngang được)
+function plcMo(cv, si, ri, ci) {
+  const p = PLC.nap[cv], sh = p.sheets[si], c = plcOf(cv), tu = Math.max(0, ri - 20), den = Math.min(sh.rows.length, tu + 60);
+  const nCot = Math.max(1, ...sh.rows.slice(tu, den).map((r) => r.length));
+  sheet(`${esc(c ? 'Chuyền ' + c.ma : cv)} · ${esc(sh.name)}`, `<label class="f"><span class="l">${L('Sheet', '工作表')}</span><select class="i" id="plcSheet">${p.sheets.map((s, i) => `<option value="${i}" ${i === si ? 'selected' : ''}>${esc(s.name)} (${s.rows.length})</option>`).join('')}</select></label>
+    <div class="muted">Dòng · 行 ${tu + 1}–${den} / ${sh.rows.length} · ${esc(p.ten)} v${p.pb}</div>
+    <div style="overflow-x:auto;margin-top:8px"><table class="t plct" style="white-space:nowrap"><tr><th></th>${Array.from({ length: nCot }, (_, i) => `<th>${cotAZ(i)}</th>`).join('')}</tr>
+    ${sh.rows.slice(tu, den).map((r, j) => `<tr class="${tu + j === ri ? 'on' : ''}" ${tu + j === ri ? 'id="plcOn"' : ''}><th>${tu + j + 1}</th>${Array.from({ length: nCot }, (_, i) => `<td class="${tu + j === ri && i === ci ? 'on' : ''}">${esc(r[i] || '')}</td>`).join('')}</tr>`).join('')}</table></div>
+    <div class="btns"><button class="btn sm ghost" data-act="plcTrang" data-cv="${esc(cv)}" data-si="${si}" data-ri="${Math.max(0, tu - 40)}" ${tu === 0 ? 'disabled' : ''}>← ${L('Trước', '上一页')}</button>
+    <button class="btn sm ghost" data-act="plcTrang" data-cv="${esc(cv)}" data-si="${si}" data-ri="${den + 20}" ${den >= sh.rows.length ? 'disabled' : ''}>${L('Sau', '下一页')} →</button></div>`, (o) => {
+    $('#plcSheet', o).addEventListener('change', (e) => plcMo(cv, Number(e.target.value), 0, -1));
+    const on = $('#plcOn', o); if (on) setTimeout(() => on.scrollIntoView({ block: 'center' }), 50);
+  });
+}
+const tongDong = (p) => p.sheets.reduce((s, x) => s + x.rows.filter((r) => r.length).length, 0);
+// ----- Ghi chú theo địa chỉ (thêm địa chỉ mới / ghi lại đã sửa gì), có lịch sử -----
+const gcpCua = (cv, dc) => (DL().ghiChuPLC || []).filter((g) => g.chuyen === cv && g.diaChi === chuanDC(dc)).sort((a, b) => String(a.lucTao + a.id).localeCompare(String(b.lucTao + b.id)));
+function theGCP(cv, dc, gon) {
+  const ds = gcpCua(cv, dc), g = ds[ds.length - 1];
+  if (!g) return gon ? '' : `<div class="card gcp trong"><div class="muted">${L('Chưa có ghi chú của bạn cho ' + esc(chuanDC(dc)), '尚无备注')}</div>
+    <div class="btns"><button class="btn sm" id="gcpAdd" data-act="gcpForm" data-cv="${esc(cv)}" data-dc="${esc(chuanDC(dc))}">${IC.plus}${L('Thêm ghi chú', '添加备注')}</button></div></div>`;
+  return `<div class="card gcp${gon ? ' gon' : ''}"><div class="muted">${L('Ghi chú của bạn', '我的备注')} · ${esc(String(g.lucTao).slice(0, 16))}${g._cho ? ` <span class="chip warn">${T.choGui[0]}</span>` : ''}</div>
+    <div class="pre" style="margin-top:4px"><b>${esc(g.noiDung)}</b></div>${g.noiDungDich ? `<div class="muted pre">${esc(g.noiDungDich)}</div>` : ''}
+    ${gon ? '' : `<div class="btns"><button class="btn sm" id="gcpEdit" data-act="gcpForm" data-cv="${esc(cv)}" data-dc="${esc(g.diaChi)}">${L('Sửa / ghi thêm', '修改')}</button>
+    <span class="muted" style="align-self:center">${ds.length > 1 ? L('Lịch sử: ' + ds.length + ' lần', '历史：' + ds.length + '次') : ''}</span></div>`}</div>`;
+}
+function gcpForm(cv, dc) {
+  const c = plcOf(cv), ds = gcpCua(cv, dc), g = ds[ds.length - 1];
+  sheet(`${L('Ghi chú', '备注')} · Chuyền ${esc(c ? c.ma : cv)} · <span class="mono">${esc(dc)}</span>`, `
+    <label class="f"><span class="l">${L('Nội dung (thêm mới hoặc đã sửa gì)', '内容（新增或修改了什么）')}</span><textarea class="i" id="gcpND" style="min-height:90px">${esc(g ? g.noiDung : '')}</textarea></label>
+    ${oTs('gcpZh', 'Tiếng Trung (để trống = tự dịch)', '中文（留空自动翻译）', '', 'autocomplete="off"')}
+    <div class="btns"><button class="btn wide" id="gcpSave" data-act="gcpSave" data-cv="${esc(cv)}" data-dc="${esc(dc)}">${L(T.luu[0], T.luu[1])}</button></div>
+    <div class="sec">${L('Lịch sử', '历史')}<span>${ds.length}</span></div>
+    ${ds.slice().reverse().map((x, i) => `<div class="card gcph"><div class="muted">${esc(String(x.lucTao).slice(0, 16))}${i === 0 ? ` <span class="chip ok">${T.hienTai[0]} · ${T.hienTai[1]}</span>` : ''}${x._cho ? ` <span class="chip warn">${T.choGui[0]}</span>` : ''}</div>
+      <div class="pre">${esc(x.noiDung)}</div>${x.noiDungDich ? `<div class="muted pre">${esc(x.noiDungDich)}</div>` : ''}
+      ${x._cho ? '' : `<div class="btns"><button class="btn sm bad" data-act="gcpDel" data-id="${esc(x.id)}" data-cv="${esc(cv)}" data-dc="${esc(dc)}">${L(T.xoaNham[0], T.xoaNham[1])}</button></div>`}</div>`).join('') || `<div class="card empty">—</div>`}`);
+}
+async function gcpSave(cv, dc) {
+  const p = { chuyen: cv, diaChi: dc, noiDung: $('#gcpND').value.trim() };
+  if ($('#gcpZh').value.trim()) p.noiDungDich = $('#gcpZh').value.trim();
+  if (!p.noiDung) { toast(L('Nhập nội dung ghi chú', '请输入备注内容'), true); return; }
+  const g = gcpCua(cv, dc).pop();
+  if (g && g.noiDung === p.noiDung && !p.noiDungDich) { toast(L('Nội dung không đổi', '内容未改变'), true); return; }
+  $('#gcpSave').disabled = true;
+  const r = await ghi('plcNoteSave', p, 'Ghi chú ' + dc, (op) => APDUNG.plcNoteSave(op, p));
+  if (!r.ok) { $('#gcpSave').disabled = false; return; }
+  closeSheet(); if (!r.queued) tt('daLuu'); veKqPLC();
+}
+async function gcpDel(id, cv, dc) {
+  if (!confirmXoa()) return;
+  const r = await ghi('plcNoteDelete', { id }, 'Xoá ghi chú ' + dc, (op) => APDUNG.plcNoteDelete(op, { id }));
+  if (r.ok) { if (!r.queued) tt('daXoa'); veKqPLC(); gcpForm(cv, dc); }
+}
+// Chuyền đang chọn: lần trước chọn chuyền nào thì mở lại chuyền đó; chưa chọn thì lấy chuyền đầu tiên đã có bảng
+function chuyenChon() {
+  if (S.pcv && plcOf(S.pcv)) return S.pcv;
+  try { const v = localStorage.getItem('gctl_pcv'); if (v && plcOf(v)) return (S.pcv = v); } catch (e) { /* bỏ qua */ }
+  const b = dsBang()[0]; return (S.pcv = b ? b.chuyen : (dsCPLC()[0] || {}).id || '');
+}
+function veCT() { if (S.view === 'ct' && $('#plcTT')) { $('#plcTT').innerHTML = ttPLC(); veKqPLC(); } }
+function ttPLC() {
+  const cv = chuyenChon(), c = plcOf(cv), x = bangCua(cv);
+  if (!c) return '';
+  if (!x) return `<div class="card empty">${L('Chuyền ' + esc(c.ma) + ' chưa có bảng chương trình.', esc(c.ma) + '号线尚无程序表。')}
+    <div class="btns" style="justify-content:center"><button class="btn" data-act="plcForm" data-cv="${esc(cv)}">${IC.up}${L('Tải bảng cho chuyền ' + esc(c.ma), '上传程序表')}</button></div></div>`;
+  const p = PLC.nap[cv], doc = tlHienHanh(x.maTL);
+  return `<div class="card plcm" data-cv="${esc(cv)}"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>Chuyền ${esc(c.ma)}</b>
+      <span class="muted">${esc(doc ? doc.tenTep : '')}${doc ? ' · v' + doc.phienBan : ''}</span></div>
+    <div class="muted">${PLC.dang[cv] ? L('Đang đọc bảng…', '正在读取…') : PLC.loi[cv] ? `<span style="color:var(--bad)">${errMsg(PLC.loi[cv])}</span>` : p ? `${p.sheets.length} sheet · ${so(tongDong(p), 0)} dòng · 行` : ''}</div>
+    <div class="btns">${p ? `<button class="btn sm ghost" data-act="plcMo" data-k="${esc(cv)}|0|0|-1">${L('Xem bảng', '查看表格')}</button>` : PLC.loi[cv] ? `<button class="btn sm ghost" data-act="plcThuLai">${L('Thử lại', '重试')}</button>` : ''}
+    <button class="btn sm ghost" data-act="plcForm" data-cv="${esc(cv)}">${IC.up}${L('Tải bản mới', '上传新版')}</button>
+    <button class="btn sm bad" data-act="plcDel" data-id="${esc(x.id)}">${L('Gỡ', '移除')}</button></div></div>`;
+}
+function veKqPLC() {
+  const box = $('#plcKq'); if (!box) return;
+  const q = S.pq || '', cv = chuyenChon(), dc = chuanDC(q);
+  if (!dc) { box.innerHTML = ''; return; }
+  const gc = theGCP(cv, dc, false);
+  if (bangCua(cv) && !PLC.nap[cv]) { box.innerHTML = gc + `<div class="card empty">${L('Đang đọc bảng…', '正在读取…')}</div>`; return; }
+  const ds = bangCua(cv) ? plcTim(q, { cv }, 100) : [];
+  box.innerHTML = gc + `<div class="sec">${L('Trong bảng chương trình', '程序表中')}<span>${ds.length >= 100 ? '100+' : ds.length}</span></div>` +
+    (ds.map((h) => rowPLC(h, q)).join('') || `<div class="card empty">${L('Không có ô nào đúng tên ' + esc(dc), '没有完全匹配 ' + esc(dc) + ' 的单元格')}</div>`);
+}
+VIEWS.ct = {
+  html() {
+    const cv = chuyenChon(), c = plcOf(cv);
+    return `<div class="sec" style="margin-top:0">${L('Chuyền sản xuất', '生产线')}<button class="btn sm ghost" style="padding:4px 10px" data-act="plcLines">${L('Sửa danh sách', '编辑')}</button></div>
+      <div class="chips plcl">${dsCPLC().map((x) => `<button class="${x.id === cv ? 'on' : ''}${bangCua(x.id) ? '' : ' trong'}" data-act="plcCv" data-cv="${esc(x.id)}">${esc(x.ma)}</button>`).join('')}</div>
+      <div class="search">${IC.tim}<input id="pq" type="search" placeholder="${c ? 'Chuyền ' + esc(c.ma) + ': ' : ''}X1002, M570, D120…" value="${esc(S.pq || '')}" autocomplete="off" autocapitalize="characters"></div>
+      <div id="plcKq"></div><div id="plcTT">${ttPLC()}</div>
+      <button class="btn fab" id="fabPLC" data-act="plcForm" data-cv="${esc(cv)}">${IC.up}${L('Tải bảng', '上传')}</button>`;
+  },
+  after() {
+    const i = $('#pq'); i.addEventListener('input', debounce(() => { S.pq = i.value; veKqPLC(); }, 200));
+    veKqPLC(); plcNap();
+  }
+};
+function chonCPLC(cv) { S.pcv = cv; try { localStorage.setItem('gctl_pcv', cv); } catch (e) { /* bỏ qua */ } render(); }
+function plcForm(cv) {
+  sheet(L('Tải bảng chương trình', '上传程序表'), `<div class="card muted">${L('File Excel (.xlsx) chương trình của chuyền: IO, báo lỗi, chú thích M/D/B/W… Tải lại cho chuyền đã có bảng thì thành phiên bản mới, bản cũ vẫn xem lại ở mục Tài liệu.', '产线程序Excel文件（IO、报警、M/D/B/W注释等）。同一产线再次上传即为新版本。')}</div>
+    <label class="f"><span class="l">${L('Chuyền', '产线')}</span><select class="i" id="plcCv">${dsCPLC().map((c) => `<option value="${esc(c.id)}" ${c.id === (cv || chuyenChon()) ? 'selected' : ''}>Chuyền ${esc(c.ma)}${bangCua(c.id) ? ' (đã có bảng · 已有)' : ''}</option>`).join('')}</select></label>
+    <label class="f"><span class="l">${L('File .xlsx', 'xlsx文件')}</span><input class="i" type="file" id="plcFile" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label>
+    <div class="btns"><button class="btn wide" id="plcSave" data-act="plcSave">${IC.up}${L('Tải lên', '上传')}</button></div><div id="plcMsg" class="muted"></div>`);
+}
+async function plcSave() {
+  const f = $('#plcFile').files[0], cv = $('#plcCv').value, btn = $('#plcSave');
+  if (!f) { toast(L('Chọn file .xlsx', '请选择xlsx文件'), true); return; }
+  if (f.size > 25 * 1048576) { toast(L('Tệp quá 25 MB', '文件超过25MB'), true); return; }
+  btn.disabled = true; $('#plcMsg').innerHTML = L('Đang kiểm tra file…', '正在检查文件…');
+  try {
+    // Đọc thử trên máy trước khi gửi: file hỏng thì báo ngay, khỏi tải 2–3 MB lên rồi mới biết
+    const buf = await f.arrayBuffer(), sheets = await docXlsxAll(buf);
+    $('#plcMsg').innerHTML = L('Đang tải lên…', '正在上传…') + ' ' + sheets.length + ' sheet';
+    const d = await api('plcUpload', { chuyen: cv, tenTep: f.name, mime: f.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', b64: await docBase64(f) }, { opId: newOp(), timeout: 180 });
+    DL().bangMay = DL().bangMay || []; upsert(DL().bangMay, d.bangMay); gopKetQua('docUpload', { taiLieu: d.taiLieu });
+    await store.set('plc:' + d.taiLieu.id, sheets);
+    const cu = await store.get('plcIdx', {}); cu[cv] = d.taiLieu.id; await store.set('plcIdx', cu);
+    PLC.nap[cv] = { docId: d.taiLieu.id, ten: d.taiLieu.tenTep, pb: d.taiLieu.phienBan, sheets: chuanBiTim(sheets) };
+    closeSheet(); tt('daLuu'); await refresh(true); chonCPLC(cv);
+  } catch (e) { btn.disabled = false; $('#plcMsg').innerHTML = errMsg(e); }
+}
+async function plcDel(id) {
+  if (!window.confirm('Gỡ bảng chương trình khỏi chuyền? Tệp vẫn giữ ở mục Tài liệu. · 移除程序表？文件仍保留在资料中。')) return;
+  try {
+    await api('plcDelete', { id }, { opId: newOp() });
+    const x = DL().bangMay.find((b) => b.id === id); DL().bangMay = DL().bangMay.filter((b) => b.id !== id);
+    if (x) delete PLC.nap[x.chuyen];
+    await saveSnap(); tt('daXoa'); render();
+  } catch (e) { toast(errMsg(e), true); }
+}
+// Danh sách chuyền PLC: thêm chuyền mới, sửa mã, ngừng dùng (chuyền còn bảng thì phải gỡ bảng trước)
+function plcLines() {
+  sheet(L('Chuyền sản xuất (PLC)', '生产线（PLC）'), `<div class="card muted">${L('Danh sách này riêng cho phần Chương trình, không ảnh hưởng 9 chuyền của máy in.', '此列表仅用于PLC程序，与喷码机产线无关。')}</div>
+    ${dsCPLC().map((c) => `<div class="card" style="display:flex;gap:8px;align-items:center;padding:8px 12px"><b style="flex:1">Chuyền ${esc(c.ma)}</b>${bangCua(c.id) ? `<span class="chip ok">${L('có bảng', '有程序表').replace(/<\/?span[^>]*>/g, ' ')}</span>` : ''}
+      ${bangCua(c.id) ? '' : `<button class="btn sm bad" data-act="plcLineOff" data-id="${esc(c.id)}">${L('Bỏ', '删除')}</button>`}</div>`).join('')}
+    <div class="grid2"><label class="f"><span class="l">${L('Mã chuyền mới', '新产线编号')}</span><input class="i" id="plcLineMa" autocomplete="off"></label>
+    <div class="f" style="display:flex;align-items:flex-end"><button class="btn wide" id="plcLineAdd" data-act="plcLineAdd">${IC.plus}${L('Thêm', '添加')}</button></div></div>`);
+}
+async function plcLineSave(p) {
+  try {
+    const d = await api('plcLineSave', p, { opId: newOp() });
+    DL().chuyenPLC = dsCPLC().filter((x) => x.id !== d.chuyenPLC.id);
+    if (p.hoatDong !== 0) DL().chuyenPLC.push(d.chuyenPLC);
+    DL().chuyenPLC.sort((a, b) => a.thuTu - b.thuTu);
+    await saveSnap(); tt('daLuu'); render(); plcLines();
+  } catch (e) { toast(errMsg(e), true); }
+}
+
+// ============ Cài đặt ============
+VIEWS.cai = {
+  html() {
+    const n = S.Q.length;
+    return `<div class="sec">${L(T.hangCho[0], T.hangCho[1])}<span>${n}</span></div>
+      ${n ? S.Q.map((q, i) => `<div class="card qitem"><b>${esc(q.label || q.action)}</b><div class="muted">${esc(q.action)} · ${esc(q.at.slice(0, 16).replace('T', ' '))}</div>
+        ${q.err ? `<div style="color:var(--bad)">${esc(q.err)}</div>` : ''}<div class="btns"><button class="btn sm" data-act="qSend">${L(T.guiLai[0], T.guiLai[1])}</button>
+        <button class="btn sm bad" data-act="qDrop" data-i="${i}">${L(T.boViec[0], T.boViec[1])}</button></div></div>`).join('') : `<div class="card empty">${TT('khongCho')}</div>`}
+      <div class="sec">${L('Dữ liệu', '数据')}</div>
+      <button class="row" data-act="export">${IC.xls}<div class="main"><div class="nm">${TT('xuat')}</div><div class="sub">${S.data.ghiChu.length} ${T.gc[0]} · ${S.data.taiLieu.length} ${T.tl[0]} · ${S.data.dayDien.length} ${T.day[0]} · ${dsChuyen().length} chuyền</div></div></button>
+      <button class="row" data-act="lines">${IC.may}<div class="main"><div class="nm">${TT('dsChuyen')}</div><div class="sub">${dsChuyen().length}</div></div></button>
+      <button class="row" data-act="groups">${IC.tl}<div class="main"><div class="nm">${TT('nhomTL')}</div><div class="sub">${S.data.nhom.length}</div></div></button>
+      <button class="row" data-act="audit">${IC.gc}<div class="main"><div class="nm">${TT('nhatKy')}</div></div></button>
+      <div class="sec">${L('Tài khoản', '账户')}</div>
+      <button class="row" data-act="pinChange">${IC.cai}<div class="main"><div class="nm">${TT('doiPin')}</div></div></button>
+      ${IS_DEMO ? `<button class="row" data-act="simOff">${IC.link}<div class="main"><div class="nm">${TT('giaLap')}</div><div class="sub" id="simSt">${S.simOff ? 'BẬT · 开' : 'TẮT · 关'}</div></div></button>` : ''}
+      ${!IS_DEMO && !(typeof API_URL === 'string' && API_URL) ? `<button class="row" data-act="apiReset">${IC.link}<div class="main"><div class="nm">${TT('mayChu')}</div><div class="sub mono">${esc(apiUrl().slice(0, 60))}…</div></div></button>` : ''}
+      <button class="row" data-act="logout">${IC.cai}<div class="main"><div class="nm">${TT('dangXuat')}</div></div></button>
+      <div class="muted" style="text-align:center;margin-top:16px">${T.phienBanApp[0]} ${APP_VER}${S.data.phienBan && S.data.phienBan !== APP_VER ? ' · máy chủ ' + esc(S.data.phienBan) : ''}</div>`;
+  }
+};
+function pinForm() {
+  sheet(L(T.doiPin[0], T.doiPin[1]), `<label class="f"><span class="l">${L(T.pinCu[0], T.pinCu[1])}</span><input class="i" id="pCu" type="password" inputmode="numeric" maxlength="6"></label>
+    <label class="f"><span class="l">${L(T.pinMoi[0], T.pinMoi[1])}</span><input class="i" id="pMoi" type="password" inputmode="numeric" maxlength="6"></label>
+    <button class="btn wide" data-act="pinSave">${L(T.luu[0], T.luu[1])}</button>`);
+}
+function groupsForm() {
+  sheet(L(T.nhomTL[0], T.nhomTL[1]), S.data.nhom.map((n) => `<div class="card" style="display:flex;gap:8px;align-items:center"><div style="flex:1">${L(esc(n.ten), esc(n.tenZh))}</div>
+    <button class="btn sm bad" data-act="groupOff" data-id="${esc(n.id)}">${L(T.xoa[0], T.xoa[1])}</button></div>`).join('') +
+    `<div class="card"><label class="f"><span class="l">${L(T.themNhom[0], T.themNhom[1])}</span><input class="i" id="gTen" placeholder="Tên tiếng Việt"></label>
+    <label class="f"><span class="l">${L('Tên tiếng Trung (để trống = tự dịch)', '中文名称（留空自动翻译）')}</span><input class="i" id="gZh"></label>
+    <button class="btn wide" data-act="groupAdd">${L(T.luu[0], T.luu[1])}</button></div>`);
+}
+async function auditView() {
+  try {
+    const d = await api('audit', {});
+    sheet(L(T.nhatKy[0], T.nhatKy[1]), d.nhatKy.length ? `<table class="t"><tr><th>Lúc · 时间</th><th>Việc · 操作</th><th>Bảng · 表</th><th>Mã · 编号</th></tr>${d.nhatKy.map((n) => `<tr><td>${esc(n.thoiGian)}</td><td>${esc(n.hanhDong)}</td><td>${esc(n.bang)}</td><td class="mono">${esc(n.khoa)}</td></tr>`).join('')}</table>` : `<div class="card empty">—</div>`);
+  } catch (e) { toast(errMsg(e), true); }
+}
+
+// ============ Excel .xlsx: ghi và đọc, không dùng thư viện ngoài ============
+const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+const crc32 = (u8) => { let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = CRC[(c ^ u8[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+// Gói zip kiểu "store" (không nén): file Excel vài trăm KB, đủ nhỏ và Excel/WPS/Numbers đều mở được
+function zip(files) {
+  const enc = new TextEncoder(), parts = [], dir = []; let off = 0;
+  files.forEach(([name, text]) => {
+    const n = enc.encode(name), d = enc.encode(text), c = crc32(d), h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint32(14, c, true); h.setUint32(18, d.length, true); h.setUint32(22, d.length, true); h.setUint16(26, n.length, true);
+    parts.push(new Uint8Array(h.buffer), n, d);
+    const e = new DataView(new ArrayBuffer(46));
+    e.setUint32(0, 0x02014b50, true); e.setUint16(4, 20, true); e.setUint16(6, 20, true); e.setUint16(8, 0x0800, true); e.setUint32(16, c, true); e.setUint32(20, d.length, true); e.setUint32(24, d.length, true); e.setUint16(28, n.length, true); e.setUint32(42, off, true);
+    dir.push(new Uint8Array(e.buffer), n); off += 30 + n.length + d.length;
+  });
+  const dl = dir.reduce((s, x) => s + x.length, 0), z = new DataView(new ArrayBuffer(22));
+  z.setUint32(0, 0x06054b50, true); z.setUint16(8, files.length, true); z.setUint16(10, files.length, true); z.setUint32(12, dl, true); z.setUint32(16, off, true);
+  return new Blob(parts.concat(dir, [new Uint8Array(z.buffer)]), { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+}
+const xe = (v) => String(v === null || v === undefined ? '' : v).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '');
+const cotAZ = (i) => { let s = ''; i++; while (i) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
+function xlsx(sheets) {
+  const ws = sheets.map((sh) => {
+    const rows = [sh.head].concat(sh.rows);
+    const x = rows.map((r, ri) => `<row r="${ri + 1}">${r.map((v, ci) => {
+      const ref = cotAZ(ci) + (ri + 1), st = ri === 0 ? ' s="1"' : ' s="2"';
+      return typeof v === 'number' && isFinite(v) ? `<c r="${ref}"${st}><v>${v}</v></c>` : `<c r="${ref}" t="inlineStr"${st}><is><t xml:space="preserve">${xe(v)}</t></is></c>`;
+    }).join('')}</row>`).join('');
+    return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>${sh.w.map((w, i) => `<col min="${i + 1}" max="${i + 1}" width="${w}" customWidth="1"/>`).join('')}</cols><sheetData>${x}</sheetData></worksheet>`;
+  });
+  const files = [
+    ['[Content_Types].xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${ws.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}</Types>`],
+    ['_rels/.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`],
+    ['xl/workbook.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${sheets.map((s, i) => `<sheet name="${xe(s.name.slice(0, 31))}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('')}</sheets></workbook>`],
+    ['xl/_rels/workbook.xml.rels', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${ws.map((_, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('')}<Relationship Id="rId${ws.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`],
+    ['xl/styles.xml', `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Arial"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Arial"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF1E3A5F"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment wrapText="1" vertical="center"/></xf><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf></cellXfs></styleSheet>`]
+  ].concat(ws.map((w, i) => [`xl/worksheets/sheet${i + 1}.xml`, w]));
+  return zip(files);
+}
+// Đọc .xlsx: giải nén (deflate) bằng DecompressionStream có sẵn trong trình duyệt, lấy trang tính đầu tiên
+async function giaiNen(buf) {
+  const u8 = new Uint8Array(buf), dv = new DataView(buf), out = {};
+  let e = u8.length - 22; while (e >= 0 && dv.getUint32(e, true) !== 0x06054b50) e--;
+  if (e < 0) throw new Error('Không phải file .xlsx · 不是xlsx文件');
+  let p = dv.getUint32(e + 16, true); const n = dv.getUint16(e + 10, true), dec = new TextDecoder();
+  for (let i = 0; i < n; i++) {
+    const meth = dv.getUint16(p + 10, true), csz = dv.getUint32(p + 20, true), nl = dv.getUint16(p + 28, true), xl = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), lo = dv.getUint32(p + 42, true);
+    const name = dec.decode(u8.subarray(p + 46, p + 46 + nl)); p += 46 + nl + xl + cl;
+    if (!/^xl\/(sharedStrings\.xml|worksheets\/[^/]+\.xml|workbook\.xml|_rels\/workbook\.xml\.rels)$/.test(name)) continue;
+    const ds = lo + 30 + dv.getUint16(lo + 26, true) + dv.getUint16(lo + 28, true), data = u8.subarray(ds, ds + csz);
+    if (meth === 0) out[name] = dec.decode(data);
+    else if (meth === 8) out[name] = await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text();
+  }
+  return out;
+}
+async function docXlsx(buf) {
+  const f = await giaiNen(buf), dp = new DOMParser();
+  const ss = f['xl/sharedStrings.xml'] ? Array.from(dp.parseFromString(f['xl/sharedStrings.xml'], 'application/xml').getElementsByTagName('si')).map((si) => Array.from(si.getElementsByTagName('t')).map((t) => t.textContent).join('')) : [];
+  const ten = Object.keys(f).filter((k) => /worksheets\/sheet\d+\.xml$/.test(k)).sort((a, b) => Number(a.match(/(\d+)\.xml$/)[1]) - Number(b.match(/(\d+)\.xml$/)[1]))[0];
+  if (!ten) throw new Error('File không có trang tính · 文件没有工作表');
+  const doc = dp.parseFromString(f[ten], 'application/xml'), rows = [];
+  Array.from(doc.getElementsByTagName('row')).forEach((r) => {
+    const out = [];
+    Array.from(r.getElementsByTagName('c')).forEach((c) => {
+      const ref = c.getAttribute('r') || '', col = ref.replace(/\d+/g, '').split('').reduce((s, ch) => s * 26 + ch.charCodeAt(0) - 64, 0) - 1, t = c.getAttribute('t');
+      const v = c.getElementsByTagName('v')[0];
+      let val = t === 's' ? ss[Number(v && v.textContent)] : t === 'inlineStr' ? Array.from(c.getElementsByTagName('t')).map((x) => x.textContent).join('') : (v ? v.textContent : '');
+      out[col >= 0 ? col : out.length] = val === undefined ? '' : val;
+    });
+    rows[Number(r.getAttribute('r') || rows.length + 1) - 1] = out;
+  });
+  return rows.filter(Boolean);
+}
+async function luuFile(blob, name) {
+  // iPhone: chia sẻ ra Tệp/Zalo/WeChat; máy tính: tải về
+  try {
+    const f = new File([blob], name, { type: blob.type });
+    if (navigator.canShare && navigator.canShare({ files: [f] }) && /iPhone|iPad|Android/i.test(navigator.userAgent)) { await navigator.share({ files: [f], title: name }); return; }
+  } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+function xuatExcel() {
+  const D = S.data, nh = (id) => tenNhom(id);
+  const b = xlsx([
+    { name: 'Ghi chú · 笔记', w: [14, 32, 28, 48, 40, 22, 14, 10, 19, 19],
+      head: ['Mã · 编号', 'Tiêu đề · 标题', 'Tiêu đề (中文) · 中文标题', 'Nội dung · 内容', 'Nội dung (中文) · 中文内容', 'Thẻ · 标签', 'Mã máy · 设备编号', 'Số ảnh · 图片数', 'Tạo lúc · 创建时间', 'Cập nhật · 更新时间'],
+      rows: D.ghiChu.map((x) => [x.id, x.tieuDe, x.tieuDeDich, x.noiDung, x.noiDungDich, (x.the || []).join(', '), x.maMay, (x.anh || []).length, x.lucTao, x.capNhat]) },
+    { name: 'Tài liệu · 资料', w: [14, 32, 28, 26, 10, 10, 12, 28, 12, 36, 20, 19],
+      head: ['Mã · 编号', 'Tên · 名称', 'Tên (中文) · 中文名称', 'Nhóm · 分组', 'Loại · 类型', 'Phiên bản · 版本', 'Hiệu lực · 现行', 'Tên tệp · 文件名', 'Kích thước · 大小', 'Link · 链接', 'Thẻ · 标签', 'Cập nhật · 更新时间'],
+      rows: D.taiLieu.slice().sort((a, b2) => String(a.maTL).localeCompare(String(b2.maTL)) || b2.phienBan - a.phienBan).map((x) => [x.id, x.ten, x.tenDich, nh(x.nhom), x.kieu === 'LINK' ? 'Link · 链接' : 'Tệp · 文件', x.phienBan, x.hienHanh ? 'Có · 是' : '', x.tenTep, x.kichThuoc ? kb(x.kichThuoc) : '', x.url, (x.the || []).join(', '), x.capNhat]) },
+    { name: 'Dây điện · 线号', w: [14, 14, 8, 16, 16, 14, 30, 26, 26, 8, 24],
+      head: COT_DAY.slice(0, 8).map((c) => c[1] + ' · ' + c[2]).concat(['Tệp bản vẽ · 图纸文件', 'Trang PDF · PDF页码', 'Ghi chú · 备注']),
+      rows: D.dayDien.map((x) => { const t = D.taiLieu.find((y) => y.id === x.taiLieuId); return [x.soDay, x.banVe, x.to, x.tuDiem, x.denDiem, x.mau, x.tinHieu, x.tinHieuZh, t ? t.ten + ' v' + t.phienBan : '', x.trang || '', x.ghiChu]; }) },
+    sheetTs('Thông số hiện tại · 当前参数', (D.chuyenSP || []).map((l) => hienTai(l.chuyen, l.sanPham)).filter(Boolean)),
+    sheetTs('Lịch sử thông số · 参数历史', (D.thongSo || []).slice().sort((a, b) => String(a.chuyen + a.sanPham).localeCompare(String(b.chuyen + b.sanPham)) || khoaTs(b).localeCompare(khoaTs(a)))),
+    { name: 'Sản phẩm · 产品', w: [14, 30, 28, 12, 30, 30], head: ['Mã SP · 产品编号', 'Tên · 名称', 'Tên (中文) · 中文名称', 'Dài (mm) · 长度', 'Chuyền · 产线', 'Ghi chú · 备注'],
+      rows: dsSP().map((x) => [x.ma, x.ten, x.tenDich, x.daiSP ? Number(x.daiSP) : '', chuyenCuaSP(x.id).map((c) => c.ma + (dangChay(c.id) === x.id ? ' (đang chạy)' : '')).join(', '), x.ghiChu]) }
+  ]);
+  luuFile(b, 'Ghi-chu-Tai-lieu_' + TODAY() + '.xlsx');
+}
+// Thông số ra Excel: mỗi lần ghi một dòng, cột theo màn hình bộ điều khiển; JA1–8 mỗi JA một cột để lọc/so sánh trong Excel
+function sheetTs(name, ds) {
+  const n = (v) => (v === '' || v === undefined || v === null || !isFinite(Number(v))) ? (v || '') : Number(v);
+  const ja = (k, dv) => [1, 2, 3, 4, 5, 6, 7, 8].map((i) => k + ' JA' + i + ' (' + dv + ')');
+  const rows = ds.map((t) => { const c = cvOf(t.chuyen) || { ma: t.chuyen, soMau: t.soMau }, sp = spOf(t.sanPham) || { ma: t.sanPham, ten: '' };
+    const a = dayJA(t.align), v = dayJA(t.volt), f = tanSoTs(t);
+    return [c.ma, t.soMau === 2 ? '2 màu · 双色' : '1 màu · 单色', sp.ma, sp.ten, dangChay(t.chuyen) === t.sanPham ? 'Có · 是' : '', t.apDung, t.encDir, t.encDecode, n(t.encDPI), n(t.divider),
+      t.triggerMode, t.fireMode, daiSPmm(t.sanPham) ? Math.round(daiSPmm(t.sanPham) / 25.4 * 1000) / 1000 : '', n(t.formDelay)]
+      .concat([0, 1, 2, 3, 4, 5, 6, 7].map((i) => n(a[i] || ''))).concat([n(t.registration)]).concat([0, 1, 2, 3, 4, 5, 6, 7].map((i) => n(v[i] || '')))
+      .concat([n(t.meniscus), n(t.lungVac), n(t.purgeShort), n(t.purgeLong), n(t.nhietTam), n(t.nhietBinh1), n(t.lois1), t.muc1, n(t.nhietBinh2), n(t.lois2), t.muc2,
+        n(t.tocDo), f ? Math.round(f) : '', t.ghiChu, t.ghiChuDich]); });
+  const head = ['Chuyền · 产线', 'Màu · 颜色', 'Mã SP · 产品编号', 'Tên SP · 产品名称', 'Đang chạy · 运行中', 'Ngày áp dụng · 生效日期', 'Encoder Direction', 'Encoder Decode', 'Encoder DPI', 'Divider · 分频',
+    'Trigger Mode', 'Fire Mode', 'Length (in)', 'Delay (in)'].concat(ja('Head Alignments', 'px')).concat(['Image Registration']).concat(ja('Fire Pulses', 'V'))
+    .concat(['Meniscus', 'Lung Vacuum', 'Short Purge (s)', 'Long Purge (s)', 'Plate °C · 喷板温度', 'Reservoir PB1 °C', 'LOIS PB1', 'Ink PB1 · 墨水', 'Reservoir PB2 °C', 'LOIS PB2', 'Ink PB2 · 墨水',
+      'Tốc độ · 速度', 'Tần số (Hz) · 频率', 'Lý do · 原因', 'Lý do (中文) · 原因']);
+  return { name, rows, head, w: head.map((h, i) => i < 4 ? 14 : i >= head.length - 2 ? 30 : 11) };
+}
+function fileMauDay() {
+  luuFile(xlsx([{ name: 'Dây điện · 线号', w: [14, 14, 8, 16, 16, 14, 30, 26, 10, 24], head: COT_DAY.map((c) => c[1] + ' · ' + c[2]),
+    rows: [['TEST-101', 'TEST-BV01', '5', 'PS2-L', 'TB1-1', 'Cam/Đen', 'Nguồn 24 VDC', '', 5, 'Dòng mẫu — xoá trước khi nhập']] }]), 'Mau-nhap-day-dien.xlsx');
+}
+
+// ============ Bấm nút: một trình xử lý cho cả app ============
+const ACT = {
+  close: closeSheet, goCai: () => go('cai'), qOpen: () => go('cai'),
+  theChon: (b) => { S.the = b.dataset.t; render(); }, nhomChon: (b) => { S.nhom = b.dataset.n; render(); },
+  noteNew: () => noteEdit(''), noteView: (b) => noteView(b.dataset.id), noteEdit: (b) => noteEdit(b.dataset.id), noteSave: (b) => noteSave(b.dataset.id), noteDel: (b) => noteDel(b.dataset.id),
+  anhBoGiu: (b) => { ANH_GIU.splice(Number(b.dataset.i), 1); veAnhSua(); }, anhBoMoi: (b) => { ANH_MOI.splice(Number(b.dataset.i), 1); veAnhSua(); },
+  docNew: () => docForm({}), docView: (b) => docView(b.dataset.matl), docEdit: (b) => docForm({ id: b.dataset.id }), docNewVer: (b) => docForm({ maTL: b.dataset.matl }),
+  dKieu: (b) => { $$('#dKieu button').forEach((x) => x.classList.toggle('on', x === b)); $('#dFileBox').hidden = b.dataset.k !== 'FILE'; $('#dUrlBox').hidden = b.dataset.k !== 'LINK'; $('#dSave').dataset.kieu = b.dataset.k; },
+  docSave: (b) => docSave(b), verOpen: (b) => moTL(b.dataset.id), verOffline: (b) => verOffline(b.dataset.id),
+  verCurrent: (b) => verCall('docCurrent', b.dataset.id), verDel: (b) => verCall('docDelete', b.dataset.id),
+  viewClose: () => { const v = $('#viewer'); if (v) { if (v.dataset.url) URL.revokeObjectURL(v.dataset.url); v.remove(); } },
+  wireNew: () => wireEdit(''), wireView: (b) => wireView(b.dataset.id), wireEdit: (b) => wireEdit(b.dataset.id), wireSave: (b) => wireSave(b.dataset.id), wireDel: (b) => wireDel(b.dataset.id),
+  wireOpenDoc: (b) => { const x = S.data.dayDien.find((d) => d.id === b.dataset.id); if (x) moTL(x.taiLieuId, x.trang); },
+  wireImport: wireImportForm, wireTpl: fileMauDay,
+  mauChon: (b) => { S.soMau = Number(b.dataset.m); render(); }, lineView: (b) => lineView(b.dataset.id),
+  tsView: (b) => tsView(b.dataset.cv, b.dataset.sp), tsShow: (b) => tsView(b.dataset.cv, b.dataset.sp, b.dataset.id), tsNew: (b) => tsForm(b.dataset.cv, b.dataset.sp),
+  tsSave: (b) => tsSave(b.dataset.cv, b.dataset.sp), tsDel: (b) => tsDel(b.dataset.id), tsAlign,
+  runForm: (b) => runForm(b.dataset.cv, b.dataset.sp), runSave: (b) => runSave(b.dataset.cv, b.dataset.sp),
+  lineAddSp: (b) => lineAddSp(b.dataset.id), lineAddSpOk: (b) => lineAddSpOk(b.dataset.cv, $('#addSp').value), lineProdOff: (b) => lineProdOff(b.dataset.cv, b.dataset.sp),
+  spView: (b) => spView(b.dataset.id), spEdit: (b) => spEdit(b.dataset.id, b.dataset.cv), spSave: (b) => spSave(b.dataset.id, b.dataset.cv),
+  sub: (b) => go(b.dataset.v), plcCv: (b) => chonCPLC(b.dataset.cv), gcpForm: (b) => gcpForm(b.dataset.cv, b.dataset.dc), gcpSave: (b) => gcpSave(b.dataset.cv, b.dataset.dc), gcpDel: (b) => gcpDel(b.dataset.id, b.dataset.cv, b.dataset.dc), plcLines, plcLineAdd: () => plcLineSave({ ma: $('#plcLineMa').value.trim() }),
+  plcLineOff: (b) => { const c = plcOf(b.dataset.id); if (c && confirmXoa()) plcLineSave({ id: c.id, ma: c.ma, hoatDong: 0 }); }, plcForm: (b) => plcForm(b.dataset.cv), plcSave, plcDel: (b) => plcDel(b.dataset.id),
+  plcDich: (b) => plcDich(b.dataset.k), plcMo: (b) => { const h = keyHit(b.dataset.k); plcMo(h.cv, h.si, h.ri, h.ci); },
+  plcTrang: (b) => plcMo(b.dataset.cv, Number(b.dataset.si), Number(b.dataset.ri), -1), plcThuLai: () => { PLC.loi = {}; plcNap(); },
+  tsCompare, lines: linesForm, lineEdit: (b) => lineEdit(b.dataset.id), lineSave: (b) => lineSave(b.dataset.id), lineOff: (b) => lineSave(b.dataset.id, true),
+  cfgSave: () => cfgSave(false), cfgSaveNew: () => cfgSave(true),
+  qSend: () => { S.Q.forEach((q) => { q.err = ''; }); guiHangCho(true).then(render); },
+  qDrop: async (b) => { if (!window.confirm('Bỏ việc chờ gửi này? · 删除此待发送项？')) return; S.Q.splice(Number(b.dataset.i), 1); await saveQ(); await refresh(); render(); },
+  export: xuatExcel, groups: groupsForm, audit: auditView, pinChange: pinForm,
+  pinSave: async () => {
+    try { const d = await api('changePin', { cu: $('#pCu').value, moi: $('#pMoi').value }); S.tk = d.token; await store.set('tk', S.tk); closeSheet(); tt('daLuu'); }
+    catch (e) { toast(errMsg(e), true); }
+  },
+  groupAdd: async () => {
+    const ten = $('#gTen').value.trim(); if (!ten) return;
+    const r = await ghi('groupSave', { ten, tenZh: $('#gZh').value.trim() }, 'Nhóm ' + ten);
+    if (r.ok && !r.queued) { tt('daLuu'); groupsForm(); }
+  },
+  groupOff: async (b) => {
+    const n = nhomObj(b.dataset.id); if (!n || !confirmXoa()) return;
+    try { await api('groupSave', { id: n.id, ten: n.ten, tenZh: n.tenZh, hoatDong: 0 }, { opId: newOp() }); S.data.nhom = S.data.nhom.filter((x) => x.id !== n.id); await saveSnap(); groupsForm(); }
+    catch (e) { toast(errMsg(e), true); }
+  },
+  simOff: () => { S.simOff = !S.simOff; if (!S.simOff) { setOffline(false); guiHangCho(); } else setOffline(true); render(); },
+  logout: () => { if (S.Q.length && !window.confirm('Còn việc chờ gửi, vẫn đăng xuất? · 还有待发送项，仍要退出？')) return; logout(); },
+  apiReset: async () => { await store.del('api'); S.api = ''; logout(); },
+  setApi: async () => {
+    const v = $('#apiIn').value.trim();
+    if (!/^https:\/\/script\.google\.com\/.+\/exec$/.test(v)) { $('#lErr').innerHTML = L('Link phải dạng https://script.google.com/…/exec', '链接格式应为 https://script.google.com/…/exec'); return; }
+    S.api = v; await store.set('api', v); render();
+  }
+};
+document.addEventListener('click', (e) => {
+  const k = e.target.closest('[data-k]');
+  if (k && k.closest('#pinPad')) { pinKey(k.dataset.k); return; }
+  const tab = e.target.closest('.tab[data-v]');
+  if (tab) { go(tab.dataset.v); return; }
+  const a = e.target.closest('[data-act]');
+  if (a && ACT[a.dataset.act]) { if (a.tagName === 'LABEL') return; e.preventDefault(); ACT[a.dataset.act](a); }
+});
+window.addEventListener('online', () => { setOffline(false); guiHangCho(); });
+window.addEventListener('offline', () => setOffline(true));
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.tk) guiHangCho(); });
+
+// ============ Khởi động ============
+(async function khoiDong() {
+  const m = /[?&]api=([^&]+)/.exec(location.search);
+  S.api = await store.get('api', '');
+  if (m && !(typeof API_URL === 'string' && API_URL)) { S.api = decodeURIComponent(m[1]); await store.set('api', S.api); }
+  S.tk = await store.get('tk', '');
+  S.Q = await store.get('q', []);
+  S.offDocs = await store.get('offDocs', {});
+  if (S.tk) { S.data = await store.get('snap', null); render(); await guiHangCho(); await refresh(); if (S.data) plcNap(); }
+  else render();
+  if (!IS_DEMO && 'serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+})();
+</script>
+</body>
+</html>
