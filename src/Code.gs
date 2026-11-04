@@ -15,7 +15,7 @@
  * App chỉ có MỘT người dùng (chủ app), nên không chia vai trò. Mọi thao tác trừ ping/đăng nhập vẫn phải có
  * token hợp lệ: link /exec là công khai, không kiểm token thì ai biết link cũng đọc được tài liệu.
  */
-var PHIEN_BAN = '1.2.0';
+var PHIEN_BAN = '1.3.0';
 var TZ = 'Asia/Ho_Chi_Minh';
 var HAN_PHIEN_NGAY = 30;            // đăng nhập giữ 30 ngày
 var TEP_TOI_DA = 25 * 1024 * 1024;  // 25 MB/tệp: Apps Script nhận tối đa ~50 MB mỗi lần gửi, base64 làm to thêm 1/3
@@ -57,17 +57,20 @@ var BANG = {
     'LucTao', 'OpId', 'Xoa', 'DichTay'],
   // Bảng chương trình PLC của từng chuyền (file Excel IO / báo lỗi / chú thích M-D-B-W…): tệp nằm ở TaiLieu (nhóm "Chương trình PLC"),
   // trang này chỉ nối chuyền ↔ MaTL. Tải bản mới cho cùng chuyền = phiên bản mới của cùng MaTL. App tự đọc tệp để tra cứu, máy chủ không bóc tách.
-  BangMay: ['ID', 'Chuyen', 'MaTL', 'CapNhat', 'OpId', 'Xoa']
+  BangMay: ['ID', 'Chuyen', 'MaTL', 'CapNhat', 'OpId', 'Xoa'],
+  // Chuyền sản xuất của phần PLC — danh sách riêng, KHÔNG dùng chung với 9 chuyền của máy in (trang Chuyen):
+  // nhà máy có nhiều chuyền hơn số máy in, và chuyền có PLC chưa chắc có máy in. BangMay.Chuyen trỏ vào trang này.
+  ChuyenPLC: ['ID', 'Ma', 'GhiChu', 'ThuTu', 'HoatDong', 'CapNhat', 'OpId']
 };
 // Cột lưu dạng số (còn lại để dạng chữ "@" — tránh Sheets tự đổi "1-2" thành ngày, "007" thành 7)
 var COT_SO = {
   NguoiDung: ['HoatDong'], GhiChu: ['Xoa'], NhomTL: ['ThuTu', 'HoatDong'], TaiLieu: ['KichThuoc', 'PhienBan', 'HienHanh', 'Xoa'],
   DayDien: ['Trang', 'Xoa'], CauHinhMay: ['EncoderPPR', 'DuongKinh', 'SoCanh', 'Divider', 'DaiSP', 'TocDo', 'KhoangJA', 'KhoangPB', 'BuPB', 'GioiHan', 'Xoa'],
-  NhatKy: [], Chuyen: ['SoMau', 'ThuTu', 'HoatDong'], SanPham: ['HoatDong'], ChuyenSP: ['HoatDong'], ChaySP: ['Xoa'], ThongSo: ['SoMau', 'Xoa'], BangMay: ['Xoa']
+  NhatKy: [], Chuyen: ['SoMau', 'ThuTu', 'HoatDong'], SanPham: ['HoatDong'], ChuyenSP: ['HoatDong'], ChaySP: ['Xoa'], ThongSo: ['SoMau', 'Xoa'], BangMay: ['Xoa'], ChuyenPLC: ['ThuTu', 'HoatDong']
 };
 var COT_DD = { CauHinhMay: { DuongKinh: '0.###', KhoangJA: '0.####', KhoangPB: '0.####', BuPB: '0.###', GioiHan: '0.##', DaiSP: '0.##' } };
 var HANH_DONG_GHI = ['changePin', 'noteSave', 'noteDelete', 'groupSave', 'docUpload', 'docLink', 'docSave', 'docCurrent', 'docDelete',
-  'wireSave', 'wireImport', 'wireDelete', 'cfgSave', 'cfgDelete', 'lineSave', 'productSave', 'lineProduct', 'runSet', 'paramSave', 'paramDelete', 'plcUpload', 'plcDelete'];
+  'wireSave', 'wireImport', 'wireDelete', 'cfgSave', 'cfgDelete', 'lineSave', 'productSave', 'lineProduct', 'runSet', 'paramSave', 'paramDelete', 'plcUpload', 'plcDelete', 'plcLineSave'];
 var KIEU_TL = ['FILE', 'LINK'];
 var NHOM_MAU = [['Sổ tay thiết bị', '设备手册'], ['Bản vẽ điện', '电气图纸'], ['Quy trình', '操作规程'], ['Khác', '其他']];
 // Thông số máy in hiện tại (đầu in Galaxy 80 HM, bộ điều khiển Merlin D CE). Khoảng cách JA/PB lấy theo bảng tính của nhà cung cấp.
@@ -150,6 +153,7 @@ function dieuHuong(a, p, req) {
     case 'paramDelete': return xoaThongSo(p);
     case 'plcUpload': return taiBangMay(p, op);
     case 'plcDelete': return xoaBangMay(p);
+    case 'plcLineSave': return luuChuyenPLC(p, op);
     case 'translate': return dichMotDong(p);
   }
   throw loi('KHONG_HIEU', 'Máy chủ chưa hiểu yêu cầu này · 服务器无法识别: ' + a);
@@ -365,7 +369,10 @@ function apDich(x, cu, p, truong, truongDich, dichTay) {
 
 // ===================== Dữ liệu tổng =====================
 function layDuLieu() {
-  ['GhiChu', 'NhomTL', 'TaiLieu', 'DayDien', 'CauHinhMay', 'NhatKy', 'Chuyen', 'SanPham', 'ChuyenSP', 'ChaySP', 'ThongSo', 'BangMay'].forEach(trang);
+  ['GhiChu', 'NhomTL', 'TaiLieu', 'DayDien', 'CauHinhMay', 'NhatKy', 'Chuyen', 'SanPham', 'ChuyenSP', 'ChaySP', 'ThongSo', 'BangMay', 'ChuyenPLC'].forEach(trang);
+  var chuyenPLC = docBang('ChuyenPLC');
+  if (!chuyenPLC.length) chuyenPLC = taoChuyenPLC();
+  chuyenPLC = doiBangMayCu(chuyenPLC);
   var chuyen = docBang('Chuyen');
   if (!chuyen.length) chuyen = taoChuyenMau();
   var nhom = docBang('NhomTL');
@@ -384,7 +391,8 @@ function layDuLieu() {
     chuyenSP: docBang('ChuyenSP').filter(function (x) { return x.hoatDong; }).map(function (x) { return { id: x.id, chuyen: x.chuyen, sanPham: x.sanPham }; }),
     chaySP: docBang('ChaySP').filter(function (x) { return !x.xoa; }).map(congKhai),
     thongSo: docBang('ThongSo').filter(function (x) { return !x.xoa; }).map(sachTS),
-    bangMay: docBang('BangMay').filter(function (x) { return !x.xoa; }).map(congKhai)
+    bangMay: docBang('BangMay').filter(function (x) { return !x.xoa; }).map(congKhai),
+    chuyenPLC: chuyenPLC.filter(function (x) { return x.hoatDong; }).map(sachCPLC).sort(function (a, b) { return a.thuTu - b.thuTu; })
   };
 }
 
@@ -897,6 +905,62 @@ function xoaThongSo(p) {
 
 // ===================== Bảng chương trình PLC theo chuyền =====================
 var NHOM_PLC = ['Chương trình PLC', 'PLC程序'];
+// Chuyền sản xuất có bảng chương trình PLC, theo thứ tự người dùng đưa
+var CHUYEN_PLC_MAU = ['01', '02', '03', '04', '09', '10', '15', '21', '23', '06', '08', '12', '17', '18', '16', '13'];
+function sachCPLC(x) { return { id: x.id, ma: x.ma, ghiChu: x.ghiChu, thuTu: x.thuTu }; }
+function taoChuyenPLC() {
+  var bay = thoiGianStr();
+  themNhieu('ChuyenPLC', CHUYEN_PLC_MAU.map(function (m, i) {
+    return thanhDong('ChuyenPLC', { id: 'PL' + m, ma: m, ghiChu: '', thuTu: i + 1, hoatDong: 1, capNhat: bay, opId: '' });
+  }));
+  return docBang('ChuyenPLC');
+}
+// Nâng cấp từ v1.2.0: bảng chương trình đã tải lên được gắn với chuyền MÁY IN (CV06…).
+// Chuyển sang chuyền PLC cùng mã (tạo thêm nếu thiếu) để người dùng khỏi tải lại file.
+function doiBangMayCu(dsPLC) {
+  var bm = docBang('BangMay'), coPLC = dsIdCo(dsPLC), cvIn = null;
+  bm.forEach(function (x) {
+    if (coPLC[x.chuyen]) return;
+    cvIn = cvIn || docBang('Chuyen');
+    var c = cvIn.filter(function (v) { return v.id === x.chuyen; })[0];
+    if (!c) return;
+    var dich = dsPLC.filter(function (v) { return v.ma === c.ma; })[0];
+    if (!dich) {
+      dich = { id: 'PL' + c.ma.replace(/[^0-9A-Za-z]/g, ''), ma: c.ma, ghiChu: '', thuTu: dsPLC.length + 1, hoatDong: 1, capNhat: thoiGianStr(), opId: '' };
+      if (coPLC[dich.id]) dich.id = idMoi('PL', coPLC);
+      themNhieu('ChuyenPLC', [thanhDong('ChuyenPLC', dich)]); dsPLC.push(dich); coPLC[dich.id] = 1;
+    }
+    var truoc = congKhai(x);
+    x.chuyen = dich.id; x.capNhat = thoiGianStr();
+    suaDong('BangMay', x._r, thanhDong('BangMay', x));
+    ghiNhatKy('nang_cap', 'BangMay', x.id, truoc, congKhai(x));
+  });
+  return dsPLC;
+}
+function timChuyenPLC(id) {
+  var cv = docBang('ChuyenPLC').filter(function (c) { return c.id === s(id) && c.hoatDong; })[0];
+  if (!cv) throw loi('KHONG_THAY', 'Không thấy chuyền · 找不到产线');
+  return cv;
+}
+function luuChuyenPLC(p, op) {
+  var ds = docBang('ChuyenPLC');
+  if (op) { var t = ds.filter(function (x) { return x.opId === op; })[0]; if (t) return { dup: true, chuyenPLC: sachCPLC(t) }; }
+  var ma = catChu(p.ma, 20);
+  if (!ma) throw loi('TRONG', 'Nhập mã chuyền · 请输入产线编号');
+  var cu = s(p.id) ? ds.filter(function (x) { return x.id === s(p.id); })[0] : null;
+  if (s(p.id) && !cu) throw loi('KHONG_THAY', 'Không thấy chuyền · 找不到产线');
+  var trung = ds.filter(function (x) { return x.hoatDong && x.ma.toLowerCase() === ma.toLowerCase() && (!cu || x.id !== cu.id); })[0];
+  if (trung) throw loi('TRUNG', 'Đã có chuyền ' + ma + ' · 产线已存在');
+  var truoc = cu ? congKhai(cu) : null;
+  var x = cu || { id: op ? maTuOp('PL', op) : idMoi('PL', dsIdCo(ds)), thuTu: ds.length + 1 };
+  x.ma = ma; x.ghiChu = catChu(p.ghiChu, 200);
+  x.hoatDong = p.hoatDong === undefined ? 1 : (hd(p.hoatDong) ? 1 : 0);
+  if (!x.hoatDong && docBang('BangMay').some(function (b) { return !b.xoa && b.chuyen === x.id; })) throw loi('CON_BANG', 'Chuyền còn bảng chương trình, gỡ bảng trước · 产线仍有程序表');
+  x.capNhat = thoiGianStr(); x.opId = op || x.opId || '';
+  if (cu) suaDong('ChuyenPLC', cu._r, thanhDong('ChuyenPLC', x)); else themNhieu('ChuyenPLC', [thanhDong('ChuyenPLC', x)]);
+  ghiNhatKy(cu ? 'sua' : 'tao', 'ChuyenPLC', x.id, truoc, x);
+  return { chuyenPLC: sachCPLC(x) };
+}
 // Nhóm tài liệu riêng cho bảng chương trình; bản cũ chưa có thì tạo thêm (không đụng nhóm người dùng đã đặt)
 function nhomPLC() {
   var ds = docBang('NhomTL'), x = ds.filter(function (n) { return n.ten === NHOM_PLC[0]; })[0];
@@ -914,7 +978,7 @@ function taiBangMay(p, op) {
     var t = ds.filter(function (x) { return x.opId === op; })[0];
     if (t) return { dup: true, bangMay: congKhai(t) };
   }
-  var cv = timChuyen(p.chuyen);
+  var cv = timChuyenPLC(p.chuyen);
   var cu = ds.filter(function (x) { return !x.xoa && x.chuyen === cv.id; })[0];
   // Tải lại cho chuyền đã có bảng → phiên bản mới của cùng tài liệu (bản cũ vẫn xem lại được ở mục Tài liệu)
   var tl = taiLenTL({ maTL: cu ? cu.maTL : '', ten: 'Bảng chương trình ' + cv.ma, tenDich: cv.ma + '号线PLC程序表', nhom: nhomPLC(),
@@ -955,6 +1019,7 @@ function caiDatBanDau() {
   if (!docBang('NhomTL').length) taoNhomMau();
   if (!docBang('CauHinhMay').length) taoCauHinhMau();
   if (!docBang('Chuyen').length) taoChuyenMau();
+  if (!docBang('ChuyenPLC').length) taoChuyenPLC();
   return 'Đã cài đặt. PIN mặc định 111111 — đổi ngay trong app.';
 }
 // Thử Google Dịch (chạy tay trong Apps Script để cấp quyền dịch)

@@ -408,28 +408,28 @@ const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.s
 test('bảng chương trình: tải lên cho chuyền, tự tạo nhóm "Chương trình PLC", tải lại cùng chuyền thành phiên bản mới, opId không trùng', () => {
   const b = setup();
   ok(b.call('data', {}, b.tk));
-  const r1 = ok(b.call('plcUpload', { chuyen: 'CV06', tenTep: 'VKY06.xlsx', mime: XLSX_MIME, b64: b64('PK-gia') }, b.tk, 'op-p1'));
-  assert.equal(r1.bangMay.chuyen, 'CV06'); assert.equal(r1.taiLieu.phienBan, 1); assert.equal(r1.taiLieu.ten, 'Bảng chương trình 06');
-  assert.equal(ok(b.call('plcUpload', { chuyen: 'CV06', tenTep: 'VKY06.xlsx', mime: XLSX_MIME, b64: b64('PK-gia') }, b.tk, 'op-p1')).dup, true);
+  const r1 = ok(b.call('plcUpload', { chuyen: 'PL06', tenTep: 'VKY06.xlsx', mime: XLSX_MIME, b64: b64('PK-gia') }, b.tk, 'op-p1'));
+  assert.equal(r1.bangMay.chuyen, 'PL06'); assert.equal(r1.taiLieu.phienBan, 1); assert.equal(r1.taiLieu.ten, 'Bảng chương trình 06');
+  assert.equal(ok(b.call('plcUpload', { chuyen: 'PL06', tenTep: 'VKY06.xlsx', mime: XLSX_MIME, b64: b64('PK-gia') }, b.tk, 'op-p1')).dup, true);
   let d = ok(b.call('data', {}, b.tk));
   const nh = d.nhom.find((n) => n.ten === 'Chương trình PLC');
   assert.ok(nh, 'phải có nhóm Chương trình PLC'); assert.equal(nh.tenZh, 'PLC程序'); assert.equal(r1.taiLieu.nhom, nh.id);
-  const r2 = ok(b.call('plcUpload', { chuyen: 'CV06', tenTep: 'VKY06-moi.xlsx', mime: XLSX_MIME, b64: b64('PK-moi') }, b.tk));
+  const r2 = ok(b.call('plcUpload', { chuyen: 'PL06', tenTep: 'VKY06-moi.xlsx', mime: XLSX_MIME, b64: b64('PK-moi') }, b.tk));
   assert.equal(r2.bangMay.id, r1.bangMay.id); assert.equal(r2.taiLieu.maTL, r1.taiLieu.maTL); assert.equal(r2.taiLieu.phienBan, 2);
   d = ok(b.call('data', {}, b.tk));
   assert.equal(d.bangMay.length, 1); assert.equal(d.nhom.filter((n) => n.ten === 'Chương trình PLC').length, 1, 'không tạo nhóm trùng');
   assert.equal(d.taiLieu.find((t) => t.maTL === r1.taiLieu.maTL && t.hienHanh).tenTep, 'VKY06-moi.xlsx');
-  err(b.call('plcUpload', { chuyen: 'CVKHONG', tenTep: 'a.xlsx', mime: XLSX_MIME, b64: b64('x') }, b.tk), 'KHONG_THAY');
-  err(b.call('plcUpload', { chuyen: 'CV23', tenTep: 'a.xlsx', mime: XLSX_MIME, b64: '' }, b.tk), 'TEP_RONG');
+  err(b.call('plcUpload', { chuyen: 'PLKHONG', tenTep: 'a.xlsx', mime: XLSX_MIME, b64: b64('x') }, b.tk), 'KHONG_THAY');
+  err(b.call('plcUpload', { chuyen: 'PL23', tenTep: 'a.xlsx', mime: XLSX_MIME, b64: '' }, b.tk), 'TEP_RONG');
 });
 
 test('bảng chương trình: gỡ khỏi chuyền chỉ đánh dấu xoá (tệp vẫn ở Tài liệu), có nhật ký; cần đăng nhập', () => {
   const b = setup('demo');
   let d = ok(b.call('data', {}, b.tk));
-  assert.deepEqual(d.bangMay.map((x) => x.chuyen).sort(), ['CV06', 'CV23']);
+  assert.deepEqual(d.bangMay.map((x) => x.chuyen).sort(), ['PL06', 'PL23']);
   ok(b.call('plcDelete', { id: 'BMTEST01' }, b.tk));
   d = ok(b.call('data', {}, b.tk));
-  assert.deepEqual(d.bangMay.map((x) => x.chuyen), ['CV23']);
+  assert.deepEqual(d.bangMay.map((x) => x.chuyen), ['PL23']);
   assert.ok(d.taiLieu.some((t) => t.id === 'TLPLC01'), 'tệp vẫn còn ở Tài liệu');
   assert.ok(rawRows(b, 'BangMay').some((r) => r[0] === 'BMTEST01'));
   assert.deepEqual(ok(b.call('audit', { bang: 'BangMay', khoa: 'BMTEST01' }, b.tk)).nhatKy.map((n) => n.hanhDong), ['xoa']);
@@ -443,4 +443,45 @@ test('dịch một dòng: chữ Trung sang tiếng Việt; rỗng báo lỗi; Go
   err(b.call('translate', { text: '  ' }, b.tk), 'TRONG');
   b.ctx.__dich.loi = true;
   err(b.call('translate', { text: '粉碎机异常' }, b.tk), 'DICH');
+});
+
+// ===== v1.3.0: chuyền PLC tách riêng khỏi chuyền máy in =====
+test('chuyền PLC: lần đầu tạo sẵn 16 chuyền theo đúng thứ tự, tách riêng 9 chuyền máy in', () => {
+  const b = setup();
+  const d = ok(b.call('data', {}, b.tk));
+  assert.deepEqual(d.chuyenPLC.map((c) => c.ma), ['01', '02', '03', '04', '09', '10', '15', '21', '23', '06', '08', '12', '17', '18', '16', '13']);
+  assert.equal(d.chuyen.length, 9, 'chuyền máy in giữ nguyên 9');
+  ok(b.call('data', {}, b.tk));
+  assert.equal(rawRows(b, 'ChuyenPLC').length, 16, 'tải lại không tạo thêm');
+  err(b.call('plcUpload', { chuyen: 'CV06', tenTep: 'a.xlsx', mime: XLSX_MIME, b64: b64('x') }, b.tk), 'KHONG_THAY');
+});
+
+test('nâng cấp từ v1.2.0: bảng đã gắn với chuyền máy in (CV06) tự chuyển sang chuyền PLC cùng mã, không phải tải lại', () => {
+  const b = setup();
+  ok(b.call('data', {}, b.tk));
+  // Giả lập dữ liệu v1.2.0: dòng BangMay trỏ vào chuyền máy in CV06 và CV27 (27 chưa có trong danh sách PLC)
+  const r = ok(b.call('plcUpload', { chuyen: 'PL06', tenTep: 'VKY06.xlsx', mime: XLSX_MIME, b64: b64('PK') }, b.tk)).bangMay;
+  const sh = b.ctx.SpreadsheetApp.getActive().getSheetByName('BangMay'), cot = b.ctx.BANG.BangMay.indexOf('Chuyen');
+  sh.data[1][cot] = 'CV06';
+  sh.data[2] = ['BMCU27', 'CV27', 'MTCU27', '2026-11-04 10:00:00', '', 0];
+  const d = ok(b.call('data', {}, b.tk));
+  assert.equal(d.bangMay.find((x) => x.id === r.id).chuyen, 'PL06');
+  const c27 = d.chuyenPLC.find((c) => c.ma === '27');
+  assert.ok(c27, 'chuyền 27 được thêm vào danh sách PLC');
+  assert.equal(d.bangMay.find((x) => x.id === 'BMCU27').chuyen, c27.id);
+  assert.deepEqual(ok(b.call('audit', { bang: 'BangMay', khoa: r.id }, b.tk)).nhatKy.map((n) => n.hanhDong)[0], 'nang_cap');
+  ok(b.call('data', {}, b.tk));
+  assert.equal(rawRows(b, 'ChuyenPLC').length, 17, 'chạy lại không thêm trùng');
+});
+
+test('chuyền PLC: thêm/sửa, chặn trùng mã, không ngừng dùng chuyền còn bảng chương trình', () => {
+  const b = setup('demo');
+  const c = ok(b.call('plcLineSave', { ma: '30' }, b.tk, 'op-c1')).chuyenPLC;
+  assert.equal(ok(b.call('plcLineSave', { ma: '30' }, b.tk, 'op-c1')).dup, true);
+  err(b.call('plcLineSave', { ma: '06' }, b.tk), 'TRUNG');
+  err(b.call('plcLineSave', { ma: '' }, b.tk), 'TRONG');
+  err(b.call('plcLineSave', { id: 'PL06', ma: '06', hoatDong: 0 }, b.tk), 'CON_BANG');
+  ok(b.call('plcLineSave', { id: c.id, ma: '30', hoatDong: 0 }, b.tk));
+  assert.ok(!ok(b.call('data', {}, b.tk)).chuyenPLC.some((x) => x.ma === '30'));
+  err(b.call('plcLineSave', {}, 'gia.mao'), 'HET_PHIEN');
 });

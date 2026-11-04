@@ -54,6 +54,9 @@ ul.doi{margin:6px 0 0;padding-left:18px}
 .cells{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .cell{background:#F1F4F9;border-radius:8px;padding:4px 8px;font-size:14px;word-break:break-word}
 .cell.on{background:#FFF4C2;font-weight:600}
+.traloi{font-size:18px;margin-top:6px;line-height:1.35}.traloi b{color:var(--pri)}
+.card.plch.dung{border-color:#9BD3B5}
+.chips.plcl{flex-wrap:wrap}.chips.plcl button{min-width:48px;font-variant-numeric:tabular-nums}.chips.plcl button.trong:not(.on){color:#9AA6B8;border-style:dashed}
 .dichkq:not(:empty){margin-top:6px;background:#F6F8FC;border-left:3px solid #9DB4D8;padding:6px 8px;border-radius:6px;color:#33475F}
 table.plct td.on,table.plct tr.on th{background:#FFF4C2}table.plct tr.on td{background:#FFFBE6}
 table.plct th{position:sticky;left:0}
@@ -546,7 +549,7 @@ VIEWS.tim = {
     const gc = D.ghiChu.filter((x) => khop(hayGC(x), q)), tl = tlNhom().filter((g) => g.ds.some((x) => khop(hayTL(x), q))), dd = D.dayDien.filter((x) => khop(hayDay(x), q));
     if (cv.length + sps.length) o += `<div class="sec">${L(T.may[0], T.may[1])}<span>${cv.length + sps.length}</span></div>` + cv.map(rowLine).join('') + sps.map(rowSP).join('');
     const plc = plcTim(q, {}, 5);
-    if (plc.length) o += `<div class="sec">${L(T.ct[0], T.ct[1])}<span>${plc.length >= 5 ? '5+' : plc.length}</span></div>` + plc.map((h) => rowPLC(h, q)).join('');
+    if (plc.length) o += `<div class="sec">${L(T.ct[0], T.ct[1])}<span>${plc.length >= 5 ? '5+' : plc.length}</span></div>` + plc.map((h) => rowPLC(h, q, true)).join('');
     if (!gc.length && !tl.length && !dd.length && !cv.length && !sps.length && !plc.length) return o + `<div class="card empty">${TT('khongThay')}</div>`;
     if (gc.length) o += `<div class="sec">${L(T.gc[0], T.gc[1])}<span>${gc.length}</span></div>` + gc.slice(0, 30).map((x) => rowGC(x, q)).join('');
     if (tl.length) o += `<div class="sec">${L(T.tl[0], T.tl[1])}<span>${tl.length}</span></div>` + tl.slice(0, 30).map((g) => rowTL(g, q)).join('');
@@ -1250,8 +1253,12 @@ async function lineSave(id, tat) {
 // ============ Chương trình: bảng PLC của từng chuyền (IO, báo lỗi, chú thích M/D/B/W…) ============
 // Tệp Excel nằm ở Drive (mục Tài liệu, nhóm "Chương trình PLC"); app tự đọc mọi sheet và lưu bản đã bóc tách
 // trong IndexedDB để tra khi mất mạng. Bảng thật vài chục nghìn dòng tiếng Trung nên không dịch sẵn: bấm "Dịch" từng dòng.
-const PLC = { nap: {}, dang: {}, loi: {} };   // nap[chuyen] = { docId, ten, sheets:[{name, rows, n:[chuỗi bỏ dấu từng dòng]}] }
-const dsBang = () => (DL().bangMay || []).filter((b) => cvOf(b.chuyen));
+const PLC = { nap: {}, dang: {}, loi: {} };   // nap[chuyenPLC] = { docId, ten, sheets:[{name, rows, n:[chuỗi bỏ dấu từng dòng]}] }
+// Chuyền của phần PLC là danh sách riêng (16 chuyền), không dùng chung 9 chuyền của máy in
+const dsCPLC = () => (DL().chuyenPLC || []);
+const plcOf = (id) => dsCPLC().find((x) => x.id === id);
+const dsBang = () => (DL().bangMay || []).filter((b) => plcOf(b.chuyen));
+const bangCua = (cv) => dsBang().find((b) => b.chuyen === cv);
 const tlHienHanh = (maTL) => { const ds = DL().taiLieu.filter((t) => t.maTL === maTL); return ds.find((t) => t.hienHanh) || ds.sort((a, b) => b.phienBan - a.phienBan)[0]; };
 // Đọc mọi sheet của .xlsx, giữ đúng số dòng (để "Mở bảng" đến đúng dòng trong Excel)
 async function docXlsxAll(buf) {
@@ -1306,20 +1313,33 @@ async function plcNap(cv) {
     delete PLC.dang[x.chuyen]; veCT();
   }
 }
-// Tìm theo ô: khớp đúng cả ô (gõ "X1002") xếp trước, rồi ô bắt đầu bằng chữ gõ, rồi ô có chứa
+// Ô trông như địa chỉ PLC (X1002, M600, D120, Y1F, B0A…) hoặc chỉ là số — không phải chú thích
+const laDiaChi = (v) => /^[A-Z]{1,3}\d[0-9A-F.]*$/i.test(String(v).trim()) || /^[-+]?\d+(\.\d+)?$/.test(String(v).trim());
+// Chú thích của ô tìm được: ô chữ gần nhất bên phải, không có thì bên trái
+const laChu = (v) => v && !laDiaChi(v) && /[A-Za-z\u4e00-\u9fff]/.test(v);   // "1#", "3.5" không tính là chú thích
+function moTa(row, ci) {
+  for (let i = ci + 1; i < Math.min(row.length, ci + 4); i++) if (laChu(row[i])) return row[i];
+  for (let i = ci - 1; i >= Math.max(0, ci - 3); i--) if (laChu(row[i])) return row[i];
+  return '';
+}
+// Tìm trong bảng của MỘT chuyền (loc.cv), hoặc mọi chuyền khi tìm ở ô Tìm chung.
+// Xếp: khớp đúng cả ô và có chú thích → khớp đúng cả ô → ô bắt đầu bằng chữ gõ → ô có chứa. Dòng trùng nội dung chỉ giữ một.
 function plcTim(q, loc, toiDa) {
   const ws = norm(q).split(' ').filter(Boolean), qn = norm(q); if (!ws.length) return [];
-  const out = [];
+  const out = [], daCo = {};
   Object.keys(PLC.nap).forEach((cv) => {
     if (loc.cv && loc.cv !== cv) return;
     PLC.nap[cv].sheets.forEach((sh, si) => {
-      if (loc.sheet && loc.sheet !== sh.name) return;
       sh.n.forEach((rn, ri) => {
         if (!ws.every((w) => rn.indexOf(w) >= 0)) return;
-        const row = sh.rows[ri]; let best = -1, diem = 9;
-        row.forEach((v, ci) => { if (!v) return; const n = norm(v); const d = n === qn ? 0 : n.indexOf(qn) === 0 ? 1 : n.indexOf(ws[0]) >= 0 ? 2 : 9; if (d < diem) { diem = d; best = ci; } });
+        const row = sh.rows[ri]; let best = -1, d0 = 9;
+        row.forEach((v, ci) => { if (!v) return; const n = norm(v); const d = n === qn ? 0 : n.indexOf(qn) === 0 ? 2 : n.indexOf(ws[0]) >= 0 ? 3 : 9; if (d < d0) { d0 = d; best = ci; } });
         if (best < 0) best = row.findIndex((v) => v);
-        out.push({ cv, si, ri, ci: best, diem });
+        const mt = moTa(row, best);
+        const diem = d0 === 0 ? (mt ? 0 : 1) : d0;
+        const k = cv + '|' + cuaSo(row, best).map((x) => x[1]).join('|');
+        if (daCo[k]) return; daCo[k] = 1;
+        out.push({ cv, si, ri, ci: best, diem, mt });
       });
     });
   });
@@ -1328,10 +1348,11 @@ function plcTim(q, loc, toiDa) {
 }
 // Vài ô quanh ô khớp: thường là cặp "địa chỉ | chú thích" nằm cạnh nhau
 const cuaSo = (row, ci) => { const o = []; for (let i = Math.max(0, ci - 3); i <= Math.min(row.length - 1, ci + 3); i++) if (row[i]) o.push([i, row[i]]); return o; };
-function rowPLC(h, q) {
-  const p = PLC.nap[h.cv], sh = p.sheets[h.si], row = sh.rows[h.ri], c = cvOf(h.cv);
+function rowPLC(h, q, nhan) {
+  const p = PLC.nap[h.cv], sh = p.sheets[h.si], row = sh.rows[h.ri], c = plcOf(h.cv);
   const o = cuaSo(row, h.ci), key = h.cv + '|' + h.si + '|' + h.ri + '|' + h.ci;
-  return `<div class="card plch" data-k="${esc(key)}"><div class="muted"><span class="chip ${c && c.soMau === 2 ? 'pb2' : 'pb0'}">${esc(c ? c.ma : h.cv)}</span> ${esc(sh.name)} · <span class="mono">${cotAZ(h.ci)}${h.ri + 1}</span></div>
+  return `<div class="card plch${h.diem === 0 ? ' dung' : ''}" data-k="${esc(key)}"><div class="muted">${nhan ? `<span class="chip pb0">${esc(c ? c.ma : h.cv)}</span> ` : ''}${esc(sh.name)} · <span class="mono">${cotAZ(h.ci)}${h.ri + 1}</span></div>
+    ${h.diem <= 1 && h.mt ? `<div class="traloi"><span class="mono">${esc(row[h.ci])}</span> → <b>${esc(h.mt)}</b></div>` : ''}
     <div class="cells">${o.map(([i, v]) => `<span class="cell${i === h.ci ? ' on' : ''}">${hl(v, q || '')}</span>`).join('')}</div>
     <div class="dichkq muted" data-k="${esc(key)}">${PLC_DICH[key] ? esc(PLC_DICH[key]) : ''}</div>
     <div class="btns"><button class="btn sm ghost" data-act="plcDich" data-k="${esc(key)}">${L('Dịch', '翻译')}</button><button class="btn sm ghost" data-act="plcMo" data-k="${esc(key)}">${L('Mở bảng', '打开表格')}</button></div></div>`;
@@ -1346,10 +1367,10 @@ async function plcDich(k) {
 }
 // Xem cả sheet quanh dòng tìm được (60 dòng mỗi trang, cuộn ngang được)
 function plcMo(cv, si, ri, ci) {
-  const p = PLC.nap[cv], sh = p.sheets[si], c = cvOf(cv), tu = Math.max(0, ri - 20), den = Math.min(sh.rows.length, tu + 60);
+  const p = PLC.nap[cv], sh = p.sheets[si], c = plcOf(cv), tu = Math.max(0, ri - 20), den = Math.min(sh.rows.length, tu + 60);
   const nCot = Math.max(1, ...sh.rows.slice(tu, den).map((r) => r.length));
   sheet(`${esc(c ? 'Chuyền ' + c.ma : cv)} · ${esc(sh.name)}`, `<label class="f"><span class="l">${L('Sheet', '工作表')}</span><select class="i" id="plcSheet">${p.sheets.map((s, i) => `<option value="${i}" ${i === si ? 'selected' : ''}>${esc(s.name)} (${s.rows.length})</option>`).join('')}</select></label>
-    <div class="muted">${L('Dòng', '行')} ${tu + 1}–${den} / ${sh.rows.length} · ${esc(p.ten)} v${p.pb}</div>
+    <div class="muted">Dòng · 行 ${tu + 1}–${den} / ${sh.rows.length} · ${esc(p.ten)} v${p.pb}</div>
     <div style="overflow-x:auto;margin-top:8px"><table class="t plct" style="white-space:nowrap"><tr><th></th>${Array.from({ length: nCot }, (_, i) => `<th>${cotAZ(i)}</th>`).join('')}</tr>
     ${sh.rows.slice(tu, den).map((r, j) => `<tr class="${tu + j === ri ? 'on' : ''}" ${tu + j === ri ? 'id="plcOn"' : ''}><th>${tu + j + 1}</th>${Array.from({ length: nCot }, (_, i) => `<td class="${tu + j === ri && i === ci ? 'on' : ''}">${esc(r[i] || '')}</td>`).join('')}</tr>`).join('')}</table></div>
     <div class="btns"><button class="btn sm ghost" data-act="plcTrang" data-cv="${esc(cv)}" data-si="${si}" data-ri="${Math.max(0, tu - 40)}" ${tu === 0 ? 'disabled' : ''}>← ${L('Trước', '上一页')}</button>
@@ -1359,43 +1380,52 @@ function plcMo(cv, si, ri, ci) {
   });
 }
 const tongDong = (p) => p.sheets.reduce((s, x) => s + x.rows.filter((r) => r.length).length, 0);
+// Chuyền đang chọn: lần trước chọn chuyền nào thì mở lại chuyền đó; chưa chọn thì lấy chuyền đầu tiên đã có bảng
+function chuyenChon() {
+  if (S.pcv && plcOf(S.pcv)) return S.pcv;
+  try { const v = localStorage.getItem('gctl_pcv'); if (v && plcOf(v)) return (S.pcv = v); } catch (e) { /* bỏ qua */ }
+  const b = dsBang()[0]; return (S.pcv = b ? b.chuyen : (dsCPLC()[0] || {}).id || '');
+}
 function veCT() { if (S.view === 'ct' && $('#plcTT')) { $('#plcTT').innerHTML = ttPLC(); veKqPLC(); } }
 function ttPLC() {
-  const b = dsBang();
-  if (!b.length) return `<div class="card empty">${L('Chưa có bảng chương trình nào. Bấm "Tải bảng" để thêm file Excel của từng chuyền.', '尚无程序表，点击“上传”添加各产线的Excel文件。')}</div>`;
-  return b.map((x) => { const c = cvOf(x.chuyen), p = PLC.nap[x.chuyen], doc = tlHienHanh(x.maTL);
-    return `<div class="card plcm" data-cv="${esc(x.chuyen)}"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>Chuyền ${esc(c.ma)}</b> <span class="chip ${c.soMau === 2 ? 'pb2' : 'pb0'}">${nhanMau(c.soMau)}</span>
+  const cv = chuyenChon(), c = plcOf(cv), x = bangCua(cv);
+  if (!c) return '';
+  if (!x) return `<div class="card empty">${L('Chuyền ' + esc(c.ma) + ' chưa có bảng chương trình.', esc(c.ma) + '号线尚无程序表。')}
+    <div class="btns" style="justify-content:center"><button class="btn" data-act="plcForm" data-cv="${esc(cv)}">${IC.up}${L('Tải bảng cho chuyền ' + esc(c.ma), '上传程序表')}</button></div></div>`;
+  const p = PLC.nap[cv], doc = tlHienHanh(x.maTL);
+  return `<div class="card plcm" data-cv="${esc(cv)}"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>Chuyền ${esc(c.ma)}</b>
       <span class="muted">${esc(doc ? doc.tenTep : '')}${doc ? ' · v' + doc.phienBan : ''}</span></div>
-      <div class="muted">${PLC.dang[x.chuyen] ? L('Đang đọc bảng…', '正在读取…') : PLC.loi[x.chuyen] ? `<span style="color:var(--bad)">${errMsg(PLC.loi[x.chuyen])}</span>` : p ? `${p.sheets.length} sheet · ${so(tongDong(p), 0)} ${L('dòng', '行').replace(/<\/?span[^>]*>/g, ' ')}` : ''}</div>
-      <div class="btns">${p ? `<button class="btn sm ghost" data-act="plcMo" data-k="${esc(x.chuyen)}|0|0|-1">${L('Xem bảng', '查看表格')}</button>` : PLC.loi[x.chuyen] ? `<button class="btn sm ghost" data-act="plcThuLai">${L('Thử lại', '重试')}</button>` : ''}
-      <button class="btn sm ghost" data-act="plcForm" data-cv="${esc(x.chuyen)}">${IC.up}${L('Tải bản mới', '上传新版')}</button>
-      <button class="btn sm bad" data-act="plcDel" data-id="${esc(x.id)}">${L('Gỡ', '移除')}</button></div></div>`; }).join('');
+    <div class="muted">${PLC.dang[cv] ? L('Đang đọc bảng…', '正在读取…') : PLC.loi[cv] ? `<span style="color:var(--bad)">${errMsg(PLC.loi[cv])}</span>` : p ? `${p.sheets.length} sheet · ${so(tongDong(p), 0)} dòng · 行` : ''}</div>
+    <div class="btns">${p ? `<button class="btn sm ghost" data-act="plcMo" data-k="${esc(cv)}|0|0|-1">${L('Xem bảng', '查看表格')}</button>` : PLC.loi[cv] ? `<button class="btn sm ghost" data-act="plcThuLai">${L('Thử lại', '重试')}</button>` : ''}
+    <button class="btn sm ghost" data-act="plcForm" data-cv="${esc(cv)}">${IC.up}${L('Tải bản mới', '上传新版')}</button>
+    <button class="btn sm bad" data-act="plcDel" data-id="${esc(x.id)}">${L('Gỡ', '移除')}</button></div></div>`;
 }
 function veKqPLC() {
   const box = $('#plcKq'); if (!box) return;
-  const q = S.pq || '';
-  if (!norm(q)) { box.innerHTML = ''; return; }
-  const ds = plcTim(q, { cv: S.pcv, sheet: S.psheet }, 100);
+  const q = S.pq || '', cv = chuyenChon();
+  if (!norm(q) || !bangCua(cv)) { box.innerHTML = ''; return; }
+  if (!PLC.nap[cv]) { box.innerHTML = `<div class="card empty">${L('Đang đọc bảng…', '正在读取…')}</div>`; return; }
+  const ds = plcTim(q, { cv }, 100);
   box.innerHTML = `<div class="sec">${L('Kết quả', '结果')}<span>${ds.length >= 100 ? '100+' : ds.length}</span></div>` + (ds.map((h) => rowPLC(h, q)).join('') || `<div class="card empty">${TT('khongThay')}</div>`);
 }
 VIEWS.ct = {
   html() {
-    const b = dsBang(), sheets = []; Object.keys(PLC.nap).forEach((cv) => PLC.nap[cv].sheets.forEach((s) => { if (sheets.indexOf(s.name) < 0) sheets.push(s.name); }));
-    return `<div class="search">${IC.tim}<input id="pq" type="search" placeholder="${L('Địa chỉ X1002, M600, D120… hoặc chữ: 急停, servo', '地址或文字').replace(/<[^>]+>/g, ' ').trim()}" value="${esc(S.pq || '')}" autocomplete="off"></div>
-      ${b.length > 1 ? `<div class="chips"><button class="${!S.pcv ? 'on' : ''}" data-act="plcCv" data-cv="">${L(T.tatCa[0], T.tatCa[1])}</button>${b.map((x) => `<button class="${S.pcv === x.chuyen ? 'on' : ''}" data-act="plcCv" data-cv="${esc(x.chuyen)}">${esc(cvOf(x.chuyen).ma)}</button>`).join('')}</div>` : ''}
-      ${sheets.length ? `<select class="i" id="psheet" style="margin-bottom:10px"><option value="">${L('Mọi sheet', '全部工作表').replace(/<[^>]+>/g, ' ')}</option>${sheets.map((s) => `<option ${S.psheet === s ? 'selected' : ''}>${esc(s)}</option>`).join('')}</select>` : ''}
-      <div id="plcKq"></div><div class="sec">${L('Bảng theo chuyền', '各产线程序表')}</div><div id="plcTT">${ttPLC()}</div>
-      <button class="btn fab" id="fabPLC" data-act="plcForm" data-cv="">${IC.up}${L('Tải bảng', '上传')}</button>`;
+    const cv = chuyenChon(), c = plcOf(cv);
+    return `<div class="sec" style="margin-top:0">${L('Chuyền sản xuất', '生产线')}<button class="btn sm ghost" style="padding:4px 10px" data-act="plcLines">${L('Sửa danh sách', '编辑')}</button></div>
+      <div class="chips plcl">${dsCPLC().map((x) => `<button class="${x.id === cv ? 'on' : ''}${bangCua(x.id) ? '' : ' trong'}" data-act="plcCv" data-cv="${esc(x.id)}">${esc(x.ma)}</button>`).join('')}</div>
+      <div class="search">${IC.tim}<input id="pq" type="search" placeholder="${c ? 'Chuyền ' + esc(c.ma) + ': ' : ''}X1002, M600, D120…" value="${esc(S.pq || '')}" autocomplete="off" ${bangCua(cv) ? '' : 'disabled'}></div>
+      <div id="plcKq"></div><div id="plcTT">${ttPLC()}</div>
+      <button class="btn fab" id="fabPLC" data-act="plcForm" data-cv="${esc(cv)}">${IC.up}${L('Tải bảng', '上传')}</button>`;
   },
   after() {
     const i = $('#pq'); i.addEventListener('input', debounce(() => { S.pq = i.value; veKqPLC(); }, 200));
-    const s = $('#psheet'); if (s) s.addEventListener('change', () => { S.psheet = s.value; veKqPLC(); });
     veKqPLC(); plcNap();
   }
 };
+function chonCPLC(cv) { S.pcv = cv; try { localStorage.setItem('gctl_pcv', cv); } catch (e) { /* bỏ qua */ } render(); }
 function plcForm(cv) {
-  sheet(L('Tải bảng chương trình', '上传程序表'), `<div class="card muted">${L('File Excel (.xlsx) của máy: IO, báo lỗi, chú thích M/D/B/W… Tải lại cho chuyền đã có bảng thì thành phiên bản mới, bản cũ vẫn xem lại ở mục Tài liệu.', '设备Excel文件（IO、报警、M/D/B/W注释等）。同一产线再次上传即为新版本。')}</div>
-    <label class="f"><span class="l">${L('Chuyền', '产线')}</span><select class="i" id="plcCv">${dsChuyen().map((c) => `<option value="${esc(c.id)}" ${c.id === cv ? 'selected' : ''}>Chuyền ${esc(c.ma)} · ${nhanMau(c.soMau)}</option>`).join('')}</select></label>
+  sheet(L('Tải bảng chương trình', '上传程序表'), `<div class="card muted">${L('File Excel (.xlsx) chương trình của chuyền: IO, báo lỗi, chú thích M/D/B/W… Tải lại cho chuyền đã có bảng thì thành phiên bản mới, bản cũ vẫn xem lại ở mục Tài liệu.', '产线程序Excel文件（IO、报警、M/D/B/W注释等）。同一产线再次上传即为新版本。')}</div>
+    <label class="f"><span class="l">${L('Chuyền', '产线')}</span><select class="i" id="plcCv">${dsCPLC().map((c) => `<option value="${esc(c.id)}" ${c.id === (cv || chuyenChon()) ? 'selected' : ''}>Chuyền ${esc(c.ma)}${bangCua(c.id) ? ' (đã có bảng · 已有)' : ''}</option>`).join('')}</select></label>
     <label class="f"><span class="l">${L('File .xlsx', 'xlsx文件')}</span><input class="i" type="file" id="plcFile" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label>
     <div class="btns"><button class="btn wide" id="plcSave" data-act="plcSave">${IC.up}${L('Tải lên', '上传')}</button></div><div id="plcMsg" class="muted"></div>`);
 }
@@ -1413,7 +1443,7 @@ async function plcSave() {
     await store.set('plc:' + d.taiLieu.id, sheets);
     const cu = await store.get('plcIdx', {}); cu[cv] = d.taiLieu.id; await store.set('plcIdx', cu);
     PLC.nap[cv] = { docId: d.taiLieu.id, ten: d.taiLieu.tenTep, pb: d.taiLieu.phienBan, sheets: chuanBiTim(sheets) };
-    closeSheet(); tt('daLuu'); await refresh(true); render();
+    closeSheet(); tt('daLuu'); await refresh(true); chonCPLC(cv);
   } catch (e) { btn.disabled = false; $('#plcMsg').innerHTML = errMsg(e); }
 }
 async function plcDel(id) {
@@ -1423,6 +1453,23 @@ async function plcDel(id) {
     const x = DL().bangMay.find((b) => b.id === id); DL().bangMay = DL().bangMay.filter((b) => b.id !== id);
     if (x) delete PLC.nap[x.chuyen];
     await saveSnap(); tt('daXoa'); render();
+  } catch (e) { toast(errMsg(e), true); }
+}
+// Danh sách chuyền PLC: thêm chuyền mới, sửa mã, ngừng dùng (chuyền còn bảng thì phải gỡ bảng trước)
+function plcLines() {
+  sheet(L('Chuyền sản xuất (PLC)', '生产线（PLC）'), `<div class="card muted">${L('Danh sách này riêng cho phần Chương trình, không ảnh hưởng 9 chuyền của máy in.', '此列表仅用于PLC程序，与喷码机产线无关。')}</div>
+    ${dsCPLC().map((c) => `<div class="card" style="display:flex;gap:8px;align-items:center;padding:8px 12px"><b style="flex:1">Chuyền ${esc(c.ma)}</b>${bangCua(c.id) ? `<span class="chip ok">${L('có bảng', '有程序表').replace(/<\/?span[^>]*>/g, ' ')}</span>` : ''}
+      ${bangCua(c.id) ? '' : `<button class="btn sm bad" data-act="plcLineOff" data-id="${esc(c.id)}">${L('Bỏ', '删除')}</button>`}</div>`).join('')}
+    <div class="grid2"><label class="f"><span class="l">${L('Mã chuyền mới', '新产线编号')}</span><input class="i" id="plcLineMa" autocomplete="off"></label>
+    <div class="f" style="display:flex;align-items:flex-end"><button class="btn wide" id="plcLineAdd" data-act="plcLineAdd">${IC.plus}${L('Thêm', '添加')}</button></div></div>`);
+}
+async function plcLineSave(p) {
+  try {
+    const d = await api('plcLineSave', p, { opId: newOp() });
+    DL().chuyenPLC = dsCPLC().filter((x) => x.id !== d.chuyenPLC.id);
+    if (p.hoatDong !== 0) DL().chuyenPLC.push(d.chuyenPLC);
+    DL().chuyenPLC.sort((a, b) => a.thuTu - b.thuTu);
+    await saveSnap(); tt('daLuu'); render(); plcLines();
   } catch (e) { toast(errMsg(e), true); }
 }
 
@@ -1608,7 +1655,8 @@ const ACT = {
   runForm: (b) => runForm(b.dataset.cv, b.dataset.sp), runSave: (b) => runSave(b.dataset.cv, b.dataset.sp),
   lineAddSp: (b) => lineAddSp(b.dataset.id), lineAddSpOk: (b) => lineAddSpOk(b.dataset.cv, $('#addSp').value), lineProdOff: (b) => lineProdOff(b.dataset.cv, b.dataset.sp),
   spView: (b) => spView(b.dataset.id), spEdit: (b) => spEdit(b.dataset.id, b.dataset.cv), spSave: (b) => spSave(b.dataset.id, b.dataset.cv),
-  sub: (b) => go(b.dataset.v), plcCv: (b) => { S.pcv = b.dataset.cv; render(); }, plcForm: (b) => plcForm(b.dataset.cv), plcSave, plcDel: (b) => plcDel(b.dataset.id),
+  sub: (b) => go(b.dataset.v), plcCv: (b) => chonCPLC(b.dataset.cv), plcLines, plcLineAdd: () => plcLineSave({ ma: $('#plcLineMa').value.trim() }),
+  plcLineOff: (b) => { const c = plcOf(b.dataset.id); if (c && confirmXoa()) plcLineSave({ id: c.id, ma: c.ma, hoatDong: 0 }); }, plcForm: (b) => plcForm(b.dataset.cv), plcSave, plcDel: (b) => plcDel(b.dataset.id),
   plcDich: (b) => plcDich(b.dataset.k), plcMo: (b) => { const h = keyHit(b.dataset.k); plcMo(h.cv, h.si, h.ri, h.ci); },
   plcTrang: (b) => plcMo(b.dataset.cv, Number(b.dataset.si), Number(b.dataset.ri), -1), plcThuLai: () => { PLC.loi = {}; plcNap(); },
   tsCompare, lines: linesForm, lineEdit: (b) => lineEdit(b.dataset.id), lineSave: (b) => lineSave(b.dataset.id), lineOff: (b) => lineSave(b.dataset.id, true),

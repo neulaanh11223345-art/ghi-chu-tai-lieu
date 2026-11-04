@@ -429,43 +429,42 @@ try {
   assert.match(await text('header.bar h1'), /Máy in/);
   ok('Tab Máy in gom Thông số, Tính toán, Tra dây');
 
-  // 20b. Chương trình: đọc bảng PLC của chuyền 06 và 23, tra địa chỉ ra cả hai máy, dịch một dòng, mở đúng ô trong bảng
+  // 20b. Chương trình: 16 chuyền PLC riêng (khác 9 chuyền máy in); chọn chuyền rồi gõ địa chỉ → ra ngay chú thích
   await page.click('.tabs .tab[data-v="ct"]');
-  await page.waitForFunction(() => document.querySelectorAll('#plcTT .plcm').length === 2 && !/Đang đọc/.test(document.querySelector('#plcTT').textContent), null, { timeout: 15000 });
-  assert.match(await text('#plcTT'), /4 sheet/);
+  await wait();
+  assert.equal(await page.locator('.chips.plcl button').count(), 16);
+  assert.match(await page.locator('.chips.plcl').textContent(), /01.*02.*03.*04.*09.*10.*15.*21.*23.*06.*08.*12.*17.*18.*16.*13/);
+  assert.equal(await page.locator('#psheet').count(), 0, 'không còn ô chọn sheet');
+  await page.click('.chips.plcl button[data-cv="PL06"]');
+  await page.waitForFunction(() => /4 sheet/.test((document.querySelector('#plcTT') || {}).textContent || ''), null, { timeout: 15000 });
   await page.fill('#pq', 'x1002');
   await wait(600);
-  assert.equal(await page.locator('#plcKq .plch').count(), 2, 'X1002 phải ra ở cả máy 06 và 23');
-  assert.match(await page.locator('#plcKq .plch').first().textContent(), /粉碎机异常/);
-  assert.match(await page.locator('#plcKq .plch').first().textContent(), /远程IO · A4/);
+  assert.equal(await page.locator('#plcKq .plch').count(), 1, 'chỉ tìm trong chuyền đang chọn');
+  const kqPLC = page.locator("#plcKq .plch").first();
+  assert.match(await kqPLC.locator('.traloi').textContent(), /X1002 → 粉碎机异常/);
+  assert.match(await kqPLC.textContent(), /远程IO · A4/);
   await shot('13-chuong-trinh');
-  await page.locator('#plcKq .plch').first().locator('[data-act="plcDich"]').click();
+  await kqPLC.locator('[data-act="plcDich"]').click();
   await wait(800);
-  assert.match(await page.locator('#plcKq .plch .dichkq').first().textContent(), /Máy nghiền lỗi/);
-  await page.locator('#plcKq .plch').first().locator('[data-act="plcMo"]').click();
+  assert.match(await kqPLC.locator('.dichkq').textContent(), /Máy nghiền lỗi/);
+  await kqPLC.locator('[data-act="plcMo"]').click();
   await wait(600);
-  assert.match(await page.locator('#ov table.plct tr.on').textContent(), /X1002/);
   assert.equal(await page.locator('#ov table.plct td.on').textContent(), 'X1002');
   await page.click('#ov [data-act="close"]');
-  // Lọc theo máy và theo sheet
-  await page.click('.chips button[data-cv="CV23"]');
-  await wait(600);
-  assert.equal(await page.locator('#plcKq .plch').count(), 1);
-  await page.fill('#pq', '急停');
-  await wait(500);
-  assert.match(await text('#plcKq'), /M0/);
-  await page.selectOption('#psheet', '电机型号');
-  await wait(500);
-  assert.match(await text('#plcKq'), /Không thấy/);
-  await page.selectOption('#psheet', '');
-  await page.click('.chips button[data-cv=""]');
+  // Đổi sang chuyền 23: cùng chữ đang gõ, ra kết quả của chuyền 23; chuyền chưa có bảng thì mời tải bảng
+  await page.click('.chips.plcl button[data-cv="PL23"]');
+  await page.waitForFunction(() => document.querySelectorAll('#plcKq .plch').length === 1, null, { timeout: 15000 });
+  assert.match(await text('#plcTT'), /Chuyền 23/);
+  await page.click('.chips.plcl button[data-cv="PL01"]');
   await wait();
-  ok('Chương trình: đọc bảng PLC, tra địa chỉ ra cả 2 máy, dịch dòng, mở đúng ô, lọc máy/sheet');
+  assert.match(await text('#plcTT'), /chưa có bảng/);
+  assert.equal(await page.isDisabled('#pq'), true);
+  ok('Chương trình: 16 chuyền PLC riêng, chọn chuyền rồi tra địa chỉ ra chú thích, dịch, mở đúng ô');
 
-  // 20c. Tải bảng cho chuyền 08 (file .xlsx thật, nén), thành bảng thứ 3; file hỏng bị báo trước khi tải lên
-  await page.click('#fabPLC');
+  // 20c. Tải bảng cho chuyền 01 (file .xlsx thật, nén); file hỏng bị báo trước khi tải lên; thêm chuyền PLC mới
+  await page.click('#plcTT [data-act="plcForm"]');
   await wait();
-  await page.selectOption('#plcCv', 'CV08');
+  assert.equal(await page.inputValue('#plcCv'), 'PL01');
   await page.setInputFiles('#plcFile', { name: 'hong.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', buffer: Buffer.from('khong phai xlsx') });
   await page.click('#plcSave');
   await wait(500);
@@ -474,11 +473,18 @@ try {
   await page.click('#plcSave');
   await page.waitForFunction(() => !document.querySelector('#ov'), null, { timeout: 15000 });
   await wait(600);
-  assert.equal(await page.locator('#plcTT .plcm').count(), 3);
+  assert.equal(await page.locator('.chips.plcl button.on').textContent(), '01');
   await page.fill('#pq', 'TEST-201');
   await wait(600);
   assert.match(await text('#plcKq'), /K1-13/);
-  ok('Tải bảng chương trình cho chuyền mới; file hỏng bị chặn trước khi gửi');
+  await page.click('[data-act="plcLines"]');
+  await wait();
+  await page.fill('#plcLineMa', '30');
+  await page.click('#plcLineAdd');
+  await wait(600);
+  await page.click('#ov [data-act="close"]');
+  assert.equal(await page.locator('.chips.plcl button').count(), 17);
+  ok('Tải bảng chương trình cho chuyền 01; file hỏng bị chặn; thêm chuyền PLC mới');
 
   // 20d. Ô Tìm chung cũng ra kết quả bảng chương trình
   await tab('tim');
