@@ -402,3 +402,45 @@ test('thông số: xoá lần ghi nhầm chỉ đánh dấu Xoa = 1, có nhật 
   assert.deepEqual(nk.map((n) => n.hanhDong), ['xoa', 'tao']);
   for (const a of ['paramSave', 'paramDelete', 'lineSave', 'productSave', 'lineProduct', 'runSet']) err(b.call(a, {}, 'gia.mao'), 'HET_PHIEN');
 });
+
+// ===== v1.2.0: bảng chương trình PLC theo chuyền + dịch một dòng =====
+const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+test('bảng chương trình: tải lên cho chuyền, tự tạo nhóm "Chương trình PLC", tải lại cùng chuyền thành phiên bản mới, opId không trùng', () => {
+  const b = setup();
+  ok(b.call('data', {}, b.tk));
+  const r1 = ok(b.call('plcUpload', { chuyen: 'CV06', tenTep: 'VKY06.xlsx', mime: XLSX_MIME, b64: b64('PK-gia') }, b.tk, 'op-p1'));
+  assert.equal(r1.bangMay.chuyen, 'CV06'); assert.equal(r1.taiLieu.phienBan, 1); assert.equal(r1.taiLieu.ten, 'Bảng chương trình 06');
+  assert.equal(ok(b.call('plcUpload', { chuyen: 'CV06', tenTep: 'VKY06.xlsx', mime: XLSX_MIME, b64: b64('PK-gia') }, b.tk, 'op-p1')).dup, true);
+  let d = ok(b.call('data', {}, b.tk));
+  const nh = d.nhom.find((n) => n.ten === 'Chương trình PLC');
+  assert.ok(nh, 'phải có nhóm Chương trình PLC'); assert.equal(nh.tenZh, 'PLC程序'); assert.equal(r1.taiLieu.nhom, nh.id);
+  const r2 = ok(b.call('plcUpload', { chuyen: 'CV06', tenTep: 'VKY06-moi.xlsx', mime: XLSX_MIME, b64: b64('PK-moi') }, b.tk));
+  assert.equal(r2.bangMay.id, r1.bangMay.id); assert.equal(r2.taiLieu.maTL, r1.taiLieu.maTL); assert.equal(r2.taiLieu.phienBan, 2);
+  d = ok(b.call('data', {}, b.tk));
+  assert.equal(d.bangMay.length, 1); assert.equal(d.nhom.filter((n) => n.ten === 'Chương trình PLC').length, 1, 'không tạo nhóm trùng');
+  assert.equal(d.taiLieu.find((t) => t.maTL === r1.taiLieu.maTL && t.hienHanh).tenTep, 'VKY06-moi.xlsx');
+  err(b.call('plcUpload', { chuyen: 'CVKHONG', tenTep: 'a.xlsx', mime: XLSX_MIME, b64: b64('x') }, b.tk), 'KHONG_THAY');
+  err(b.call('plcUpload', { chuyen: 'CV23', tenTep: 'a.xlsx', mime: XLSX_MIME, b64: '' }, b.tk), 'TEP_RONG');
+});
+
+test('bảng chương trình: gỡ khỏi chuyền chỉ đánh dấu xoá (tệp vẫn ở Tài liệu), có nhật ký; cần đăng nhập', () => {
+  const b = setup('demo');
+  let d = ok(b.call('data', {}, b.tk));
+  assert.deepEqual(d.bangMay.map((x) => x.chuyen).sort(), ['CV06', 'CV23']);
+  ok(b.call('plcDelete', { id: 'BMTEST01' }, b.tk));
+  d = ok(b.call('data', {}, b.tk));
+  assert.deepEqual(d.bangMay.map((x) => x.chuyen), ['CV23']);
+  assert.ok(d.taiLieu.some((t) => t.id === 'TLPLC01'), 'tệp vẫn còn ở Tài liệu');
+  assert.ok(rawRows(b, 'BangMay').some((r) => r[0] === 'BMTEST01'));
+  assert.deepEqual(ok(b.call('audit', { bang: 'BangMay', khoa: 'BMTEST01' }, b.tk)).nhatKy.map((n) => n.hanhDong), ['xoa']);
+  err(b.call('plcDelete', { id: 'BMKHONG' }, b.tk), 'KHONG_THAY');
+  for (const a of ['plcUpload', 'plcDelete', 'translate']) err(b.call(a, {}, 'gia.mao'), 'HET_PHIEN');
+});
+
+test('dịch một dòng: chữ Trung sang tiếng Việt; rỗng báo lỗi; Google Dịch lỗi thì báo rõ, không trả chữ rỗng', () => {
+  const b = setup('demo');
+  assert.equal(ok(b.call('translate', { text: 'X1002 | 粉碎机异常 | Y1002 | 粉碎机启动' }, b.tk)).dich, 'X1002 | Máy nghiền lỗi | Y1002 | Khởi động máy nghiền');
+  err(b.call('translate', { text: '  ' }, b.tk), 'TRONG');
+  b.ctx.__dich.loi = true;
+  err(b.call('translate', { text: '粉碎机异常' }, b.tk), 'DICH');
+});
