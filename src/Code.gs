@@ -15,7 +15,7 @@
  * App chỉ có MỘT người dùng (chủ app), nên không chia vai trò. Mọi thao tác trừ ping/đăng nhập vẫn phải có
  * token hợp lệ: link /exec là công khai, không kiểm token thì ai biết link cũng đọc được tài liệu.
  */
-var PHIEN_BAN = '1.1.0';
+var PHIEN_BAN = '1.2.0';
 var TZ = 'Asia/Ho_Chi_Minh';
 var HAN_PHIEN_NGAY = 30;            // đăng nhập giữ 30 ngày
 var TEP_TOI_DA = 25 * 1024 * 1024;  // 25 MB/tệp: Apps Script nhận tối đa ~50 MB mỗi lần gửi, base64 làm to thêm 1/3
@@ -54,17 +54,20 @@ var BANG = {
   ThongSo: ['ID', 'Chuyen', 'SanPham', 'SoMau', 'ApDung', 'GhiChu', 'GhiChuDich',
     'EncDir', 'EncDecode', 'EncDPI', 'Divider', 'TriggerMode', 'FireMode', 'FormDelay', 'Align', 'Registration', 'Volt',
     'Meniscus', 'LungVac', 'PurgeShort', 'PurgeLong', 'NhietTam', 'NhietBinh1', 'Lois1', 'Muc1', 'NhietBinh2', 'Lois2', 'Muc2', 'TocDo',
-    'LucTao', 'OpId', 'Xoa', 'DichTay']
+    'LucTao', 'OpId', 'Xoa', 'DichTay'],
+  // Bảng chương trình PLC của từng chuyền (file Excel IO / báo lỗi / chú thích M-D-B-W…): tệp nằm ở TaiLieu (nhóm "Chương trình PLC"),
+  // trang này chỉ nối chuyền ↔ MaTL. Tải bản mới cho cùng chuyền = phiên bản mới của cùng MaTL. App tự đọc tệp để tra cứu, máy chủ không bóc tách.
+  BangMay: ['ID', 'Chuyen', 'MaTL', 'CapNhat', 'OpId', 'Xoa']
 };
 // Cột lưu dạng số (còn lại để dạng chữ "@" — tránh Sheets tự đổi "1-2" thành ngày, "007" thành 7)
 var COT_SO = {
   NguoiDung: ['HoatDong'], GhiChu: ['Xoa'], NhomTL: ['ThuTu', 'HoatDong'], TaiLieu: ['KichThuoc', 'PhienBan', 'HienHanh', 'Xoa'],
   DayDien: ['Trang', 'Xoa'], CauHinhMay: ['EncoderPPR', 'DuongKinh', 'SoCanh', 'Divider', 'DaiSP', 'TocDo', 'KhoangJA', 'KhoangPB', 'BuPB', 'GioiHan', 'Xoa'],
-  NhatKy: [], Chuyen: ['SoMau', 'ThuTu', 'HoatDong'], SanPham: ['HoatDong'], ChuyenSP: ['HoatDong'], ChaySP: ['Xoa'], ThongSo: ['SoMau', 'Xoa']
+  NhatKy: [], Chuyen: ['SoMau', 'ThuTu', 'HoatDong'], SanPham: ['HoatDong'], ChuyenSP: ['HoatDong'], ChaySP: ['Xoa'], ThongSo: ['SoMau', 'Xoa'], BangMay: ['Xoa']
 };
 var COT_DD = { CauHinhMay: { DuongKinh: '0.###', KhoangJA: '0.####', KhoangPB: '0.####', BuPB: '0.###', GioiHan: '0.##', DaiSP: '0.##' } };
 var HANH_DONG_GHI = ['changePin', 'noteSave', 'noteDelete', 'groupSave', 'docUpload', 'docLink', 'docSave', 'docCurrent', 'docDelete',
-  'wireSave', 'wireImport', 'wireDelete', 'cfgSave', 'cfgDelete', 'lineSave', 'productSave', 'lineProduct', 'runSet', 'paramSave', 'paramDelete'];
+  'wireSave', 'wireImport', 'wireDelete', 'cfgSave', 'cfgDelete', 'lineSave', 'productSave', 'lineProduct', 'runSet', 'paramSave', 'paramDelete', 'plcUpload', 'plcDelete'];
 var KIEU_TL = ['FILE', 'LINK'];
 var NHOM_MAU = [['Sổ tay thiết bị', '设备手册'], ['Bản vẽ điện', '电气图纸'], ['Quy trình', '操作规程'], ['Khác', '其他']];
 // Thông số máy in hiện tại (đầu in Galaxy 80 HM, bộ điều khiển Merlin D CE). Khoảng cách JA/PB lấy theo bảng tính của nhà cung cấp.
@@ -145,6 +148,9 @@ function dieuHuong(a, p, req) {
     case 'runSet': return chuyenSanPham(p, op);
     case 'paramSave': return luuThongSo(p, op);
     case 'paramDelete': return xoaThongSo(p);
+    case 'plcUpload': return taiBangMay(p, op);
+    case 'plcDelete': return xoaBangMay(p);
+    case 'translate': return dichMotDong(p);
   }
   throw loi('KHONG_HIEU', 'Máy chủ chưa hiểu yêu cầu này · 服务器无法识别: ' + a);
 }
@@ -359,7 +365,7 @@ function apDich(x, cu, p, truong, truongDich, dichTay) {
 
 // ===================== Dữ liệu tổng =====================
 function layDuLieu() {
-  ['GhiChu', 'NhomTL', 'TaiLieu', 'DayDien', 'CauHinhMay', 'NhatKy', 'Chuyen', 'SanPham', 'ChuyenSP', 'ChaySP', 'ThongSo'].forEach(trang);
+  ['GhiChu', 'NhomTL', 'TaiLieu', 'DayDien', 'CauHinhMay', 'NhatKy', 'Chuyen', 'SanPham', 'ChuyenSP', 'ChaySP', 'ThongSo', 'BangMay'].forEach(trang);
   var chuyen = docBang('Chuyen');
   if (!chuyen.length) chuyen = taoChuyenMau();
   var nhom = docBang('NhomTL');
@@ -377,7 +383,8 @@ function layDuLieu() {
     sanPham: docBang('SanPham').filter(function (x) { return x.hoatDong; }).map(sachSP),
     chuyenSP: docBang('ChuyenSP').filter(function (x) { return x.hoatDong; }).map(function (x) { return { id: x.id, chuyen: x.chuyen, sanPham: x.sanPham }; }),
     chaySP: docBang('ChaySP').filter(function (x) { return !x.xoa; }).map(congKhai),
-    thongSo: docBang('ThongSo').filter(function (x) { return !x.xoa; }).map(sachTS)
+    thongSo: docBang('ThongSo').filter(function (x) { return !x.xoa; }).map(sachTS),
+    bangMay: docBang('BangMay').filter(function (x) { return !x.xoa; }).map(congKhai)
   };
 }
 
@@ -886,6 +893,56 @@ function xoaThongSo(p) {
   suaDong('ThongSo', x._r, thanhDong('ThongSo', x));
   ghiNhatKy('xoa', 'ThongSo', x.id, truoc, null);
   return { id: x.id };
+}
+
+// ===================== Bảng chương trình PLC theo chuyền =====================
+var NHOM_PLC = ['Chương trình PLC', 'PLC程序'];
+// Nhóm tài liệu riêng cho bảng chương trình; bản cũ chưa có thì tạo thêm (không đụng nhóm người dùng đã đặt)
+function nhomPLC() {
+  var ds = docBang('NhomTL'), x = ds.filter(function (n) { return n.ten === NHOM_PLC[0]; })[0];
+  if (x) {
+    if (!x.hoatDong) { x.hoatDong = 1; x.capNhat = thoiGianStr(); suaDong('NhomTL', x._r, thanhDong('NhomTL', x)); }
+    return x.id;
+  }
+  var id = idMoi('NH', dsIdCo(ds));
+  themNhieu('NhomTL', [thanhDong('NhomTL', { id: id, ten: NHOM_PLC[0], tenZh: NHOM_PLC[1], thuTu: ds.length + 1, hoatDong: 1, capNhat: thoiGianStr(), opId: '' })]);
+  return id;
+}
+function taiBangMay(p, op) {
+  var ds = docBang('BangMay');
+  if (op) {
+    var t = ds.filter(function (x) { return x.opId === op; })[0];
+    if (t) return { dup: true, bangMay: congKhai(t) };
+  }
+  var cv = timChuyen(p.chuyen);
+  var cu = ds.filter(function (x) { return !x.xoa && x.chuyen === cv.id; })[0];
+  // Tải lại cho chuyền đã có bảng → phiên bản mới của cùng tài liệu (bản cũ vẫn xem lại được ở mục Tài liệu)
+  var tl = taiLenTL({ maTL: cu ? cu.maTL : '', ten: 'Bảng chương trình ' + cv.ma, tenDich: cv.ma + '号线PLC程序表', nhom: nhomPLC(),
+    tenTep: p.tenTep, mime: p.mime, b64: p.b64, the: ['PLC', cv.ma] }, op).taiLieu;
+  var x = cu || { id: op ? maTuOp('BM', op) : idMoi('BM', dsIdCo(ds)), chuyen: cv.id, maTL: tl.maTL };
+  x.capNhat = thoiGianStr(); x.opId = op || x.opId || ''; x.xoa = 0;
+  if (cu) suaDong('BangMay', cu._r, thanhDong('BangMay', x)); else themNhieu('BangMay', [thanhDong('BangMay', x)]);
+  ghiNhatKy(cu ? 'sua' : 'tao', 'BangMay', x.id, cu ? congKhai(cu) : null, x);
+  return { bangMay: congKhai(x), taiLieu: tl };
+}
+function xoaBangMay(p) {
+  var ds = docBang('BangMay'), x = ds.filter(function (b) { return b.id === s(p.id); })[0];
+  if (!x) throw loi('KHONG_THAY', 'Không thấy bảng chương trình · 找不到程序表');
+  if (x.xoa) return { id: x.id, dup: true };
+  var truoc = congKhai(x);
+  x.xoa = 1; x.capNhat = thoiGianStr();
+  suaDong('BangMay', x._r, thanhDong('BangMay', x));
+  ghiNhatKy('xoa', 'BangMay', x.id, truoc, null);
+  return { id: x.id };
+}
+// Dịch một dòng khi người dùng bấm (bảng chương trình hàng chục nghìn dòng, dịch sẵn hết sẽ vượt hạn mức Google Dịch).
+// Chữ Trung → tiếng Việt, chữ Việt → tiếng Trung (dichChu tự nhận ra).
+function dichMotDong(p) {
+  var t = catNhieuDong(p.text, 2000);
+  if (!t) throw loi('TRONG', 'Không có chữ để dịch · 没有可翻译的内容');
+  var d = dichChu(t);
+  if (!d) throw loi('DICH', 'Google Dịch đang lỗi hoặc hết hạn mức hôm nay, thử lại sau · 翻译暂不可用');
+  return { dich: d };
 }
 
 // ===================== Cài đặt =====================

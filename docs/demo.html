@@ -48,6 +48,15 @@ table.ts td{text-align:center}
 .scr .fbody{padding:10px 12px 2px}.scr .fbody table.ja input{text-align:center;padding:8px 2px}
 input.chg,select.chg{border-color:#F59E0B !important;background:#FFF8EC}
 ul.doi{margin:6px 0 0;padding-left:18px}
+.seg{display:flex;background:#E5EAF2;border-radius:12px;padding:3px;margin-bottom:12px}
+.seg button{flex:1;border:0;background:none;border-radius:10px;padding:7px 4px;font-size:14px;color:var(--sub)}
+.seg button .zh{font-size:11px}.seg button.on{background:#fff;color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.cells{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.cell{background:#F1F4F9;border-radius:8px;padding:4px 8px;font-size:14px;word-break:break-word}
+.cell.on{background:#FFF4C2;font-weight:600}
+.dichkq:not(:empty){margin-top:6px;background:#F6F8FC;border-left:3px solid #9DB4D8;padding:6px 8px;border-radius:6px;color:#33475F}
+table.plct td.on,table.plct tr.on th{background:#FFF4C2}table.plct tr.on td{background:#FFFBE6}
+table.plct th{position:sticky;left:0}
 .diffbox{background:#FFF8EC;border-color:#F3C37E}
 table.kvt th{width:45%}
 .runh{padding:3px 0}
@@ -140,7 +149,7 @@ mark{background:#FFF0A8;border-radius:3px;padding:0 1px}
 <script>
 const API_URL = "";
 const MODE = "demo";
-const APP_VER = "1.1.0";
+const APP_VER = "1.2.0";
 const DemoBackend = (function () {
 // ===== Giả lập dịch vụ Google Apps Script (dùng cho bản xem thử và kiểm tra) =====
 // SpreadsheetApp, CacheService, LockService, PropertiesService, Utilities,
@@ -537,7 +546,7 @@ var DriveApp = (function () {
  * App chỉ có MỘT người dùng (chủ app), nên không chia vai trò. Mọi thao tác trừ ping/đăng nhập vẫn phải có
  * token hợp lệ: link /exec là công khai, không kiểm token thì ai biết link cũng đọc được tài liệu.
  */
-var PHIEN_BAN = '1.1.0';
+var PHIEN_BAN = '1.2.0';
 var TZ = 'Asia/Ho_Chi_Minh';
 var HAN_PHIEN_NGAY = 30;            // đăng nhập giữ 30 ngày
 var TEP_TOI_DA = 25 * 1024 * 1024;  // 25 MB/tệp: Apps Script nhận tối đa ~50 MB mỗi lần gửi, base64 làm to thêm 1/3
@@ -576,17 +585,20 @@ var BANG = {
   ThongSo: ['ID', 'Chuyen', 'SanPham', 'SoMau', 'ApDung', 'GhiChu', 'GhiChuDich',
     'EncDir', 'EncDecode', 'EncDPI', 'Divider', 'TriggerMode', 'FireMode', 'FormDelay', 'Align', 'Registration', 'Volt',
     'Meniscus', 'LungVac', 'PurgeShort', 'PurgeLong', 'NhietTam', 'NhietBinh1', 'Lois1', 'Muc1', 'NhietBinh2', 'Lois2', 'Muc2', 'TocDo',
-    'LucTao', 'OpId', 'Xoa', 'DichTay']
+    'LucTao', 'OpId', 'Xoa', 'DichTay'],
+  // Bảng chương trình PLC của từng chuyền (file Excel IO / báo lỗi / chú thích M-D-B-W…): tệp nằm ở TaiLieu (nhóm "Chương trình PLC"),
+  // trang này chỉ nối chuyền ↔ MaTL. Tải bản mới cho cùng chuyền = phiên bản mới của cùng MaTL. App tự đọc tệp để tra cứu, máy chủ không bóc tách.
+  BangMay: ['ID', 'Chuyen', 'MaTL', 'CapNhat', 'OpId', 'Xoa']
 };
 // Cột lưu dạng số (còn lại để dạng chữ "@" — tránh Sheets tự đổi "1-2" thành ngày, "007" thành 7)
 var COT_SO = {
   NguoiDung: ['HoatDong'], GhiChu: ['Xoa'], NhomTL: ['ThuTu', 'HoatDong'], TaiLieu: ['KichThuoc', 'PhienBan', 'HienHanh', 'Xoa'],
   DayDien: ['Trang', 'Xoa'], CauHinhMay: ['EncoderPPR', 'DuongKinh', 'SoCanh', 'Divider', 'DaiSP', 'TocDo', 'KhoangJA', 'KhoangPB', 'BuPB', 'GioiHan', 'Xoa'],
-  NhatKy: [], Chuyen: ['SoMau', 'ThuTu', 'HoatDong'], SanPham: ['HoatDong'], ChuyenSP: ['HoatDong'], ChaySP: ['Xoa'], ThongSo: ['SoMau', 'Xoa']
+  NhatKy: [], Chuyen: ['SoMau', 'ThuTu', 'HoatDong'], SanPham: ['HoatDong'], ChuyenSP: ['HoatDong'], ChaySP: ['Xoa'], ThongSo: ['SoMau', 'Xoa'], BangMay: ['Xoa']
 };
 var COT_DD = { CauHinhMay: { DuongKinh: '0.###', KhoangJA: '0.####', KhoangPB: '0.####', BuPB: '0.###', GioiHan: '0.##', DaiSP: '0.##' } };
 var HANH_DONG_GHI = ['changePin', 'noteSave', 'noteDelete', 'groupSave', 'docUpload', 'docLink', 'docSave', 'docCurrent', 'docDelete',
-  'wireSave', 'wireImport', 'wireDelete', 'cfgSave', 'cfgDelete', 'lineSave', 'productSave', 'lineProduct', 'runSet', 'paramSave', 'paramDelete'];
+  'wireSave', 'wireImport', 'wireDelete', 'cfgSave', 'cfgDelete', 'lineSave', 'productSave', 'lineProduct', 'runSet', 'paramSave', 'paramDelete', 'plcUpload', 'plcDelete'];
 var KIEU_TL = ['FILE', 'LINK'];
 var NHOM_MAU = [['Sổ tay thiết bị', '设备手册'], ['Bản vẽ điện', '电气图纸'], ['Quy trình', '操作规程'], ['Khác', '其他']];
 // Thông số máy in hiện tại (đầu in Galaxy 80 HM, bộ điều khiển Merlin D CE). Khoảng cách JA/PB lấy theo bảng tính của nhà cung cấp.
@@ -667,6 +679,9 @@ function dieuHuong(a, p, req) {
     case 'runSet': return chuyenSanPham(p, op);
     case 'paramSave': return luuThongSo(p, op);
     case 'paramDelete': return xoaThongSo(p);
+    case 'plcUpload': return taiBangMay(p, op);
+    case 'plcDelete': return xoaBangMay(p);
+    case 'translate': return dichMotDong(p);
   }
   throw loi('KHONG_HIEU', 'Máy chủ chưa hiểu yêu cầu này · 服务器无法识别: ' + a);
 }
@@ -881,7 +896,7 @@ function apDich(x, cu, p, truong, truongDich, dichTay) {
 
 // ===================== Dữ liệu tổng =====================
 function layDuLieu() {
-  ['GhiChu', 'NhomTL', 'TaiLieu', 'DayDien', 'CauHinhMay', 'NhatKy', 'Chuyen', 'SanPham', 'ChuyenSP', 'ChaySP', 'ThongSo'].forEach(trang);
+  ['GhiChu', 'NhomTL', 'TaiLieu', 'DayDien', 'CauHinhMay', 'NhatKy', 'Chuyen', 'SanPham', 'ChuyenSP', 'ChaySP', 'ThongSo', 'BangMay'].forEach(trang);
   var chuyen = docBang('Chuyen');
   if (!chuyen.length) chuyen = taoChuyenMau();
   var nhom = docBang('NhomTL');
@@ -899,7 +914,8 @@ function layDuLieu() {
     sanPham: docBang('SanPham').filter(function (x) { return x.hoatDong; }).map(sachSP),
     chuyenSP: docBang('ChuyenSP').filter(function (x) { return x.hoatDong; }).map(function (x) { return { id: x.id, chuyen: x.chuyen, sanPham: x.sanPham }; }),
     chaySP: docBang('ChaySP').filter(function (x) { return !x.xoa; }).map(congKhai),
-    thongSo: docBang('ThongSo').filter(function (x) { return !x.xoa; }).map(sachTS)
+    thongSo: docBang('ThongSo').filter(function (x) { return !x.xoa; }).map(sachTS),
+    bangMay: docBang('BangMay').filter(function (x) { return !x.xoa; }).map(congKhai)
   };
 }
 
@@ -1410,6 +1426,56 @@ function xoaThongSo(p) {
   return { id: x.id };
 }
 
+// ===================== Bảng chương trình PLC theo chuyền =====================
+var NHOM_PLC = ['Chương trình PLC', 'PLC程序'];
+// Nhóm tài liệu riêng cho bảng chương trình; bản cũ chưa có thì tạo thêm (không đụng nhóm người dùng đã đặt)
+function nhomPLC() {
+  var ds = docBang('NhomTL'), x = ds.filter(function (n) { return n.ten === NHOM_PLC[0]; })[0];
+  if (x) {
+    if (!x.hoatDong) { x.hoatDong = 1; x.capNhat = thoiGianStr(); suaDong('NhomTL', x._r, thanhDong('NhomTL', x)); }
+    return x.id;
+  }
+  var id = idMoi('NH', dsIdCo(ds));
+  themNhieu('NhomTL', [thanhDong('NhomTL', { id: id, ten: NHOM_PLC[0], tenZh: NHOM_PLC[1], thuTu: ds.length + 1, hoatDong: 1, capNhat: thoiGianStr(), opId: '' })]);
+  return id;
+}
+function taiBangMay(p, op) {
+  var ds = docBang('BangMay');
+  if (op) {
+    var t = ds.filter(function (x) { return x.opId === op; })[0];
+    if (t) return { dup: true, bangMay: congKhai(t) };
+  }
+  var cv = timChuyen(p.chuyen);
+  var cu = ds.filter(function (x) { return !x.xoa && x.chuyen === cv.id; })[0];
+  // Tải lại cho chuyền đã có bảng → phiên bản mới của cùng tài liệu (bản cũ vẫn xem lại được ở mục Tài liệu)
+  var tl = taiLenTL({ maTL: cu ? cu.maTL : '', ten: 'Bảng chương trình ' + cv.ma, tenDich: cv.ma + '号线PLC程序表', nhom: nhomPLC(),
+    tenTep: p.tenTep, mime: p.mime, b64: p.b64, the: ['PLC', cv.ma] }, op).taiLieu;
+  var x = cu || { id: op ? maTuOp('BM', op) : idMoi('BM', dsIdCo(ds)), chuyen: cv.id, maTL: tl.maTL };
+  x.capNhat = thoiGianStr(); x.opId = op || x.opId || ''; x.xoa = 0;
+  if (cu) suaDong('BangMay', cu._r, thanhDong('BangMay', x)); else themNhieu('BangMay', [thanhDong('BangMay', x)]);
+  ghiNhatKy(cu ? 'sua' : 'tao', 'BangMay', x.id, cu ? congKhai(cu) : null, x);
+  return { bangMay: congKhai(x), taiLieu: tl };
+}
+function xoaBangMay(p) {
+  var ds = docBang('BangMay'), x = ds.filter(function (b) { return b.id === s(p.id); })[0];
+  if (!x) throw loi('KHONG_THAY', 'Không thấy bảng chương trình · 找不到程序表');
+  if (x.xoa) return { id: x.id, dup: true };
+  var truoc = congKhai(x);
+  x.xoa = 1; x.capNhat = thoiGianStr();
+  suaDong('BangMay', x._r, thanhDong('BangMay', x));
+  ghiNhatKy('xoa', 'BangMay', x.id, truoc, null);
+  return { id: x.id };
+}
+// Dịch một dòng khi người dùng bấm (bảng chương trình hàng chục nghìn dòng, dịch sẵn hết sẽ vượt hạn mức Google Dịch).
+// Chữ Trung → tiếng Việt, chữ Việt → tiếng Trung (dichChu tự nhận ra).
+function dichMotDong(p) {
+  var t = catNhieuDong(p.text, 2000);
+  if (!t) throw loi('TRONG', 'Không có chữ để dịch · 没有可翻译的内容');
+  var d = dichChu(t);
+  if (!d) throw loi('DICH', 'Google Dịch đang lỗi hoặc hết hạn mức hôm nay, thử lại sau · 翻译暂不可用');
+  return { dich: d };
+}
+
 // ===================== Cài đặt =====================
 // Chạy tay một lần sau khi dán mã. Chạy lại không tạo trùng.
 function caiDatBanDau() {
@@ -1443,7 +1509,7 @@ __dichMau.push(
   ['Nguồn 24 VDC', '24 VDC 电源'], ['Nguồn 12 VDC cho trigger', '触发器 12 VDC 电源'], ['Mass chung', '公共地线'],
   ['Tín hiệu encoder kênh A', '编码器A相信号'], ['Tín hiệu encoder kênh B', '编码器B相信号'], ['Nối đất', '接地'],
   ['Ghi chú thử', '测试笔记'], ['Bảo trì', '维护'],
-  ['Thông số ban đầu', '初始参数'], ['Tăng điện áp vì in mờ', '因喷印模糊提高电压'], ['Hạ divider để giảm tần số', '调整分频以降低频率'], ['Băng 330 mm', '330毫米卫生巾'], ['Băng 190 mm', '190毫米卫生巾'], ['PB2 in mờ, tăng áp', 'PB2喷印模糊，提高电压']
+  ['Thông số ban đầu', '初始参数'], ['Tăng điện áp vì in mờ', '因喷印模糊提高电压'], ['Hạ divider để giảm tần số', '调整分频以降低频率'], ['Băng 330 mm', '330毫米卫生巾'], ['Băng 190 mm', '190毫米卫生巾'], ['PB2 in mờ, tăng áp', 'PB2喷印模糊，提高电压'], ['X1002 | Máy nghiền lỗi | Y1002 | Khởi động máy nghiền', 'X1002 | 粉碎机异常 | Y1002 | 粉碎机启动'], ['M0 | Dừng khẩn cấp chưa reset | M600 | TEST-giới hạn bộ chỉnh lệch', 'M0 | 急停未复位 | M600 | TEST-纠偏器限位提示']
 );
 
 // PDF một trang nhỏ, tự tạo (có bảng xref đúng) — để thử mở tài liệu và nút "Mở bản vẽ" trong bản xem thử
@@ -1535,6 +1601,18 @@ function pdfMau(dong) {
     ts({ id: 'TSTEST04', chuyen: 'CV23', sanPham: 'SPTEST05', apDung: '2026-10-15', ghiChu: 'Thông số ban đầu', ghiChuDich: '初始参数', soMau: 2, align: hai.align, volt: hai.volt, nhietBinh2: '120', lois2: '50', muc1: 'TEST-XANH', muc2: 'TEST-TIM' }),
     ts({ id: 'TSTEST05', chuyen: 'CV23', sanPham: 'SPTEST06', apDung: '2026-09-30', ghiChu: 'Thông số ban đầu', ghiChuDich: '初始参数', soMau: 2, align: hai.align, volt: hai.volt, nhietBinh2: '120', lois2: '50', muc1: 'TEST-XANH', muc2: 'TEST-TIM', divider: '10', encDPI: '67.4', tocDo: '800' })
   ]);
+
+  // Bảng chương trình PLC mẫu cho chuyền 06 và 23 (dữ liệu TEST, tự tạo — không phải bảng thật của máy)
+  var PLC_MAU = { CV06: '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', CV23: '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' };
+  var nhPLC = nhomPLC();
+  ['CV06', 'CV23'].forEach(function (cv, i) {
+    var ma = cv.slice(2), bytes = Utilities.base64Decode(PLC_MAU[cv]);
+    var f = thu.createFile(Utilities.newBlob(bytes, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'TEST-VKY' + ma + '.xlsx'));
+    themNhieu('TaiLieu', [tl({ id: 'TLPLC0' + (i + 1), maTL: 'MTPLC0' + (i + 1), ten: 'Bảng chương trình ' + ma, tenDich: ma + '号线PLC程序表', nhom: nhPLC, kieu: 'FILE',
+      fileId: f.getId(), mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', kichThuoc: f.getSize(), phienBan: 1, hienHanh: 1,
+      the: JSON.stringify(['PLC', ma]), tenTep: 'TEST-VKY' + ma + '.xlsx' })]);
+    themNhieu('BangMay', [thanhDong('BangMay', { id: 'BMTEST0' + (i + 1), chuyen: cv, maTL: 'MTPLC0' + (i + 1), capNhat: bay, opId: '', xoa: 0 })]);
+  });
 })();
 
 return {
@@ -1588,13 +1666,15 @@ const T = {
   dangTai: ['Đang tải…', '加载中…'], loiMang: ['Không kết nối được máy chủ', '无法连接服务器'], demo: ['BẢN XEM THỬ', '演示版'],
   choGui: ['chờ gửi', '待发送'], may: ['Thông số', '参数'], apDung: ['Ngày áp dụng', '生效日期'], chuaGhi: ['Chưa ghi thông số', '尚未记录参数'],
   capNhatTs: ['Cập nhật thông số', '更新参数'], lichSuTs: ['Lịch sử thông số', '参数历史'], hienTai: ['Hiện tại', '当前'], xoaNham: ['Xoá lần ghi nhầm', '删除误记'],
-  soSanh: ['So sánh các chuyền', '产线对比'], dangChay: ['Đang chạy', '运行中'], dsChuyen: ['Chuyền sản xuất', '生产线'], dangGui: ['Đang gửi…', '发送中…'], daGui: ['Đã gửi hết', '已全部发送'], loiGui: ['gửi lỗi', '发送失败']
+  soSanh: ['So sánh các chuyền', '产线对比'], mayin: ['Máy in', '喷码机'], ct: ['Chương trình', 'PLC程序'], dangChay: ['Đang chạy', '运行中'], dsChuyen: ['Chuyền sản xuất', '生产线'], dangGui: ['Đang gửi…', '发送中…'], daGui: ['Đã gửi hết', '已全部发送'], loiGui: ['gửi lỗi', '发送失败']
 };
 const IC = {
   tim: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>',
   gc: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h14v16H5z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>',
   tl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg>',
   day: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h5a3 3 0 0 1 3 3v4a3 3 0 0 0 3 3h5"/><circle cx="4" cy="7" r="2"/><circle cx="20" cy="17" r="2"/></svg>',
+  mayin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 17v4h10v-4"/></svg>',
+  ct: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M12 15h5"/></svg>',
   may: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>',
   tinh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h2M12 12h2M16 12v5M8 16h2M12 16h2"/></svg>',
   cai: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
@@ -1816,8 +1896,10 @@ function theTu(v) { const o = [], co = {}; (Array.isArray(v) ? v : String(v || '
 
 // ============ Khung giao diện ============
 const VIEWS = {};
-const TABS = ['tim', 'gc', 'tl', 'day', 'may', 'tinh'];
-function go(v) { S.view = v; render(); window.scrollTo(0, 0); }
+const TABS = ['tim', 'gc', 'tl', 'mayin', 'ct'];
+// Tab "Máy in" gom ba màn của máy in phun: Thông số, Tính toán, Tra dây (bản vẽ máy in); nhớ màn con mở lần trước
+const SUB_MAYIN = ['may', 'tinh', 'day'];
+function go(v) { if (v === 'mayin') v = S.subMay || 'may'; if (SUB_MAYIN.indexOf(v) >= 0) S.subMay = v; S.view = v; render(); window.scrollTo(0, 0); }
 function renderBar() {
   const b = $('header.bar'); if (!b) return;
   const n = S.Q.length, loi = S.Q.some((q) => q.err);
@@ -1828,11 +1910,12 @@ function render() {
   const app = $('#app');
   if (!S.tk) { renderLogin(); return; }
   if (!S.data) { app.innerHTML = `<div class="empty" style="padding-top:40vh">${TT('dangTai')}</div>`; return; }
-  const v = VIEWS[S.view] || VIEWS.tim, tab = TABS.indexOf(S.view) >= 0 ? S.view : 'cai';
+  const v = VIEWS[S.view] || VIEWS.tim, laMay = SUB_MAYIN.indexOf(S.view) >= 0, tab = laMay ? 'mayin' : TABS.indexOf(S.view) >= 0 ? S.view : 'cai';
+  const seg = laMay ? `<div class="seg">${SUB_MAYIN.map((k) => `<button class="${S.view === k ? 'on' : ''}" data-act="sub" data-v="${k}">${L(T[k][0], T[k][1])}</button>`).join('')}</div>` : '';
   app.innerHTML = `<header class="bar"><h1>${IS_DEMO ? `<span class="net" style="background:#fff;color:#1E3A5F">${T.demo[0]}</span> ` : ''}${L(T[tab][0], T[tab][1])}</h1>
     <span id="netInfo"></span><button data-act="goCai" aria-label="Cài đặt" id="caiBtn">${IC.cai}</button></header>
-    <main id="main">${v.html()}</main>
-    <nav class="tabs">${TABS.map((k) => `<button class="tab${S.view === k ? ' on' : ''}" data-v="${k}">${IC[k]}${L(T[k][0], T[k][1])}</button>`).join('')}</nav>`;
+    <main id="main">${seg}${v.html()}</main>
+    <nav class="tabs">${TABS.map((k) => `<button class="tab${tab === k ? ' on' : ''}" data-v="${k}">${IC[k]}${L(T[k][0], T[k][1])}</button>`).join('')}</nav>`;
   renderBar();
   if (v.after) v.after();
 }
@@ -1875,7 +1958,7 @@ async function pinKey(k) {
     S.data = await store.get('snap', null);
     render();
     if (d.macDinh) setTimeout(() => toast(TT('pinMacDinh'), true), 400);
-    await guiHangCho(); await refresh();
+    await guiHangCho(); await refresh(); if (S.data) plcNap();
   } catch (e) {
     renderLogin(); $('#lErr').innerHTML = errMsg(e);
   }
@@ -1935,7 +2018,9 @@ VIEWS.tim = {
     const sps = (D.sanPham || []).filter((x) => khop(norm([x.ma, x.ten, x.tenDich].join(' ')), q));
     const gc = D.ghiChu.filter((x) => khop(hayGC(x), q)), tl = tlNhom().filter((g) => g.ds.some((x) => khop(hayTL(x), q))), dd = D.dayDien.filter((x) => khop(hayDay(x), q));
     if (cv.length + sps.length) o += `<div class="sec">${L(T.may[0], T.may[1])}<span>${cv.length + sps.length}</span></div>` + cv.map(rowLine).join('') + sps.map(rowSP).join('');
-    if (!gc.length && !tl.length && !dd.length && !cv.length && !sps.length) return o + `<div class="card empty">${TT('khongThay')}</div>`;
+    const plc = plcTim(q, {}, 5);
+    if (plc.length) o += `<div class="sec">${L(T.ct[0], T.ct[1])}<span>${plc.length >= 5 ? '5+' : plc.length}</span></div>` + plc.map((h) => rowPLC(h, q)).join('');
+    if (!gc.length && !tl.length && !dd.length && !cv.length && !sps.length && !plc.length) return o + `<div class="card empty">${TT('khongThay')}</div>`;
     if (gc.length) o += `<div class="sec">${L(T.gc[0], T.gc[1])}<span>${gc.length}</span></div>` + gc.slice(0, 30).map((x) => rowGC(x, q)).join('');
     if (tl.length) o += `<div class="sec">${L(T.tl[0], T.tl[1])}<span>${tl.length}</span></div>` + tl.slice(0, 30).map((g) => rowTL(g, q)).join('');
     if (dd.length) o += `<div class="sec">${L(T.day[0], T.day[1])}<span>${dd.length}</span></div>` + dd.slice(0, 50).map((x) => rowDay(x, q)).join('');
@@ -2635,6 +2720,185 @@ async function lineSave(id, tat) {
   } catch (e) { toast(errMsg(e), true); }
 }
 
+// ============ Chương trình: bảng PLC của từng chuyền (IO, báo lỗi, chú thích M/D/B/W…) ============
+// Tệp Excel nằm ở Drive (mục Tài liệu, nhóm "Chương trình PLC"); app tự đọc mọi sheet và lưu bản đã bóc tách
+// trong IndexedDB để tra khi mất mạng. Bảng thật vài chục nghìn dòng tiếng Trung nên không dịch sẵn: bấm "Dịch" từng dòng.
+const PLC = { nap: {}, dang: {}, loi: {} };   // nap[chuyen] = { docId, ten, sheets:[{name, rows, n:[chuỗi bỏ dấu từng dòng]}] }
+const dsBang = () => (DL().bangMay || []).filter((b) => cvOf(b.chuyen));
+const tlHienHanh = (maTL) => { const ds = DL().taiLieu.filter((t) => t.maTL === maTL); return ds.find((t) => t.hienHanh) || ds.sort((a, b) => b.phienBan - a.phienBan)[0]; };
+// Đọc mọi sheet của .xlsx, giữ đúng số dòng (để "Mở bảng" đến đúng dòng trong Excel)
+async function docXlsxAll(buf) {
+  const f = await giaiNen(buf), dp = new DOMParser(), xml = (k) => f[k] ? dp.parseFromString(f[k], 'application/xml') : null;
+  const ssDoc = xml('xl/sharedStrings.xml');
+  // Bỏ phần phiên âm (rPh) của ô tiếng Trung/Nhật, chỉ lấy chữ hiển thị
+  const ss = ssDoc ? Array.from(ssDoc.getElementsByTagName('si')).map((si) => Array.from(si.getElementsByTagName('t')).filter((t) => !t.parentNode || t.parentNode.nodeName !== 'rPh').map((t) => t.textContent).join('')) : [];
+  const rels = {}, rd = xml('xl/_rels/workbook.xml.rels');
+  if (rd) Array.from(rd.getElementsByTagName('Relationship')).forEach((r) => { rels[r.getAttribute('Id')] = r.getAttribute('Target').replace(/^\/?(xl\/)?/, 'xl/'); });
+  const wb = xml('xl/workbook.xml'), out = [];
+  const ds = wb ? Array.from(wb.getElementsByTagName('sheet')).map((s, i) => ({ name: s.getAttribute('name'), file: rels[s.getAttribute('r:id') || s.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'id')] || 'xl/worksheets/sheet' + (i + 1) + '.xml' })) : [];
+  for (const sh of ds) {
+    const d = xml(sh.file); if (!d) continue;
+    const rows = [];
+    Array.from(d.getElementsByTagName('row')).forEach((r) => {
+      const o = [];
+      Array.from(r.getElementsByTagName('c')).forEach((c) => {
+        const ref = c.getAttribute('r') || '', col = ref.replace(/\d+/g, '').split('').reduce((s, ch) => s * 26 + ch.charCodeAt(0) - 64, 0) - 1, t = c.getAttribute('t');
+        const v = c.getElementsByTagName('v')[0];
+        const val = t === 's' ? ss[Number(v && v.textContent)] : t === 'inlineStr' ? Array.from(c.getElementsByTagName('t')).map((x) => x.textContent).join('') : (v ? v.textContent : '');
+        o[col >= 0 ? col : o.length] = String(val === undefined || val === null ? '' : val).trim();
+      });
+      for (let i = 0; i < o.length; i++) if (o[i] === undefined) o[i] = '';
+      while (o.length && o[o.length - 1] === '') o.pop();
+      if (o.length) rows[Number(r.getAttribute('r') || rows.length + 1) - 1] = o;
+    });
+    for (let i = 0; i < rows.length; i++) if (!rows[i]) rows[i] = [];
+    if (rows.some((r) => r.length)) out.push({ name: sh.name, rows });
+  }
+  if (!out.length) throw new Error('File không có dữ liệu · 文件没有数据');
+  return out;
+}
+function chuanBiTim(sheets) { sheets.forEach((s) => { s.n = s.rows.map((r) => norm(r.join(' \u0001 '))); }); return sheets; }
+// Nạp bảng của mọi chuyền: có bản bóc tách trong máy thì dùng ngay, chưa có thì tải tệp về rồi đọc
+async function plcNap(cv) {
+  const b = dsBang().filter((x) => !cv || x.chuyen === cv);
+  for (const x of b) {
+    const doc = tlHienHanh(x.maTL); if (!doc || PLC.dang[x.chuyen]) continue;
+    if (PLC.nap[x.chuyen] && PLC.nap[x.chuyen].docId === doc.id) continue;
+    PLC.dang[x.chuyen] = 1; delete PLC.loi[x.chuyen]; veCT();
+    try {
+      let sheets = await store.get('plc:' + doc.id, null);
+      if (!sheets) {
+        const { blob } = await layBlob(doc.id);
+        sheets = await docXlsxAll(await blob.arrayBuffer());
+        await store.set('plc:' + doc.id, sheets);
+        const cu = await store.get('plcIdx', {}); if (cu[x.chuyen] && cu[x.chuyen] !== doc.id) await store.del('plc:' + cu[x.chuyen]);
+        cu[x.chuyen] = doc.id; await store.set('plcIdx', cu);
+      }
+      PLC.nap[x.chuyen] = { docId: doc.id, ten: doc.tenTep, pb: doc.phienBan, sheets: chuanBiTim(sheets) };
+    } catch (e) { PLC.loi[x.chuyen] = e; }
+    delete PLC.dang[x.chuyen]; veCT();
+  }
+}
+// Tìm theo ô: khớp đúng cả ô (gõ "X1002") xếp trước, rồi ô bắt đầu bằng chữ gõ, rồi ô có chứa
+function plcTim(q, loc, toiDa) {
+  const ws = norm(q).split(' ').filter(Boolean), qn = norm(q); if (!ws.length) return [];
+  const out = [];
+  Object.keys(PLC.nap).forEach((cv) => {
+    if (loc.cv && loc.cv !== cv) return;
+    PLC.nap[cv].sheets.forEach((sh, si) => {
+      if (loc.sheet && loc.sheet !== sh.name) return;
+      sh.n.forEach((rn, ri) => {
+        if (!ws.every((w) => rn.indexOf(w) >= 0)) return;
+        const row = sh.rows[ri]; let best = -1, diem = 9;
+        row.forEach((v, ci) => { if (!v) return; const n = norm(v); const d = n === qn ? 0 : n.indexOf(qn) === 0 ? 1 : n.indexOf(ws[0]) >= 0 ? 2 : 9; if (d < diem) { diem = d; best = ci; } });
+        if (best < 0) best = row.findIndex((v) => v);
+        out.push({ cv, si, ri, ci: best, diem });
+      });
+    });
+  });
+  out.sort((a, b) => a.diem - b.diem);
+  return out.slice(0, toiDa || 100);
+}
+// Vài ô quanh ô khớp: thường là cặp "địa chỉ | chú thích" nằm cạnh nhau
+const cuaSo = (row, ci) => { const o = []; for (let i = Math.max(0, ci - 3); i <= Math.min(row.length - 1, ci + 3); i++) if (row[i]) o.push([i, row[i]]); return o; };
+function rowPLC(h, q) {
+  const p = PLC.nap[h.cv], sh = p.sheets[h.si], row = sh.rows[h.ri], c = cvOf(h.cv);
+  const o = cuaSo(row, h.ci), key = h.cv + '|' + h.si + '|' + h.ri + '|' + h.ci;
+  return `<div class="card plch" data-k="${esc(key)}"><div class="muted"><span class="chip ${c && c.soMau === 2 ? 'pb2' : 'pb0'}">${esc(c ? c.ma : h.cv)}</span> ${esc(sh.name)} · <span class="mono">${cotAZ(h.ci)}${h.ri + 1}</span></div>
+    <div class="cells">${o.map(([i, v]) => `<span class="cell${i === h.ci ? ' on' : ''}">${hl(v, q || '')}</span>`).join('')}</div>
+    <div class="dichkq muted" data-k="${esc(key)}">${PLC_DICH[key] ? esc(PLC_DICH[key]) : ''}</div>
+    <div class="btns"><button class="btn sm ghost" data-act="plcDich" data-k="${esc(key)}">${L('Dịch', '翻译')}</button><button class="btn sm ghost" data-act="plcMo" data-k="${esc(key)}">${L('Mở bảng', '打开表格')}</button></div></div>`;
+}
+const PLC_DICH = {};
+const keyHit = (k) => { const a = k.split('|'); return { cv: a[0], si: Number(a[1]), ri: Number(a[2]), ci: Number(a[3]) }; };
+async function plcDich(k) {
+  const h = keyHit(k), row = PLC.nap[h.cv].sheets[h.si].rows[h.ri], txt = cuaSo(row, h.ci).map((x) => x[1]).join(' | ');
+  const box = $(`.dichkq[data-k="${CSS.escape(k)}"]`); if (box) box.textContent = T.dangTai[0] + '…';
+  try { const d = await api('translate', { text: txt }); PLC_DICH[k] = d.dich; if (box) box.textContent = d.dich; }
+  catch (e) { if (box) box.innerHTML = errMsg(e); }
+}
+// Xem cả sheet quanh dòng tìm được (60 dòng mỗi trang, cuộn ngang được)
+function plcMo(cv, si, ri, ci) {
+  const p = PLC.nap[cv], sh = p.sheets[si], c = cvOf(cv), tu = Math.max(0, ri - 20), den = Math.min(sh.rows.length, tu + 60);
+  const nCot = Math.max(1, ...sh.rows.slice(tu, den).map((r) => r.length));
+  sheet(`${esc(c ? 'Chuyền ' + c.ma : cv)} · ${esc(sh.name)}`, `<label class="f"><span class="l">${L('Sheet', '工作表')}</span><select class="i" id="plcSheet">${p.sheets.map((s, i) => `<option value="${i}" ${i === si ? 'selected' : ''}>${esc(s.name)} (${s.rows.length})</option>`).join('')}</select></label>
+    <div class="muted">${L('Dòng', '行')} ${tu + 1}–${den} / ${sh.rows.length} · ${esc(p.ten)} v${p.pb}</div>
+    <div style="overflow-x:auto;margin-top:8px"><table class="t plct" style="white-space:nowrap"><tr><th></th>${Array.from({ length: nCot }, (_, i) => `<th>${cotAZ(i)}</th>`).join('')}</tr>
+    ${sh.rows.slice(tu, den).map((r, j) => `<tr class="${tu + j === ri ? 'on' : ''}" ${tu + j === ri ? 'id="plcOn"' : ''}><th>${tu + j + 1}</th>${Array.from({ length: nCot }, (_, i) => `<td class="${tu + j === ri && i === ci ? 'on' : ''}">${esc(r[i] || '')}</td>`).join('')}</tr>`).join('')}</table></div>
+    <div class="btns"><button class="btn sm ghost" data-act="plcTrang" data-cv="${esc(cv)}" data-si="${si}" data-ri="${Math.max(0, tu - 40)}" ${tu === 0 ? 'disabled' : ''}>← ${L('Trước', '上一页')}</button>
+    <button class="btn sm ghost" data-act="plcTrang" data-cv="${esc(cv)}" data-si="${si}" data-ri="${den + 20}" ${den >= sh.rows.length ? 'disabled' : ''}>${L('Sau', '下一页')} →</button></div>`, (o) => {
+    $('#plcSheet', o).addEventListener('change', (e) => plcMo(cv, Number(e.target.value), 0, -1));
+    const on = $('#plcOn', o); if (on) setTimeout(() => on.scrollIntoView({ block: 'center' }), 50);
+  });
+}
+const tongDong = (p) => p.sheets.reduce((s, x) => s + x.rows.filter((r) => r.length).length, 0);
+function veCT() { if (S.view === 'ct' && $('#plcTT')) { $('#plcTT').innerHTML = ttPLC(); veKqPLC(); } }
+function ttPLC() {
+  const b = dsBang();
+  if (!b.length) return `<div class="card empty">${L('Chưa có bảng chương trình nào. Bấm "Tải bảng" để thêm file Excel của từng chuyền.', '尚无程序表，点击“上传”添加各产线的Excel文件。')}</div>`;
+  return b.map((x) => { const c = cvOf(x.chuyen), p = PLC.nap[x.chuyen], doc = tlHienHanh(x.maTL);
+    return `<div class="card plcm" data-cv="${esc(x.chuyen)}"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>Chuyền ${esc(c.ma)}</b> <span class="chip ${c.soMau === 2 ? 'pb2' : 'pb0'}">${nhanMau(c.soMau)}</span>
+      <span class="muted">${esc(doc ? doc.tenTep : '')}${doc ? ' · v' + doc.phienBan : ''}</span></div>
+      <div class="muted">${PLC.dang[x.chuyen] ? L('Đang đọc bảng…', '正在读取…') : PLC.loi[x.chuyen] ? `<span style="color:var(--bad)">${errMsg(PLC.loi[x.chuyen])}</span>` : p ? `${p.sheets.length} sheet · ${so(tongDong(p), 0)} ${L('dòng', '行').replace(/<\/?span[^>]*>/g, ' ')}` : ''}</div>
+      <div class="btns">${p ? `<button class="btn sm ghost" data-act="plcMo" data-k="${esc(x.chuyen)}|0|0|-1">${L('Xem bảng', '查看表格')}</button>` : PLC.loi[x.chuyen] ? `<button class="btn sm ghost" data-act="plcThuLai">${L('Thử lại', '重试')}</button>` : ''}
+      <button class="btn sm ghost" data-act="plcForm" data-cv="${esc(x.chuyen)}">${IC.up}${L('Tải bản mới', '上传新版')}</button>
+      <button class="btn sm bad" data-act="plcDel" data-id="${esc(x.id)}">${L('Gỡ', '移除')}</button></div></div>`; }).join('');
+}
+function veKqPLC() {
+  const box = $('#plcKq'); if (!box) return;
+  const q = S.pq || '';
+  if (!norm(q)) { box.innerHTML = ''; return; }
+  const ds = plcTim(q, { cv: S.pcv, sheet: S.psheet }, 100);
+  box.innerHTML = `<div class="sec">${L('Kết quả', '结果')}<span>${ds.length >= 100 ? '100+' : ds.length}</span></div>` + (ds.map((h) => rowPLC(h, q)).join('') || `<div class="card empty">${TT('khongThay')}</div>`);
+}
+VIEWS.ct = {
+  html() {
+    const b = dsBang(), sheets = []; Object.keys(PLC.nap).forEach((cv) => PLC.nap[cv].sheets.forEach((s) => { if (sheets.indexOf(s.name) < 0) sheets.push(s.name); }));
+    return `<div class="search">${IC.tim}<input id="pq" type="search" placeholder="${L('Địa chỉ X1002, M600, D120… hoặc chữ: 急停, servo', '地址或文字').replace(/<[^>]+>/g, ' ').trim()}" value="${esc(S.pq || '')}" autocomplete="off"></div>
+      ${b.length > 1 ? `<div class="chips"><button class="${!S.pcv ? 'on' : ''}" data-act="plcCv" data-cv="">${L(T.tatCa[0], T.tatCa[1])}</button>${b.map((x) => `<button class="${S.pcv === x.chuyen ? 'on' : ''}" data-act="plcCv" data-cv="${esc(x.chuyen)}">${esc(cvOf(x.chuyen).ma)}</button>`).join('')}</div>` : ''}
+      ${sheets.length ? `<select class="i" id="psheet" style="margin-bottom:10px"><option value="">${L('Mọi sheet', '全部工作表').replace(/<[^>]+>/g, ' ')}</option>${sheets.map((s) => `<option ${S.psheet === s ? 'selected' : ''}>${esc(s)}</option>`).join('')}</select>` : ''}
+      <div id="plcKq"></div><div class="sec">${L('Bảng theo chuyền', '各产线程序表')}</div><div id="plcTT">${ttPLC()}</div>
+      <button class="btn fab" id="fabPLC" data-act="plcForm" data-cv="">${IC.up}${L('Tải bảng', '上传')}</button>`;
+  },
+  after() {
+    const i = $('#pq'); i.addEventListener('input', debounce(() => { S.pq = i.value; veKqPLC(); }, 200));
+    const s = $('#psheet'); if (s) s.addEventListener('change', () => { S.psheet = s.value; veKqPLC(); });
+    veKqPLC(); plcNap();
+  }
+};
+function plcForm(cv) {
+  sheet(L('Tải bảng chương trình', '上传程序表'), `<div class="card muted">${L('File Excel (.xlsx) của máy: IO, báo lỗi, chú thích M/D/B/W… Tải lại cho chuyền đã có bảng thì thành phiên bản mới, bản cũ vẫn xem lại ở mục Tài liệu.', '设备Excel文件（IO、报警、M/D/B/W注释等）。同一产线再次上传即为新版本。')}</div>
+    <label class="f"><span class="l">${L('Chuyền', '产线')}</span><select class="i" id="plcCv">${dsChuyen().map((c) => `<option value="${esc(c.id)}" ${c.id === cv ? 'selected' : ''}>Chuyền ${esc(c.ma)} · ${nhanMau(c.soMau)}</option>`).join('')}</select></label>
+    <label class="f"><span class="l">${L('File .xlsx', 'xlsx文件')}</span><input class="i" type="file" id="plcFile" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label>
+    <div class="btns"><button class="btn wide" id="plcSave" data-act="plcSave">${IC.up}${L('Tải lên', '上传')}</button></div><div id="plcMsg" class="muted"></div>`);
+}
+async function plcSave() {
+  const f = $('#plcFile').files[0], cv = $('#plcCv').value, btn = $('#plcSave');
+  if (!f) { toast(L('Chọn file .xlsx', '请选择xlsx文件'), true); return; }
+  if (f.size > 25 * 1048576) { toast(L('Tệp quá 25 MB', '文件超过25MB'), true); return; }
+  btn.disabled = true; $('#plcMsg').innerHTML = L('Đang kiểm tra file…', '正在检查文件…');
+  try {
+    // Đọc thử trên máy trước khi gửi: file hỏng thì báo ngay, khỏi tải 2–3 MB lên rồi mới biết
+    const buf = await f.arrayBuffer(), sheets = await docXlsxAll(buf);
+    $('#plcMsg').innerHTML = L('Đang tải lên…', '正在上传…') + ' ' + sheets.length + ' sheet';
+    const d = await api('plcUpload', { chuyen: cv, tenTep: f.name, mime: f.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', b64: await docBase64(f) }, { opId: newOp(), timeout: 180 });
+    DL().bangMay = DL().bangMay || []; upsert(DL().bangMay, d.bangMay); gopKetQua('docUpload', { taiLieu: d.taiLieu });
+    await store.set('plc:' + d.taiLieu.id, sheets);
+    const cu = await store.get('plcIdx', {}); cu[cv] = d.taiLieu.id; await store.set('plcIdx', cu);
+    PLC.nap[cv] = { docId: d.taiLieu.id, ten: d.taiLieu.tenTep, pb: d.taiLieu.phienBan, sheets: chuanBiTim(sheets) };
+    closeSheet(); tt('daLuu'); await refresh(true); render();
+  } catch (e) { btn.disabled = false; $('#plcMsg').innerHTML = errMsg(e); }
+}
+async function plcDel(id) {
+  if (!window.confirm('Gỡ bảng chương trình khỏi chuyền? Tệp vẫn giữ ở mục Tài liệu. · 移除程序表？文件仍保留在资料中。')) return;
+  try {
+    await api('plcDelete', { id }, { opId: newOp() });
+    const x = DL().bangMay.find((b) => b.id === id); DL().bangMay = DL().bangMay.filter((b) => b.id !== id);
+    if (x) delete PLC.nap[x.chuyen];
+    await saveSnap(); tt('daXoa'); render();
+  } catch (e) { toast(errMsg(e), true); }
+}
+
 // ============ Cài đặt ============
 VIEWS.cai = {
   html() {
@@ -2722,7 +2986,7 @@ async function giaiNen(buf) {
   for (let i = 0; i < n; i++) {
     const meth = dv.getUint16(p + 10, true), csz = dv.getUint32(p + 20, true), nl = dv.getUint16(p + 28, true), xl = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), lo = dv.getUint32(p + 42, true);
     const name = dec.decode(u8.subarray(p + 46, p + 46 + nl)); p += 46 + nl + xl + cl;
-    if (!/^xl\/(sharedStrings\.xml|worksheets\/sheet\d+\.xml|workbook\.xml)$/.test(name)) continue;
+    if (!/^xl\/(sharedStrings\.xml|worksheets\/[^/]+\.xml|workbook\.xml|_rels\/workbook\.xml\.rels)$/.test(name)) continue;
     const ds = lo + 30 + dv.getUint16(lo + 26, true) + dv.getUint16(lo + 28, true), data = u8.subarray(ds, ds + csz);
     if (meth === 0) out[name] = dec.decode(data);
     else if (meth === 8) out[name] = await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text();
@@ -2817,6 +3081,9 @@ const ACT = {
   runForm: (b) => runForm(b.dataset.cv, b.dataset.sp), runSave: (b) => runSave(b.dataset.cv, b.dataset.sp),
   lineAddSp: (b) => lineAddSp(b.dataset.id), lineAddSpOk: (b) => lineAddSpOk(b.dataset.cv, $('#addSp').value), lineProdOff: (b) => lineProdOff(b.dataset.cv, b.dataset.sp),
   spView: (b) => spView(b.dataset.id), spEdit: (b) => spEdit(b.dataset.id, b.dataset.cv), spSave: (b) => spSave(b.dataset.id, b.dataset.cv),
+  sub: (b) => go(b.dataset.v), plcCv: (b) => { S.pcv = b.dataset.cv; render(); }, plcForm: (b) => plcForm(b.dataset.cv), plcSave, plcDel: (b) => plcDel(b.dataset.id),
+  plcDich: (b) => plcDich(b.dataset.k), plcMo: (b) => { const h = keyHit(b.dataset.k); plcMo(h.cv, h.si, h.ri, h.ci); },
+  plcTrang: (b) => plcMo(b.dataset.cv, Number(b.dataset.si), Number(b.dataset.ri), -1), plcThuLai: () => { PLC.loi = {}; plcNap(); },
   tsCompare, lines: linesForm, lineEdit: (b) => lineEdit(b.dataset.id), lineSave: (b) => lineSave(b.dataset.id), lineOff: (b) => lineSave(b.dataset.id, true),
   cfgSave: () => cfgSave(false), cfgSaveNew: () => cfgSave(true),
   qSend: () => { S.Q.forEach((q) => { q.err = ''; }); guiHangCho(true).then(render); },
@@ -2865,7 +3132,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
   S.tk = await store.get('tk', '');
   S.Q = await store.get('q', []);
   S.offDocs = await store.get('offDocs', {});
-  if (S.tk) { S.data = await store.get('snap', null); render(); await guiHangCho(); await refresh(); }
+  if (S.tk) { S.data = await store.get('snap', null); render(); await guiHangCho(); await refresh(); if (S.data) plcNap(); }
   else render();
   if (!IS_DEMO && 'serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
 })();

@@ -26,7 +26,12 @@ const wait = (ms) => page.waitForTimeout(ms || 400);
 const text = (sel) => page.textContent(sel);
 let step = 0;
 const ok = (msg) => console.log(`✓ ${++step}. ${msg}`);
-const tab = async (v) => { await page.click(`.tabs .tab[data-v="${v}"]`); await wait(); };
+// Thông số / Tính toán / Tra dây nằm trong tab "Máy in" (màn con chọn ở thanh trên)
+const tab = async (v) => {
+  if (['may', 'tinh', 'day'].includes(v)) { await page.click('.tabs .tab[data-v="mayin"]'); await wait(); await page.click(`.seg button[data-v="${v}"]`); }
+  else await page.click(`.tabs .tab[data-v="${v}"]`);
+  await wait();
+};
 const bamPin = async (pin) => { for (const k of pin) await page.click(`#pinPad button[data-k="${k}"]`); await wait(700); };
 // Ảnh PNG 1×1 làm "ảnh chụp tại chỗ"
 const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
@@ -416,6 +421,73 @@ try {
   assert.match(await text('#tsCmp'), /TEST-SP09/);
   await page.click('#ov [data-act="close"]');
   ok('So sánh thông số các chuyền');
+
+  // 20a. Tab Máy in gom Thông số / Tính toán / Tra dây
+  await page.click('.tabs .tab[data-v="mayin"]');
+  await wait();
+  assert.equal(await page.locator('.seg button').count(), 3);
+  assert.match(await text('header.bar h1'), /Máy in/);
+  ok('Tab Máy in gom Thông số, Tính toán, Tra dây');
+
+  // 20b. Chương trình: đọc bảng PLC của chuyền 06 và 23, tra địa chỉ ra cả hai máy, dịch một dòng, mở đúng ô trong bảng
+  await page.click('.tabs .tab[data-v="ct"]');
+  await page.waitForFunction(() => document.querySelectorAll('#plcTT .plcm').length === 2 && !/Đang đọc/.test(document.querySelector('#plcTT').textContent), null, { timeout: 15000 });
+  assert.match(await text('#plcTT'), /4 sheet/);
+  await page.fill('#pq', 'x1002');
+  await wait(600);
+  assert.equal(await page.locator('#plcKq .plch').count(), 2, 'X1002 phải ra ở cả máy 06 và 23');
+  assert.match(await page.locator('#plcKq .plch').first().textContent(), /粉碎机异常/);
+  assert.match(await page.locator('#plcKq .plch').first().textContent(), /远程IO · A4/);
+  await shot('13-chuong-trinh');
+  await page.locator('#plcKq .plch').first().locator('[data-act="plcDich"]').click();
+  await wait(800);
+  assert.match(await page.locator('#plcKq .plch .dichkq').first().textContent(), /Máy nghiền lỗi/);
+  await page.locator('#plcKq .plch').first().locator('[data-act="plcMo"]').click();
+  await wait(600);
+  assert.match(await page.locator('#ov table.plct tr.on').textContent(), /X1002/);
+  assert.equal(await page.locator('#ov table.plct td.on').textContent(), 'X1002');
+  await page.click('#ov [data-act="close"]');
+  // Lọc theo máy và theo sheet
+  await page.click('.chips button[data-cv="CV23"]');
+  await wait(600);
+  assert.equal(await page.locator('#plcKq .plch').count(), 1);
+  await page.fill('#pq', '急停');
+  await wait(500);
+  assert.match(await text('#plcKq'), /M0/);
+  await page.selectOption('#psheet', '电机型号');
+  await wait(500);
+  assert.match(await text('#plcKq'), /Không thấy/);
+  await page.selectOption('#psheet', '');
+  await page.click('.chips button[data-cv=""]');
+  await wait();
+  ok('Chương trình: đọc bảng PLC, tra địa chỉ ra cả 2 máy, dịch dòng, mở đúng ô, lọc máy/sheet');
+
+  // 20c. Tải bảng cho chuyền 08 (file .xlsx thật, nén), thành bảng thứ 3; file hỏng bị báo trước khi tải lên
+  await page.click('#fabPLC');
+  await wait();
+  await page.selectOption('#plcCv', 'CV08');
+  await page.setInputFiles('#plcFile', { name: 'hong.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', buffer: Buffer.from('khong phai xlsx') });
+  await page.click('#plcSave');
+  await wait(500);
+  assert.match(await text('#plcMsg'), /xlsx/);
+  await page.setInputFiles('#plcFile', join(ROOT, 'tests/fixtures/TEST-day.xlsx'));
+  await page.click('#plcSave');
+  await page.waitForFunction(() => !document.querySelector('#ov'), null, { timeout: 15000 });
+  await wait(600);
+  assert.equal(await page.locator('#plcTT .plcm').count(), 3);
+  await page.fill('#pq', 'TEST-201');
+  await wait(600);
+  assert.match(await text('#plcKq'), /K1-13/);
+  ok('Tải bảng chương trình cho chuyền mới; file hỏng bị chặn trước khi gửi');
+
+  // 20d. Ô Tìm chung cũng ra kết quả bảng chương trình
+  await tab('tim');
+  await page.fill('#q', 'M600');
+  await wait(600);
+  assert.match(await text('#main'), /Chương trình/);
+  assert.ok(await page.locator('#main .plch').count() >= 1);
+  await page.fill('#q', '');
+  ok('Ô tìm chung có cả kết quả bảng chương trình');
 
   // 16. Xuất Excel song ngữ
   await page.click('#caiBtn');

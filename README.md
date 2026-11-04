@@ -1,6 +1,6 @@
-# Ghi chú & Tra cứu tài liệu · 笔记与资料查询 (v1.1.0)
+# Ghi chú & Tra cứu tài liệu · 笔记与资料查询 (v1.2.0)
 
-App riêng cho một người dùng: ghi chú ngay tại máy, tra cứu tài liệu (sổ tay, bản vẽ, quy trình), tra số dây điện theo bản vẽ, lưu thông số máy in theo từng chuyền và sản phẩm, và tính DPI, tần số phun, delay.
+App riêng cho một người dùng: ghi chú ngay tại máy, tra cứu tài liệu (sổ tay, bản vẽ, quy trình), tra số dây điện theo bản vẽ, lưu thông số máy in theo từng chuyền và sản phẩm, tính DPI, tần số phun, delay, và tra bảng chương trình PLC của từng chuyền.
 
 - **iPhone:** dùng dạng PWA. Mở bằng Safari rồi chọn "Thêm vào Màn hình chính". Mất mạng vẫn xem và ghi được.
 - **Máy tính:** mở cùng địa chỉ bằng trình duyệt.
@@ -13,20 +13,20 @@ App riêng cho một người dùng: ghi chú ngay tại máy, tra cứu tài li
 
 | File | Dùng để |
 |---|---|
-| `Code.gs-v1.1.0.txt` | Mã máy chủ, dán vào Apps Script của Google Sheet |
+| `Code.gs-v1.2.0.txt` | Mã máy chủ, dán vào Apps Script của Google Sheet |
 | `docs/` | Bộ PWA để đăng lên GitHub Pages: `index.html` (app thật), `demo.html` (bản xem thử), `sw.js`, `manifest.webmanifest`, `icons/` |
-| `app-v1.1.0.html` | Giống `docs/index.html`, gói trong một file |
-| `demo-v1.1.0.html` | Bản xem thử chạy hẳn trong trình duyệt, có máy chủ giả và dữ liệu mẫu |
+| `app-v1.2.0.html` | Giống `docs/index.html`, gói trong một file |
+| `demo-v1.2.0.html` | Bản xem thử chạy hẳn trong trình duyệt, có máy chủ giả và dữ liệu mẫu |
 | `src/` | Mã nguồn: `app.html`, `Code.gs`, `sw.js`, `config.json`, `demo/`, `icons/` |
 | `tools/build.mjs` | Ghép `src/` thành các file trên: `node tools/build.mjs` |
 | `tests/` | `npm test`: kiểm thử máy chủ. `npm run e2e`: bấm thử toàn bộ luồng trên bản xem thử |
-| `*-v1.0.0.*` | Bản cũ, giữ lại để đối chiếu hoặc quay lại khi cần |
+| `*-v1.0.0.*`, `*-v1.1.0.*` | Bản cũ, giữ lại để đối chiếu hoặc quay lại khi cần |
 
 > Chỉ sửa trong `src/`, rồi chạy `node tools/build.mjs`. Không sửa thẳng các file do lệnh này tạo ra.
 
 ## Xem thử ngay
 
-Mở `docs/demo.html` (hoặc `demo-v1.1.0.html`) bằng trình duyệt và đăng nhập bằng PIN **111111**.
+Mở `docs/demo.html` (hoặc `demo-v1.2.0.html`) bằng trình duyệt và đăng nhập bằng PIN **111111**.
 
 - Muốn thử khi mất mạng: **Cài đặt (bánh răng) → Giả lập mất mạng**.
 - Bản xem thử chỉ dịch được vài câu mẫu, ví dụ "Thay lọc mực", "Kiểm tra áp suất meniscus", "Mass chung", "Nối đất".
@@ -34,7 +34,7 @@ Mở `docs/demo.html` (hoặc `demo-v1.1.0.html`) bằng trình duyệt và đă
 ## Cài đặt (lần đầu)
 
 1. Tạo **Google Sheet mới** (để trống), rồi vào **Tiện ích mở rộng → Apps Script**.
-2. Xoá mã có sẵn, dán toàn bộ `Code.gs-v1.1.0.txt`, rồi bấm **Lưu**.
+2. Xoá mã có sẵn, dán toàn bộ `Code.gs-v1.2.0.txt`, rồi bấm **Lưu**.
 3. Chọn hàm `caiDatBanDau` → **Chạy** → cấp quyền khi Google hỏi. Hàm này sẽ:
    - tạo các trang;
    - tạo 4 nhóm tài liệu;
@@ -73,9 +73,11 @@ Giới hạn của PWA trên iPhone:
 | **Tìm · 搜索** | Một ô tìm chung cho ghi chú, tài liệu và số dây. Gõ không dấu cũng được ("loc muc"), gõ chữ Trung cũng được |
 | **Ghi chú · 笔记** | Tiêu đề, nội dung, thẻ, mã máy và tối đa 6 ảnh chụp tại chỗ (ảnh tự thu nhỏ). Lọc theo thẻ. Lúc mất mạng vẫn ghi và sửa được |
 | **Tài liệu · 资料** | Tải lên PDF, Word, Excel hoặc ảnh (tối đa 25 MB), hoặc dán link Google Drive cho tệp lớn hơn. Một tài liệu có nhiều phiên bản, và đúng một bản **Đang hiệu lực**. Bấm **Lưu xem khi mất mạng** để mở được cả khi không có sóng |
-| **Thông số · 参数** | Thông số máy in theo chuyền → sản phẩm, chia đúng các màn hình bộ điều khiển Merlin D CE. Mỗi lần đổi là một lần ghi mới có ngày và lý do. Xem chi tiết ở phần Điểm mới của v1.1.0 |
-| **Tra dây · 查线号** | Tìm theo số dây, điểm đầu/cuối, tín hiệu hoặc tờ bản vẽ. Nút **Mở bản vẽ** mở thẳng PDF ở đúng trang |
-| **Tính toán · 计算** | Nhập xung encoder, đường kính trục, số cạnh, divider, chiều dài sản phẩm và tốc độ để ra DPI, tần số phun, tốc độ tối đa, divider tối thiểu và delay PB1/PB2 × JA1–4. Lưu được nhiều bộ thông số |
+| **Máy in · 喷码机** | Gom ba màn của máy in phun, chọn ở thanh trên: **Thông số**, **Tính toán**, **Tra dây** |
+| **Chương trình · PLC程序** | Tra bảng chương trình PLC của từng chuyền: địa chỉ IO, báo lỗi, chú thích M/D/B/W… (xem Điểm mới của v1.2.0) |
+| ↳ **Thông số** | Thông số máy in theo chuyền → sản phẩm, chia đúng các màn hình bộ điều khiển Merlin D CE. Mỗi lần đổi là một lần ghi mới có ngày và lý do. Xem chi tiết ở phần Điểm mới của v1.1.0 |
+| ↳ **Tra dây** | Tìm theo số dây, điểm đầu/cuối, tín hiệu hoặc tờ bản vẽ. Nút **Mở bản vẽ** mở thẳng PDF ở đúng trang |
+| ↳ **Tính toán** | Nhập xung encoder, đường kính trục, số cạnh, divider, chiều dài sản phẩm và tốc độ để ra DPI, tần số phun, tốc độ tối đa, divider tối thiểu và delay PB1/PB2 × JA1–4. Lưu được nhiều bộ thông số |
 | **Cài đặt** | Hàng chờ gửi, xuất Excel song ngữ, nhóm tài liệu, nhật ký sửa đổi, đổi PIN |
 
 ### Nhập bảng dây từ Excel
@@ -104,6 +106,41 @@ Bảng tính cũ của nhà cung cấp nhân tỉ lệ từ số đã làm tròn
 - 900 miếng/phút ra 112,29 dpi và **12,6 kHz** (vượt vùng ổn định);
 - tốc độ tối đa để còn ≤ 8 kHz là 571 miếng/phút;
 - hoặc giữ 900 miếng/phút thì phải đặt divider ≥ 10.
+
+## Điểm mới của v1.2.0: tab Chương trình (bảng PLC theo chuyền), gom các màn máy in
+
+**Tab mới thay đổi bố cục**
+
+Thanh tab dưới cùng giờ là: Tìm · Ghi chú · Tài liệu · **Máy in** · **Chương trình**.
+- **Máy in** gom ba màn trước đây nằm riêng: **Thông số**, **Tính toán**, **Tra dây**. Chọn màn ở thanh trên cùng; app nhớ màn mở lần trước.
+- **Chương trình** là phần mới, mô tả bên dưới.
+
+**Tab Chương trình: tra bảng PLC của từng chuyền**
+
+Mỗi chuyền có một file Excel chương trình (ví dụ máy VKY06): địa chỉ IO, slot module, báo lỗi, chú thích M/D/B/W/L/R/T, động cơ, servo… File của máy 06 có 21 sheet, gần 30.000 dòng.
+
+- **Tải bảng:** bấm **Tải bảng**, chọn chuyền và file `.xlsx`.
+  - App đọc thử file trên máy trước; file hỏng thì báo ngay, không tải lên.
+  - Tệp lưu ở Drive riêng, trong mục Tài liệu, nhóm **Chương trình PLC** (tự tạo nếu chưa có).
+  - Tải lại cho chuyền đã có bảng thì thành phiên bản mới; bản cũ vẫn xem lại được ở mục Tài liệu.
+- **Tra cứu:**
+  - Gõ địa chỉ (`X1002`, `M600`, `D120`) hoặc chữ (`急停`, `HG-SR352`).
+  - Ô khớp đúng cả ô được xếp trước. Mỗi kết quả ghi máy nào, sheet nào, ô nào (ví dụ `远程IO · B4`), kèm các ô bên cạnh nên thấy luôn cặp địa chỉ ↔ chú thích.
+  - Cùng một địa chỉ ở nhiều máy thì ra đủ các máy.
+  - Lọc được theo chuyền và theo sheet.
+- **Dịch:** nút **Dịch · 翻译** dịch dòng đó sang tiếng Việt. Chỉ dịch khi bấm, vì dịch sẵn hàng chục nghìn dòng sẽ vượt hạn mức Google Dịch mỗi ngày.
+- **Mở bảng:** mở cả sheet tại đúng dòng, tô ô tìm được, lật trang 60 dòng, đổi sheet được.
+- **Tìm chung:** ô tìm ở tab Tìm cũng ra 5 kết quả đầu của bảng chương trình.
+- **Mất mạng:** bảng đã đọc được lưu trong máy, nên mất mạng vẫn tra được. Riêng nút Dịch cần có mạng.
+- **Thử với file thật:** file máy 06 (1,9 MB, 21 sheet) đọc xong trong khoảng 4 giây trên máy tính.
+
+**Nâng cấp từ v1.1.0:**
+1. Dán `Code.gs-v1.2.0.txt` đè lên mã cũ, bấm Lưu.
+2. **Triển khai → Quản lý triển khai → Phiên bản mới**.
+
+Trang mới `BangMay` (chuyền ↔ tài liệu bảng chương trình) được tự tạo. Lần tải bảng đầu tiên sẽ tạo thêm nhóm tài liệu "Chương trình PLC". Không trang cũ nào thêm cột.
+
+> File chương trình là tài liệu nội bộ của máy: chỉ tải lên qua app, nằm trong Drive riêng. Repo công khai chỉ có bảng mẫu `TEST-*`.
 
 ## Điểm mới của v1.1.0: thông số máy theo chuyền và sản phẩm
 
@@ -156,7 +193,7 @@ Thêm chuyền, đổi số màu hay đổi tên mực của PB ở **Cài đặ
 - Xuất Excel thêm 3 sheet: *Thông số hiện tại*, *Lịch sử thông số* (mỗi JA một cột), *Sản phẩm*.
 
 **Nâng cấp từ v1.0.0:**
-1. Dán `Code.gs-v1.1.0.txt` đè lên mã cũ, bấm Lưu.
+1. Dán `Code.gs-v1.2.0.txt` đè lên mã cũ, bấm Lưu.
 2. **Triển khai → Quản lý triển khai → Phiên bản mới**.
 
 Lần đầu mở app, máy chủ tự tạo 5 trang mới và 9 chuyền. Không trang cũ nào thêm hay đổi cột.
@@ -200,6 +237,6 @@ Quy ước dữ liệu:
 ## Kiểm thử
 
 ```
-npm test        # 29 bài kiểm thử máy chủ (chạy Code.gs trong máy chủ giả)
-npm run e2e     # build + Playwright bấm 25 bước trên docs/demo.html, không được có lỗi JavaScript
+npm test        # 32 bài kiểm thử máy chủ (chạy Code.gs trong máy chủ giả)
+npm run e2e     # build + Playwright bấm 29 bước trên docs/demo.html, không được có lỗi JavaScript
 ```
