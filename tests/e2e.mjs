@@ -292,34 +292,58 @@ try {
   assert.match(dlTpl.suggestedFilename(), /\.xlsx$/);
   ok('Tải file mẫu nhập dây');
 
-  // 15. Máy tính: thông số mẫu → 112,3 dpi, 12,6 kHz đỏ/cam, delay đúng
+  // 15. Tính toán = bảng tính Encoder/Delay/Alignment của nhà cung cấp: nhập đúng các ô xanh của file mẫu,
+  //     mọi số phải trùng với số Excel tính ra trong file (DPI 13,75; JA PB2 lẻ 63,97…; DPI mới 74,86 → 348…)
   await tab('tinh');
-  assert.equal(await text('#rDpi'), '112,29');
-  assert.match(await text('#rF'), /12,6/);
-  assert.equal(await page.getAttribute('#rStatus', 'data-muc'), 'warn');
-  const dl = {};
-  for (const k of ['PB1-1', 'PB1-2', 'PB1-3', 'PB1-4', 'PB2-1', 'PB2-2', 'PB2-3', 'PB2-4']) dl[k] = Number(await text(`#rDelay td[data-d="${k}"] b`));
-  assert.deepEqual(Object.values(dl), [0, 121, 243, 364, 520, 641, 763, 884]);
-  assert.equal(await text('#rDivMin'), '10');
-  await shot('08-may-tinh-900');
-  await page.fill('#cPpm', '500');
+  await page.click('.chips.plcl button[data-cv="CV23"]');
   await wait();
-  assert.equal(await page.getAttribute('#rStatus', 'data-muc'), 'ok');
-  await page.fill('#cEdge', '3');
+  const xanh = { encoderPPR: '2500', duongKinh: '120', divider: '49', kheHoPB1: '0', lechPB2: '1.8', daiSP: '190', tocDo: '850', dpiMoi: '74.86', dpiLapTrinh: '1200' };
+  for (const [k, v] of Object.entries(xanh)) await page.fill('#t_' + k, v);
+  await page.selectOption('#t_soCanh', '4');
   await wait();
-  assert.match(await text('#cKq'), /1, 2 hoặc 4/);
-  await page.fill('#cEdge', '4');
-  await page.fill('#cDiv', '10');
-  await page.fill('#cPpm', '900');
-  await page.fill('#cTen', 'Máy TEST divider 10');
-  await page.click('[data-act="cfgSaveNew"]');
-  await wait(700);
-  assert.equal(await page.locator('#cBo option').count(), 2);
-  assert.equal(await page.getAttribute('#rStatus', 'data-muc'), 'ok');
-  await page.selectOption('#cBo', { index: 0 });
+  assert.equal(await text('#tDpi'), '13,75');
+  assert.equal(await text('#tF'), '1,457 kHz');
+  assert.equal(await page.getAttribute('#tStatus', 'data-muc'), 'ok');
+  const cot = async (n) => (await page.locator(`#tJA tr[data-ja] td:nth-child(${n})`).allTextContents()).map((v) => v.trim().split(/\s/)[0]);
+  assert.deepEqual(await cot(2), ['0', '15', '30', '45', '63', '78', '93', '108'], 'Delays without alignment (N5:N8, Q5:Q8)');
+  assert.deepEqual(await cot(3), ['0', '15', '30', '45', '63,97', '78,97', '93,97', '108,97'], 'PB1/PB2 alignment (Q21:Q24, W21:W24)');
+  assert.deepEqual(await cot(4), ['0', '15', '30', '45', '64', '79', '94', '109'], 'số nhập máy');
+  assert.deepEqual(await page.locator('#tMoi td').allTextContents(), ['0', '82', '163', '245', '348', '430', '512', '593'], 'New DPI (T5:T8, W5:W8)');
+  assert.equal(await text('#tFMoi'), '7,933 kHz');
+  assert.equal(await text('#tQ14'), '17.810,17');
+  // So JA thực tế trên máy với số tính ra: JA7 lệch +2 chấm (đỏ), ghi lại; sửa JA7 rồi lưu lần nữa → khớp
+  for (const [i, v] of ['0', '15', '30', '45', '64', '79', '96', '109'].entries()) await page.fill('#t_tt' + i, v);
   await wait();
-  assert.equal(await text('#rDpi'), '112,29');
-  ok('Tính DPI, tần số (cảnh báo khi vượt 8 kHz), delay tính thẳng, lưu bộ thông số');
+  assert.equal(await page.getAttribute('#tJA tr[data-ja="7"] td.lech', 'data-d'), '2');
+  assert.match(await page.getAttribute('#tJA tr[data-ja="7"] td.lech', 'class'), /bad/);
+  assert.match(await text('#tJA tr[data-ja="7"] td.lech'), /\+3,69 mm/);
+  assert.match(await text('#tLechSo'), /1 JA/);
+  await shot('08-bang-tinh-dau-in');
+  await page.fill('#t_ghiChu', 'Thông số ban đầu');
+  await page.click('#tSave');
+  await wait(800);
+  assert.match(await text('#main .tinhh'), /Lệch.*JA7 \+2/);
+  assert.match(await text('#main .tinhh'), /初始参数/);
+  assert.equal(await page.inputValue('#t_divider'), '49', 'mở lại điền sẵn lần lưu mới nhất');
+  await page.fill('#t_tt6', '94');
+  await page.click('#tSave');
+  await wait(800);
+  assert.equal(await page.locator('#main .tinhh').count(), 2);
+  assert.match(await page.locator('#main .tinhh').first().textContent(), /khớp số tính ra/);
+  // Máy 1 màu chỉ có JA1–4; bảng tra DPI theo divider tô đúng dòng
+  await page.click('.chips.plcl button[data-cv="CV01"]');
+  await wait();
+  assert.equal(await page.locator('.tt-ja input').count(), 4);
+  assert.equal(await page.locator('#tJA tr[data-ja]').count(), 4);
+  await page.fill('#t_divider', '');
+  await wait();
+  assert.match(await text('#tKq'), /Divider/);
+  await page.fill('#t_divider', '3');
+  await page.selectOption('#t_soCanh', '2');
+  await page.click('#main details summary');
+  await wait();
+  assert.equal(await text('#tBangDPI td.hl'), '112,3');
+  ok('Tính toán theo đúng bảng tính nhà cung cấp; so JA1–8 thực tế với số tính ra; lưu theo đầu in có lịch sử');
 
   // 16a. Thông số máy: danh sách chuyền có sản phẩm đang chạy
   await tab('may');

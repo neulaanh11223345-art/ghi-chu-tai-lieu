@@ -55,6 +55,11 @@ ul.doi{margin:6px 0 0;padding-left:18px}
 .cell{background:#F1F4F9;border-radius:8px;padding:4px 8px;font-size:14px;word-break:break-word}
 .cell.on{background:#FFF4C2;font-weight:600}
 .traloi{font-size:18px;margin-top:6px;line-height:1.35}
+.card.xanh{border-color:#86C77A;background:#F3FBF0}.card.xanh input.i,.card.xanh select.i{border-color:#9ED291;background:#fff}
+.tt-ja{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}.tt-ja label{display:flex;flex-direction:column;gap:2px;font-size:12px}.tt-ja input{text-align:center;padding:8px 2px}
+table.tja td.n,table.tja th{text-align:center}table.tja td.lech.ok{background:var(--okbg);color:var(--ok)}table.tja td.lech.warn{background:var(--warnbg);color:var(--warn);font-weight:700}
+table.tja td.lech.bad{background:var(--badbg);color:var(--bad);font-weight:700}table.tja tr.on th,table.tja td.hl{background:#FFF4C2}
+details.card summary{cursor:pointer}
 .card.gcp{border-color:#9DB4D8;background:#F6F9FF}.card.gcp.trong{background:#fff;border-style:dashed}
 .card.gcp.gon{margin:8px 0 0;padding:8px 10px}.traloi b{color:var(--pri)}
 .card.plch.dung{border-color:#9BD3B5}
@@ -361,6 +366,8 @@ function gopKetQua(action, d) {
   if (action === 'cfgDelete') D.cauHinh = D.cauHinh.filter((x) => x.id !== d.id);
   if (d.thongSo) { D.thongSo = D.thongSo || []; upsert(D.thongSo, d.thongSo); }
   if (d.chaySP) { D.chaySP = D.chaySP || []; upsert(D.chaySP, d.chaySP); }
+  if (d.tinhDauIn) { D.tinhDauIn = D.tinhDauIn || []; upsert(D.tinhDauIn, d.tinhDauIn); }
+  if (action === 'calcDelete') D.tinhDauIn = (D.tinhDauIn || []).filter((x) => x.id !== d.id);
   if (d.ghiChuPLC) { D.ghiChuPLC = D.ghiChuPLC || []; upsert(D.ghiChuPLC, d.ghiChuPLC); }
   if (action === 'plcNoteDelete') D.ghiChuPLC = (D.ghiChuPLC || []).filter((x) => x.id !== d.id);
   if (d.sanPham) { D.sanPham = D.sanPham || []; if (d.sanPham.hoatDong === 0) D.sanPham = D.sanPham.filter((x) => x.id !== d.sanPham.id); else upsert(D.sanPham, d.sanPham); }
@@ -430,7 +437,12 @@ const APDUNG = {
     const id = p.id || maTuOp('SP', op), cu = S.data.sanPham.find((x) => x.id === id) || {};
     upsert(S.data.sanPham, Object.assign({ tenDich: '' }, cu, p, { id, _cho: op }));
   },
-  cfgSave(op, p) { const id = p.id || maTuOp('CH', op); upsert(S.data.cauHinh, Object.assign({}, p, { id, _cho: op })); S.cfgId = id; }
+  cfgSave(op, p) { const id = p.id || maTuOp('CH', op); upsert(S.data.cauHinh, Object.assign({}, p, { id, _cho: op })); S.cfgId = id; },
+  calcSave(op, p) {
+    S.data.tinhDauIn = S.data.tinhDauIn || [];
+    upsert(S.data.tinhDauIn, Object.assign({}, p, { id: maTuOp('TD', op), soCanh: String(p.soCanh), ghiChuDich: '', lucTao: new Date(Date.now() + 7 * 3600000).toISOString().slice(0, 19).replace('T', ' '), dichTay: {}, _cho: op }));
+  },
+  calcDelete(op, p) { S.data.tinhDauIn = (S.data.tinhDauIn || []).filter((x) => x.id !== p.id); }
 };
 function theTu(v) { const o = [], co = {}; (Array.isArray(v) ? v : String(v || '').split(/[,;#\n]/)).forEach((t) => { t = t.trim().replace(/^#/, ''); if (t && !co[t.toLowerCase()]) { co[t.toLowerCase()] = 1; o.push(t); } }); return o.slice(0, 12); }
 
@@ -849,68 +861,166 @@ function wireImportForm() {
   });
 }
 
-// ============ Tính toán: DPI, tần số phun, delay ============
-// Công thức theo sổ tay Merlin D CE: DPI = (xung/vòng × số cạnh ÷ divider) ÷ chu vi trục (inch).
-// Delay tính THẲNG từ khoảng cách (mm) rồi mới làm tròn — không nhân tỉ lệ từ số đã làm tròn như bảng cũ của nhà cung cấp
-// (cách đó nhân sai số làm tròn lên, lệch tới 6 chấm ≈ 1,4 mm ở 112 dpi).
-function tinh(c) {
-  const chuVi = c.duongKinh / 25.4 * Math.PI, dpi = c.encoderPPR * c.soCanh / c.divider / chuVi;
-  const chamSP = c.daiSP / 25.4 * dpi, f = chamSP * c.tocDo / 60, mPhut = c.daiSP / 1000 * c.tocDo;
-  const toiDa = chamSP > 0 ? c.gioiHan * 1000 / chamSP * 60 : 0;
-  const dpiMax = c.tocDo > 0 ? c.gioiHan * 1000 / (c.daiSP / 25.4 * c.tocDo / 60) : Infinity;
-  const divMin = Math.ceil(c.encoderPPR * c.soCanh / chuVi / dpiMax - 1e-9);
-  const tre = (mm) => Math.round(mm / 25.4 * dpi);
-  const delay = [];
-  for (let n = 0; n < 4; n++) delay.push({ k: 'PB1-' + (n + 1), mm: n * c.khoangJA, d: tre(n * c.khoangJA) });
-  for (let n = 0; n < 4; n++) { const mm = 3 * c.khoangJA + c.khoangPB + c.buPB + n * c.khoangJA; delay.push({ k: 'PB2-' + (n + 1), mm, d: tre(mm) }); }
-  const muc = f <= c.gioiHan * 1000 ? 'ok' : f <= 20000 ? 'warn' : 'bad';
-  return { dpi, mmCham: 25.4 / dpi, f, mPhut, toiDa, divMin, delay, muc };
-}
-const CAU = [['encoderPPR', 'Xung encoder / vòng', '编码器每转脉冲', 'cPPR'], ['duongKinh', 'Đường kính trục encoder (mm)', '编码辊直径（mm）', 'cD'],
-  ['soCanh', 'Số cạnh giải mã (1, 2, 4)', '解码边沿（1、2、4）', 'cEdge'], ['divider', 'Divider', '分频', 'cDiv'], ['daiSP', 'Chiều dài 1 sản phẩm (mm)', '单片长度（mm）', 'cLen'],
-  ['tocDo', 'Tốc độ (miếng/phút)', '速度（片/分钟）', 'cPpm'], ['khoangJA', 'Khoảng cách JA (mm)', 'JA间距（mm）', 'cJA'], ['khoangPB', 'Khoảng PB1→PB2 (mm)', 'PB1→PB2间距（mm）', 'cPB'],
-  ['buPB', 'Bù lệch PB2 (mm)', 'PB2补偿（mm）', 'cBu'], ['gioiHan', 'Giới hạn ổn định (kHz)', '稳定上限（kHz）', 'cLim']];
+// ============ Tính toán: bảng tính Encoder / Delay / Alignment của nhà cung cấp ============
+// Làm ĐÚNG từng công thức của file "Encoder delay alignment" (kể cả π = 3.141516 và cách làm tròn của file),
+// để số trên app trùng số kỹ thuật viên quen dùng. Chỉ các ô xanh của file được nhập; mọi ô khác tự tính.
+// Lưu theo từng đầu in (chuyền máy in), có lịch sử; nhập JA1–8 đang đặt trên máy để so với số tính ra.
+const PI_BANG = 3.141516, KHOANG_JA = 27.4333333333333, KHOANG_PB = 33.528;
 const so = (v, n) => Number(v).toLocaleString('vi-VN', { maximumFractionDigits: n === undefined ? 2 : n, minimumFractionDigits: 0 });
+const rX = (v) => (v < 0 ? -1 : 1) * Math.round(Math.abs(v));   // ROUND của Excel: .5 làm tròn ra xa số 0
+// i: { encoderPPR, duongKinh, soCanh, divider, kheHoPB1, lechPB2, daiSP, tocDo, dpiMoi, dpiLapTrinh } — đúng 10 ô xanh
+function bangTinh(i) {
+  const M4 = i.encoderPPR * i.soCanh / i.divider / ((i.duongKinh / 25.4) * PI_BANG), buoc = (1 / M4) * 25.4;
+  const N = [0, rX(KHOANG_JA / buoc), rX(KHOANG_JA * 2 / buoc), rX(KHOANG_JA * 3 / buoc)];             // N5:N8 delay PB1 chưa căn chỉnh
+  const Q5 = rX(N[3] + (KHOANG_PB / 25.4) * M4);
+  const Q = [Q5, N[1] + Q5, N[2] + Q5, N[3] + Q5];                                                     // Q5:Q8 delay PB2 chưa căn chỉnh
+  const P17 = (M4 / 25.4) * (i.kheHoPB1 || 0), V17 = (M4 / 25.4) * (i.lechPB2 || 0);
+  const Q24 = N[3] + P17, PB1 = [0, rX(Q24 / 3), rX(Q24 / 3 * 2), Q24];                                // Q21:Q24 PB1 có căn chỉnh
+  const W21 = rX(Q24 + (KHOANG_PB / 25.4) * M4) + V17, PB2 = [W21, W21 + PB1[1], W21 + PB1[2], W21 + Q24]; // W21:W24 PB2 lệch so với PB1
+  const kq = { dpi: M4, N, Q, P17, V17, ja: PB1.concat(PB2) };
+  kq.mayNhap = kq.ja.map(rX);
+  const sp = (i.daiSP || 0) / 25.4 * (i.tocDo || 0) / 60;
+  kq.tanSo = sp * M4 / 1000;                                                                           // N28 kHz
+  kq.mGio = (i.daiSP || 0) / 1000 * 60 * (i.tocDo || 0); kq.mPhut = kq.mGio / 60; kq.ftPhut = kq.mPhut / 0.3048;
+  if (i.dpiMoi > 0) {
+    const k = i.dpiMoi / M4;
+    kq.moi = { ja: [0, rX(k * PB1[1]), rX(k * PB1[2]), rX(k * Q24)].concat(PB2.map((w) => rX(k * w))), tanSo: sp * i.dpiMoi / 1000 };
+  }
+  if (i.dpiLapTrinh > 0) kq.xungLapTrinh = (i.duongKinh / 25.4) * PI_BANG * 1 * i.dpiLapTrinh / 1;   // Q14
+  return kq;
+}
+const O_XANH = [['encoderPPR', 'Encoder resolution', 'Xung encoder / vòng', '编码器转速', 'B1'], ['duongKinh', 'Roller Encoder mm', 'Đường kính trục encoder (mm)', '编码器连接辊外径', 'D1'],
+  ['soCanh', 'Edges', 'Số cạnh', '解码边沿', 'F1'], ['divider', 'Divider', 'Chia xung', '分频', 'H1'],
+  ['kheHoPB1', 'PB1 Alignment Gap/Overlap mm', 'Khe hở / chồng PB1 (mm)', 'PB1间隙/重叠', 'P16'], ['lechPB2', 'PB2 offset referent to PB1 mm', 'Lệch PB2 so với PB1 (mm)', 'PB2相对PB1偏移', 'V16'],
+  ['daiSP', 'PAD size mm', 'Dài miếng (mm)', '单片长度', 'N26'], ['tocDo', 'PPm', 'Tốc độ (miếng/phút)', '速度（片/分）', 'N27'],
+  ['dpiMoi', 'New DPI', 'DPI muốn đổi sang', '新DPI', 'S4'], ['dpiLapTrinh', 'Programmable encoder DPI', 'DPI encoder lập trình', '可编程编码器DPI', 'P14']];
+const MAC_DINH = { encoderPPR: 2500, duongKinh: 120, soCanh: 4, divider: 12, kheHoPB1: 0, lechPB2: 1.8, daiSP: 190, tocDo: 850, dpiMoi: '', dpiLapTrinh: 1200 };
+const dsTinh = (cv) => (DL().tinhDauIn || []).filter((t) => t.chuyen === cv).sort((a, b) => String(a.lucTao + a.id).localeCompare(String(b.lucTao + b.id)));
+const tinhMoiNhat = (cv) => { const d = dsTinh(cv); return d[d.length - 1] || null; };
+// Encoder / trục của một đầu in: lần lưu bảng tính mới nhất; chưa lưu thì dùng số mặc định của bảng tính
+function coBo(cv) {
+  const t = cv ? tinhMoiNhat(cv) : null;
+  return { encoderPPR: Number(t ? t.encoderPPR : MAC_DINH.encoderPPR), duongKinh: Number(t ? t.duongKinh : MAC_DINH.duongKinh), soCanh: Number(t ? t.soCanh : MAC_DINH.soCanh),
+    kheHoPB1: Number(t ? t.kheHoPB1 : 0) || 0, lechPB2: Number(t ? t.lechPB2 : MAC_DINH.lechPB2) || 0, gioiHan: 8 };
+}
+function chonDauIn() {
+  if (S.tcv && cvOf(S.tcv)) return S.tcv;
+  try { const v = localStorage.getItem('gctl_tcv'); if (v && cvOf(v)) return (S.tcv = v); } catch (e) { /* bỏ qua */ }
+  return (S.tcv = (dsChuyen()[0] || {}).id || '');
+}
+// Giá trị điền sẵn: lần lưu mới nhất của đầu in; chưa có thì lấy từ sản phẩm đang chạy và Thông số hiện tại, còn lại là số mặc định
+function giaTriDauIn(cv) {
+  const t = tinhMoiNhat(cv), sp = dangChay(cv), ts = sp ? hienTai(cv, sp) : null, o = {};
+  O_XANH.forEach((k) => { o[k[0]] = t ? t[k[0]] : ''; });
+  if (!t) {
+    Object.assign(o, MAC_DINH);
+    if (ts && ts.divider) o.divider = ts.divider;
+    if (ts && ts.tocDo) o.tocDo = ts.tocDo;
+  }
+  if (sp && daiSPmm(sp) && !t) o.daiSP = daiSPmm(sp);
+  o.thucTe = t && t.thucTe ? t.thucTe : (ts && ts.align ? ts.align : '');
+  o.nguonThucTe = t && t.thucTe ? 'luu' : (ts && ts.align ? 'ts' : '');
+  return o;
+}
+const fmt2 = (v) => Number.isInteger(v) ? String(v) : so(v, 2);
 VIEWS.tinh = {
   html() {
-    const ds = S.data.cauHinh; if (!S.cfgId || !ds.find((x) => x.id === S.cfgId)) S.cfgId = ds[0] ? ds[0].id : '';
-    const c = ds.find((x) => x.id === S.cfgId) || {};
-    return `<label class="f"><span class="l">${L(T.bo[0], T.bo[1])}</span><select class="i" id="cBo">${ds.map((x) => `<option value="${esc(x.id)}" ${x.id === S.cfgId ? 'selected' : ''}>${esc(x.ten)}</option>`).join('')}</select></label>
-      <div id="cKq"></div>
-      <div class="card"><label class="f"><span class="l">${L('Tên bộ thông số', '参数组名称')}</span><input class="i" id="cTen" value="${esc(c.ten || '')}"></label>
-      <div class="grid2">${CAU.map((k) => `<label class="f"><span class="l">${L(k[1], k[2])}</span><input class="i" id="${k[3]}" type="number" step="any" inputmode="decimal" value="${esc(c[k[0]])}"></label>`).join('')}</div>
-      <div class="btns"><button class="btn" data-act="cfgSave">${L(T.luuBo[0], T.luuBo[1])}</button><button class="btn ghost" data-act="cfgSaveNew">${L(T.luuBoMoi[0], T.luuBoMoi[1])}</button></div></div>
-      <div class="card muted">${L('Tần số phun = số chấm trên 1 sản phẩm × tốc độ. Đầu in Galaxy ổn định 0–8 kHz; 8–20 kHz chỉ chạy tốt ở một số tần số rời rạc và có thể phải chỉnh xung kích (sổ tay đầu in).',
-        '喷射频率 = 单片点数 × 速度。Galaxy喷头0–8 kHz稳定；8–20 kHz仅在部分离散频率下良好，可能需调整发火脉冲。')}</div>`;
+    const cv = chonDauIn(), c = cvOf(cv); if (!c) return `<div class="card empty">—</div>`;
+    const o = giaTriDauIn(cv), spId = dangChay(cv), sp = spOf(spId), ds = dsTinh(cv);
+    return `<div class="chips plcl">${dsChuyen().map((x) => `<button class="${x.id === cv ? 'on' : ''}${dsTinh(x.id).length ? '' : ' trong'}" data-act="tcvChon" data-cv="${esc(x.id)}">${esc(x.ma)}</button>`).join('')}</div>
+      <div class="card"><b>${L('Đầu in chuyền ' + esc(c.ma), esc(c.ma) + '号线喷头')}</b> <span class="chip ${c.soMau === 2 ? 'pb2' : 'pb0'}">${nhanMau(c.soMau)}</span>
+        <div class="muted">${sp ? `${T.dangChay[0]}: <b class="mono">${esc(sp.ma)}</b> ${esc(sp.ten)}` : ''}${ds.length ? ` · ${L('Lưu lần cuối', '最后保存')} ${esc(String(ds[ds.length - 1].lucTao).slice(0, 16))}` : ` · ${L('Chưa lưu lần nào', '尚未保存')}`}</div></div>
+      <div class="card xanh"><div class="sec" style="margin-top:0">${L('Ô xanh — được chỉnh', '绿色单元格 — 可修改')}</div>
+        <div class="grid2">${O_XANH.map((k) => k[0] === 'soCanh' ? `<label class="f"><span class="l"><span class="en">${k[1]}</span> <span class="zh" style="display:inline">${k[2]} · ${k[3]}</span></span><select class="i" id="t_soCanh">${[4, 2, 1].map((n) => `<option ${Number(o.soCanh) === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>`
+          : `<label class="f"><span class="l"><span class="en">${k[1]}</span> <span class="zh" style="display:inline">${k[2]} · ${k[3]}</span></span><input class="i" id="t_${k[0]}" inputmode="decimal" autocomplete="off" value="${esc(o[k[0]] === undefined ? '' : o[k[0]])}"></label>`).join('')}</div></div>
+      <div id="tKq"></div>
+      <div class="card"><div class="sec" style="margin-top:0">${L('JA thực tế đang đặt trên máy', '机器上实际JA')}<span class="muted" style="text-transform:none">${o.nguonThucTe === 'ts' ? L('lấy từ Thông số hiện tại', '取自当前参数') : ''}</span></div>
+        <div class="muted" style="margin-bottom:6px">${L('Nhập số đang đặt ở màn Head Alignments (pixel) để so với số tính ra.', '输入Head Alignments当前值（像素）进行比较。')}</div>
+        <div class="tt-ja">${Array.from({ length: c.soMau * 4 }, (_, i) => `<label><span class="muted">JA${i + 1}</span><input class="i ja" id="t_tt${i}" inputmode="numeric" value="${esc(dayJA(o.thucTe)[i] || '')}"></label>`).join('')}</div></div>
+      <div class="card"><label class="f"><span class="l">${L('Ghi chú lần lưu này', '本次备注')}</span><input class="i" id="t_ghiChu" autocomplete="off" placeholder="${L('Ví dụ: đổi divider vì in mờ', '').replace(/<[^>]+>/g, '')}"></label>
+        <button class="btn wide" id="tSave" data-act="tSave" data-cv="${esc(cv)}">${L('Lưu cho đầu in chuyền ' + esc(c.ma), '保存到' + esc(c.ma) + '号线喷头')}</button></div>
+      <div class="sec">${L('Lịch sử', '历史')}<span>${ds.length}</span></div>
+      ${ds.slice().reverse().map((x, j) => histTinh(x, c, j === 0)).join('') || `<div class="card empty">—</div>`}
+      <details class="card"><summary><b>${L('Bảng tra DPI theo Divider', 'DPI与分频对照表')}</b></summary><div id="tBangDPI"></div></details>`;
   },
   after() {
-    $('#cBo').addEventListener('change', (e) => { S.cfgId = e.target.value; render(); });
-    $$('#main input[type=number]').forEach((i) => i.addEventListener('input', veKetQua));
-    veKetQua();
+    $$('#main [id^="t_"]').forEach((e) => { e.addEventListener('input', veTinh); e.addEventListener('change', veTinh); });
+    const d = $('#main details'); if (d) d.addEventListener('toggle', veBangDPI);
+    veTinh();
   }
 };
-function docCau() { const c = { ten: $('#cTen').value.trim() }; CAU.forEach((k) => { c[k[0]] = Number($('#' + k[3]).value); }); return c; }
-function veKetQua() {
-  const c = docCau(), box = $('#cKq');
-  if (!(c.encoderPPR > 0 && c.duongKinh > 0 && [1, 2, 4].indexOf(c.soCanh) >= 0 && c.divider > 0 && c.daiSP > 0 && c.gioiHan > 0)) {
-    box.innerHTML = `<div class="card" style="color:var(--bad)">${L('Kiểm tra lại thông số (số cạnh chỉ là 1, 2 hoặc 4)', '请检查参数（解码边沿只能为1、2或4）')}</div>`; return;
-  }
-  const r = tinh(c), nhan = { ok: ['Trong vùng ổn định', '稳定范围内'], warn: ['Vượt vùng ổn định — chỉ ổn ở vài tần số', '超出稳定范围'], bad: ['Vượt 20 kHz — ngoài khả năng đầu in', '超过20 kHz'] }[r.muc];
-  box.innerHTML = `<div class="kpis">
-    <div class="kpi"><div class="k">${L('DPI hướng chạy', '走纸方向DPI')}</div><div class="big" id="rDpi">${so(r.dpi, 2)}</div><div class="muted">${so(r.mmCham, 3)} mm/chấm</div></div>
-    <div class="kpi ${r.muc}" id="rStatus" data-muc="${r.muc}"><div class="k">${L('Tần số phun', '喷射频率')}</div><div class="big" id="rF">${so(r.f / 1000, 2)} kHz</div><div>${L(nhan[0], nhan[1])}</div></div>
-    <div class="kpi"><div class="k">${L('Tốc độ băng', '线速度')}</div><div class="big">${so(r.mPhut, 1)}</div><div class="muted">m/phút · ${so(r.mPhut / 60, 2)} m/s</div></div>
-    <div class="kpi"><div class="k">${L('Tốc độ tối đa (≤ ' + so(c.gioiHan) + ' kHz)', '最高速度')}</div><div class="big" id="rMax">${so(Math.floor(r.toiDa), 0)}</div><div class="muted">miếng/phút · 片/分钟</div><div class="muted">Divider tối thiểu · 最小分频: <b id="rDivMin">${r.divMin}</b></div></div></div>
-    <div class="sec">${L('Delay (tính thẳng từ khoảng cách)', '延时（按距离直接计算）')}</div>
-    <table class="t" id="rDelay"><tr><th></th><th>JA1</th><th>JA2</th><th>JA3</th><th>JA4</th></tr>
-    ${['PB1', 'PB2'].map((pb) => `<tr><th>${pb}</th>${[1, 2, 3, 4].map((n) => { const d = r.delay.find((x) => x.k === pb + '-' + n); return `<td class="n" data-d="${pb}-${n}"><b>${d.d}</b><div class="muted">${so(d.mm, 1)} mm</div></td>`; }).join('')}</tr>`).join('')}</table>`;
+function docO() {
+  const v = (id) => { const e = $('#t_' + id); return e ? e.value.trim().replace(',', '.') : ''; }, o = {};
+  O_XANH.forEach((k) => { o[k[0]] = v(k[0]) === '' ? '' : Number(v(k[0])); });
+  return o;
 }
-async function cfgSave(moi) {
-  const c = docCau();
-  if (!c.ten) { toast(L('Nhập tên bộ thông số', '请输入名称'), true); return; }
-  if (moi) { const ds = S.data.cauHinh; if (ds.some((x) => x.ten === c.ten)) c.ten += ' (2)'; } else c.id = S.cfgId;
-  const r = await ghi('cfgSave', c, c.ten, (op) => APDUNG.cfgSave(op, c));
-  if (r.ok) { if (!r.queued) { S.cfgId = r.data.cauHinh.id; tt('daLuu'); } render(); }
+const lechNhan = (d) => d === 0 ? 'ok' : Math.abs(d) === 1 ? 'warn' : 'bad';
+function veTinh() {
+  const box = $('#tKq'); if (!box) return;
+  const cv = chonDauIn(), c = cvOf(cv), o = docO();
+  if (!(o.encoderPPR > 0 && o.duongKinh > 0 && o.divider > 0 && [1, 2, 4].indexOf(o.soCanh) >= 0)) { box.innerHTML = `<div class="card" style="color:var(--bad)">${L('Nhập đủ Encoder resolution, Roller, Divider', '请填写编码器、辊径、分频')}</div>`; return; }
+  const r = bangTinh(o), n = c.soMau * 4, mm = (d) => d * 25.4 / r.dpi;
+  const tt = Array.from({ length: n }, (_, i) => { const e = $('#t_tt' + i); return e && e.value.trim() !== '' ? Number(e.value) : null; });
+  const muc = r.tanSo <= 8 ? 'ok' : r.tanSo <= 20 ? 'warn' : 'bad';
+  const so2 = tt.map((v, i) => v === null || !isFinite(v) ? null : v - r.mayNhap[i]), lech = so2.filter((d) => d !== null && d !== 0).length;
+  box.innerHTML = `<div class="kpis">
+    <div class="kpi"><div class="k">DPI <span class="muted">(M4)</span></div><div class="big" id="tDpi">${so(r.dpi, 3)}</div><div class="muted">${so(25.4 / r.dpi, 3)} mm/${L('chấm', '点').replace(/<[^>]+>/g, '')}</div></div>
+    <div class="kpi ${muc}" id="tStatus" data-muc="${muc}"><div class="k">${L('Tần số', '频率')} <span class="muted">(N28)</span></div><div class="big" id="tF">${o.daiSP > 0 && o.tocDo > 0 ? so(r.tanSo, 3) + ' kHz' : '—'}</div><div class="muted">${muc === 'ok' ? L('≤ 8 kHz ổn định', '稳定') : L('> 8 kHz', '超出稳定范围')}</div></div>
+    <div class="kpi"><div class="k">m/phút · m/min <span class="muted">(N31)</span></div><div class="big">${so(r.mPhut, 1)}</div><div class="muted">${so(r.mGio, 0)} m/H · ${so(r.ftPhut, 1)} f/m</div></div>
+    <div class="kpi"><div class="k">${L('Khe hở / lệch', '间隙/偏移')} <span class="muted">(P17, V17)</span></div><div class="big">${so(r.P17, 2)} · ${so(r.V17, 2)}</div><div class="muted">${L('chấm', '点')}</div></div></div>
+    <div class="sec">${L('Delay JA (pixel) — nhập vào máy', '延时JA（像素）— 输入机器')}${lech ? `<span class="chip bad" id="tLechSo">${lech} JA ${L('lệch', '偏差').replace(/<[^>]+>/g, '')}</span>` : tt.some((v) => v !== null) ? `<span class="chip ok" id="tLechSo">${L('Khớp', '一致').replace(/<[^>]+>/g, ' ')}</span>` : ''}</div>
+    <div style="overflow-x:auto"><table class="t tja" id="tJA"><tr><th></th><th>${L('Chưa căn', '无对齐')}</th><th>${L('Tính ra', '计算')}</th><th>${L('Nhập máy', '输入机器')}</th><th>${L('Thực tế', '实际')}</th><th>${L('Lệch', '偏差')}</th></tr>
+    ${Array.from({ length: n }, (_, i) => { const d = so2[i]; return `<tr data-ja="${i + 1}"><th>${chipPB(c, i < 4 ? 1 : 2)} JA${i + 1}</th>
+      <td class="n">${i < 4 ? r.N[i] : r.Q[i - 4]}</td><td class="n">${fmt2(r.ja[i])}</td><td class="n"><b class="may">${r.mayNhap[i]}</b></td>
+      <td class="n">${tt[i] === null ? '—' : tt[i]}</td><td class="n lech ${d === null ? '' : lechNhan(d)}" data-d="${d === null ? '' : d}">${d === null ? '' : (d > 0 ? '+' : '') + d + `<div class="muted">${(d > 0 ? '+' : '') + so(mm(d), 2)} mm</div>`}</td></tr>`; }).join('')}</table></div>
+    <div class="muted" style="margin:6px 2px 0">${L('Lệch 1 chấm = ' + so(25.4 / r.dpi, 2) + ' mm trên sản phẩm. PB2 = PB1 JA4 + 33,528 mm + lệch PB2 (' + so(o.lechPB2 || 0, 2) + ' mm).', '1点偏差 = ' + so(25.4 / r.dpi, 2) + ' mm')}</div>
+    ${r.moi ? `<div class="sec">${L('Đổi sang DPI ' + so(o.dpiMoi, 2), '新DPI ' + so(o.dpiMoi, 2))} <span class="muted">(S4)</span></div>
+      <table class="t tja" id="tMoi"><tr>${Array.from({ length: n }, (_, i) => `<th>JA${i + 1}</th>`).join('')}</tr><tr>${r.moi.ja.slice(0, n).map((v) => `<td class="n"><b>${v}</b></td>`).join('')}</tr></table>
+      <div class="muted" style="margin:6px 2px 0">${L('Tần số ở DPI mới', '新DPI频率')} (V10): <b id="tFMoi">${so(r.moi.tanSo, 3)} kHz</b></div>` : ''}
+    ${r.xungLapTrinh ? `<div class="muted" style="margin:10px 2px 0">${L('Encoder lập trình cho ' + so(o.dpiLapTrinh) + ' DPI cần', '可编程编码器需要')} (Q14): <b id="tQ14">${so(r.xungLapTrinh, 2)}</b> ${L('xung/vòng', '脉冲/转').replace(/<[^>]+>/g, ' ')}</div>` : ''}`;
+  if ($('#main details') && $('#main details').open) veBangDPI();
+}
+// Bảng tra DPI theo Divider 1–100 cho Edges 4 / 2 / 1 (cột A–K của bảng tính); tô dòng divider đang dùng
+function veBangDPI() {
+  const box = $('#tBangDPI'), o = docO(); if (!box || !(o.encoderPPR > 0 && o.duongKinh > 0)) return;
+  const d = (e, dv) => o.encoderPPR * e / dv / ((o.duongKinh / 25.4) * PI_BANG);
+  box.innerHTML = `<table class="t tja"><tr><th>Divider</th><th>Edges 4</th><th>Edges 2</th><th>Edges 1</th></tr>${Array.from({ length: 100 }, (_, i) => i + 1).map((dv) => `<tr class="${dv === o.divider ? 'on' : ''}"><th>${dv}</th>${[4, 2, 1].map((e) => `<td class="n${dv === o.divider && e === o.soCanh ? ' hl' : ''}">${so(d(e, dv), 2)}</td>`).join('')}</tr>`).join('')}</table>`;
+}
+function histTinh(x, c, moiNhat) {
+  const r = bangTinh({ encoderPPR: +x.encoderPPR, duongKinh: +x.duongKinh, soCanh: +x.soCanh, divider: +x.divider, kheHoPB1: +x.kheHoPB1 || 0, lechPB2: +x.lechPB2 || 0, daiSP: +x.daiSP || 0, tocDo: +x.tocDo || 0 });
+  const tt = dayJA(x.thucTe), lech = tt.map((v, i) => v === '' ? null : Number(v) - r.mayNhap[i]).map((d, i) => d ? 'JA' + (i + 1) + ' ' + (d > 0 ? '+' : '') + d : '').filter(Boolean);
+  const sp = spOf(x.sanPham);
+  return `<div class="card hist tinhh"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><b>${esc(String(x.lucTao).slice(0, 16))}</b>${moiNhat ? `<span class="chip ok">${T.hienTai[0]}</span>` : ''}${x._cho ? `<span class="chip warn">${T.choGui[0]}</span>` : ''}${sp ? `<span class="chip">${esc(sp.ma)}</span>` : ''}</div>
+    <div class="muted">Divider ${esc(x.divider)} · ${so(r.dpi, 2)} dpi · ${esc(x.daiSP || '—')} mm · ${esc(x.tocDo || '—')} PPm · ${so(r.tanSo, 2)} kHz</div>
+    ${tt.length ? `<div>${lech.length ? `<span style="color:var(--bad)">${L('Lệch', '偏差')}: ${esc(lech.join(', '))}</span>` : `<span style="color:var(--ok)">${L('JA thực tế khớp số tính ra', '实际JA与计算一致')}</span>`}</div>` : ''}
+    ${x.ghiChu ? `<div>${esc(x.ghiChu)}</div>` : ''}${x.ghiChuDich ? `<div class="muted">${esc(x.ghiChuDich)}</div>` : ''}
+    <div class="btns"><button class="btn sm ghost" data-act="tDungLai" data-id="${esc(x.id)}">${L('Đưa vào ô nhập', '载入')}</button>${x._cho ? '' : `<button class="btn sm bad" data-act="tDel" data-id="${esc(x.id)}">${L(T.xoaNham[0], T.xoaNham[1])}</button>`}</div></div>`;
+}
+function tDungLai(id) {
+  const x = (DL().tinhDauIn || []).find((t) => t.id === id); if (!x) return;
+  O_XANH.forEach((k) => { const e = $('#t_' + k[0]); if (e) e.value = x[k[0]] === undefined ? '' : x[k[0]]; });
+  dayJA(x.thucTe).forEach((v, i) => { const e = $('#t_tt' + i); if (e) e.value = v; });
+  veTinh(); window.scrollTo(0, 0);
+}
+async function tSave(cv) {
+  const c = cvOf(cv), o = docO();
+  if (!(o.encoderPPR > 0 && o.duongKinh > 0 && o.divider > 0)) { toast(L('Nhập đủ Encoder resolution, Roller, Divider', '请填写编码器、辊径、分频'), true); return; }
+  const ttJA = Array.from({ length: c.soMau * 4 }, (_, i) => $('#t_tt' + i).value.trim());
+  while (ttJA.length && ttJA[ttJA.length - 1] === '') ttJA.pop();
+  if (ttJA.some((v) => v === '')) { toast(L('JA thực tế: không bỏ trống ô ở giữa', '实际JA中间不能留空'), true); return; }
+  const r = bangTinh(o), p = { chuyen: cv, sanPham: dangChay(cv) || '', ghiChu: $('#t_ghiChu').value.trim(), thucTe: ttJA.join('/'),
+    tinhRa: r.ja.slice(0, c.soMau * 4).map((v) => Math.round(v * 100) / 100).join('/') };
+  O_XANH.forEach((k) => { p[k[0]] = o[k[0]] === '' ? '' : String(o[k[0]]); });
+  $('#tSave').disabled = true;
+  const kq = await ghi('calcSave', p, 'Bảng tính ' + tenChuyen(c), (op) => APDUNG.calcSave(op, p));
+  if (!kq.ok) { $('#tSave').disabled = false; return; }
+  if (!kq.queued) tt('daLuu');
+  render();
+}
+async function tDel(id) {
+  if (!confirmXoa()) return;
+  const r = await ghi('calcDelete', { id }, 'Xoá bảng tính ' + id, (op) => APDUNG.calcDelete(op, { id }));
+  if (r.ok) { if (!r.queued) tt('daXoa'); render(); }
 }
 
 // ============ Thông số máy: chuyền → sản phẩm → thông số (theo màn hình bộ điều khiển Merlin D CE) ============
@@ -949,17 +1059,16 @@ const spCuaChuyen = (cv) => (DL().chuyenSP || []).filter((l) => l.chuyen === cv)
 const chuyenCuaSP = (sp) => (DL().chuyenSP || []).filter((l) => l.sanPham === sp).map((l) => cvOf(l.chuyen)).filter(Boolean);
 const soTs = (v) => (v === '' || v === undefined || v === null) ? '' : (isFinite(Number(v)) && String(v).trim() !== '' ? so(Number(v), 3) : String(v));
 const dayJA = (v) => String(v || '').split('/').map((x) => x.trim()).filter((x, i, a) => a.slice(i).some((y) => y !== ''));
-const coBo = () => DL().cauHinh[0] || {};
 const daiSPmm = (sp) => Number((spOf(sp) || {}).daiSP) || 0;
-// DPI để tính tần số: lấy Encoder DPI đã ghi; chưa ghi thì tính từ divider theo encoder/trục ở bộ thông số đầu tiên màn Tính toán
+// DPI để tính tần số: lấy Encoder DPI đã ghi; chưa ghi thì tính từ divider theo encoder/trục lưu ở bảng tính của đầu in này (màn Tính toán)
 function dpiTs(t) {
   if (Number(t.encDPI) > 0) return Number(t.encDPI);
-  const b = coBo(), dv = Number(t.divider);
-  return dv > 0 && b.encoderPPR > 0 && b.duongKinh > 0 ? b.encoderPPR * (b.soCanh || 1) / dv / (b.duongKinh / 25.4 * Math.PI) : 0;
+  const b = coBo(t.chuyen), dv = Number(t.divider);
+  return dv > 0 && b.encoderPPR > 0 && b.duongKinh > 0 ? b.encoderPPR * (b.soCanh || 1) / dv / (b.duongKinh / 25.4 * PI_BANG) : 0;
 }
 function tanSoTs(t) { const f = daiSPmm(t.sanPham) / 25.4 * dpiTs(t) * Number(t.tocDo) / 60; return isFinite(f) && f > 0 ? f : 0; }
 function chipKhz(t) {
-  const f = t ? tanSoTs(t) : 0, lim = (coBo().gioiHan || 8) * 1000; if (!f) return '';
+  const f = t ? tanSoTs(t) : 0, lim = 8000; if (!f) return '';
   return `<span class="chip ${f <= lim ? 'ok' : f <= 20000 ? 'warn' : 'bad'}" data-khz="${(f / 1000).toFixed(1)}">${so(f / 1000, 1)} kHz${f > lim ? ' > ' + so(lim / 1000) : ''}</span>`;
 }
 const chipPB = (c, m) => `<span class="chip pb${m}${c.soMau === 1 ? ' pb0' : ''}">${esc(tenPB(c, m))}</span>`;
@@ -1191,13 +1300,14 @@ function tsSoat() {
   $('#f_diff').innerHTML = TS_GOC ? (dois.length ? `<b>${L('Sẽ thay đổi', '将变更')} (${dois.length}):</b><ul class="doi">${dois.map((d) => `<li>${esc(d)}</li>`).join('')}</ul>` : `<span class="muted">${L('Chưa sửa ô nào', '尚未修改')}</span>`)
     : `<span class="muted">${L('Lần ghi đầu tiên cho chuyền + sản phẩm này', '本线此产品首次记录')}</span>`;
   const kq = $('#f_kq'), t = Object.assign({}, x, { sanPham: sp });
-  if (kq) { const tinhDpi = dpiTs({ divider: x.divider }); kq.innerHTML = `${tinhDpi ? L('Theo encoder ' + so(coBo().encoderPPR || 0) + ' xung, trục ' + so(coBo().duongKinh || 0) + ' mm: ' + so(tinhDpi, 2) + ' dpi', '按编码器计算') : ''} ${chipKhz(t)}`; }
+  if (kq) { const b = coBo(cv), tinhDpi = dpiTs({ divider: x.divider, chuyen: cv }); kq.innerHTML = `${tinhDpi ? L('Theo bảng tính đầu in: encoder ' + so(b.encoderPPR) + ' xung, trục ' + so(b.duongKinh) + ' mm → ' + so(tinhDpi, 2) + ' dpi', '按喷头计算表') : ''} ${chipKhz(t)}`; }
 }
 function tsAlign() {
-  const nut = $('#tsSave'), c = cvOf(nut.dataset.cv), dv = Number(chuanSo($('#f_divider').value)), b = coBo();
+  // Cùng công thức với bảng tính Encoder/Delay/Alignment (màn Tính toán), dùng encoder/trục/khe hở đã lưu cho đầu in này
+  const nut = $('#tsSave'), c = cvOf(nut.dataset.cv), dv = Number(chuanSo($('#f_divider').value)), b = coBo(c.id);
   if (!(dv > 0)) { toast(L('Nhập Divider trước', '请先输入分频'), true); return; }
-  const r = tinh(Object.assign({}, b, { divider: dv, daiSP: daiSPmm(nut.dataset.sp) || b.daiSP }));
-  for (let i = 0; i < c.soMau * 4; i++) $(`#f_align_${i}`).value = r.delay[i].d;
+  const r = bangTinh(Object.assign({}, b, { divider: dv, daiSP: daiSPmm(nut.dataset.sp) }));
+  for (let i = 0; i < c.soMau * 4; i++) $(`#f_align_${i}`).value = r.mayNhap[i];
   tsSoat();
 }
 async function tsSave(cv, sp) {
@@ -1709,7 +1819,8 @@ const ACT = {
   plcDich: (b) => plcDich(b.dataset.k), plcMo: (b) => { const h = keyHit(b.dataset.k); plcMo(h.cv, h.si, h.ri, h.ci); },
   plcTrang: (b) => plcMo(b.dataset.cv, Number(b.dataset.si), Number(b.dataset.ri), -1), plcThuLai: () => { PLC.loi = {}; plcNap(); },
   tsCompare, lines: linesForm, lineEdit: (b) => lineEdit(b.dataset.id), lineSave: (b) => lineSave(b.dataset.id), lineOff: (b) => lineSave(b.dataset.id, true),
-  cfgSave: () => cfgSave(false), cfgSaveNew: () => cfgSave(true),
+  tcvChon: (b) => { S.tcv = b.dataset.cv; try { localStorage.setItem('gctl_tcv', S.tcv); } catch (e) { /* bỏ qua */ } render(); },
+  tSave: (b) => tSave(b.dataset.cv), tDel: (b) => tDel(b.dataset.id), tDungLai: (b) => tDungLai(b.dataset.id),
   qSend: () => { S.Q.forEach((q) => { q.err = ''; }); guiHangCho(true).then(render); },
   qDrop: async (b) => { if (!window.confirm('Bỏ việc chờ gửi này? · 删除此待发送项？')) return; S.Q.splice(Number(b.dataset.i), 1); await saveQ(); await refresh(); render(); },
   export: xuatExcel, groups: groupsForm, audit: auditView, pinChange: pinForm,

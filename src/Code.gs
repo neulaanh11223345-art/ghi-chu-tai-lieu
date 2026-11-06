@@ -15,7 +15,7 @@
  * App chỉ có MỘT người dùng (chủ app), nên không chia vai trò. Mọi thao tác trừ ping/đăng nhập vẫn phải có
  * token hợp lệ: link /exec là công khai, không kiểm token thì ai biết link cũng đọc được tài liệu.
  */
-var PHIEN_BAN = '1.4.0';
+var PHIEN_BAN = '1.5.0';
 var TZ = 'Asia/Ho_Chi_Minh';
 var HAN_PHIEN_NGAY = 30;            // đăng nhập giữ 30 ngày
 var TEP_TOI_DA = 25 * 1024 * 1024;  // 25 MB/tệp: Apps Script nhận tối đa ~50 MB mỗi lần gửi, base64 làm to thêm 1/3
@@ -63,17 +63,22 @@ var BANG = {
   ChuyenPLC: ['ID', 'Ma', 'GhiChu', 'ThuTu', 'HoatDong', 'CapNhat', 'OpId'],
   // Ghi chú của người dùng cho một địa chỉ PLC của một chuyền (thêm địa chỉ mới, hoặc ghi lại đã sửa gì).
   // KHÔNG sửa dòng cũ: mỗi lần lưu một dòng mới → dòng mới nhất là ghi chú hiện tại, các dòng trước là lịch sử.
-  GhiChuPLC: ['ID', 'Chuyen', 'DiaChi', 'NoiDung', 'NoiDungDich', 'LucTao', 'OpId', 'Xoa', 'DichTay']
+  GhiChuPLC: ['ID', 'Chuyen', 'DiaChi', 'NoiDung', 'NoiDungDich', 'LucTao', 'OpId', 'Xoa', 'DichTay'],
+  // Bảng tính Encoder / Delay / Alignment của nhà cung cấp, lưu theo từng đầu in (chuyền máy in), có lịch sử:
+  // mỗi lần lưu một dòng mới. Các cột số là đúng các ô xanh của bảng tính. ThucTe = JA1–8 đang đặt trên máy,
+  // TinhRa = JA1–8 bảng tính ra lúc lưu (giữ lại để sau này đối chiếu dù công thức có đổi).
+  TinhDauIn: ['ID', 'Chuyen', 'SanPham', 'EncoderPPR', 'DuongKinh', 'SoCanh', 'Divider', 'KheHoPB1', 'LechPB2', 'DaiSP', 'TocDo',
+    'DpiMoi', 'DpiLapTrinh', 'ThucTe', 'TinhRa', 'GhiChu', 'GhiChuDich', 'LucTao', 'OpId', 'Xoa', 'DichTay']
 };
 // Cột lưu dạng số (còn lại để dạng chữ "@" — tránh Sheets tự đổi "1-2" thành ngày, "007" thành 7)
 var COT_SO = {
   NguoiDung: ['HoatDong'], GhiChu: ['Xoa'], NhomTL: ['ThuTu', 'HoatDong'], TaiLieu: ['KichThuoc', 'PhienBan', 'HienHanh', 'Xoa'],
   DayDien: ['Trang', 'Xoa'], CauHinhMay: ['EncoderPPR', 'DuongKinh', 'SoCanh', 'Divider', 'DaiSP', 'TocDo', 'KhoangJA', 'KhoangPB', 'BuPB', 'GioiHan', 'Xoa'],
-  NhatKy: [], Chuyen: ['SoMau', 'ThuTu', 'HoatDong'], SanPham: ['HoatDong'], ChuyenSP: ['HoatDong'], ChaySP: ['Xoa'], ThongSo: ['SoMau', 'Xoa'], BangMay: ['Xoa'], ChuyenPLC: ['ThuTu', 'HoatDong'], GhiChuPLC: ['Xoa']
+  NhatKy: [], Chuyen: ['SoMau', 'ThuTu', 'HoatDong'], SanPham: ['HoatDong'], ChuyenSP: ['HoatDong'], ChaySP: ['Xoa'], ThongSo: ['SoMau', 'Xoa'], BangMay: ['Xoa'], ChuyenPLC: ['ThuTu', 'HoatDong'], GhiChuPLC: ['Xoa'], TinhDauIn: ['Xoa']
 };
 var COT_DD = { CauHinhMay: { DuongKinh: '0.###', KhoangJA: '0.####', KhoangPB: '0.####', BuPB: '0.###', GioiHan: '0.##', DaiSP: '0.##' } };
 var HANH_DONG_GHI = ['changePin', 'noteSave', 'noteDelete', 'groupSave', 'docUpload', 'docLink', 'docSave', 'docCurrent', 'docDelete',
-  'wireSave', 'wireImport', 'wireDelete', 'cfgSave', 'cfgDelete', 'lineSave', 'productSave', 'lineProduct', 'runSet', 'paramSave', 'paramDelete', 'plcUpload', 'plcDelete', 'plcLineSave', 'plcNoteSave', 'plcNoteDelete'];
+  'wireSave', 'wireImport', 'wireDelete', 'cfgSave', 'cfgDelete', 'lineSave', 'productSave', 'lineProduct', 'runSet', 'paramSave', 'paramDelete', 'plcUpload', 'plcDelete', 'plcLineSave', 'plcNoteSave', 'plcNoteDelete', 'calcSave', 'calcDelete'];
 var KIEU_TL = ['FILE', 'LINK'];
 var NHOM_MAU = [['Sổ tay thiết bị', '设备手册'], ['Bản vẽ điện', '电气图纸'], ['Quy trình', '操作规程'], ['Khác', '其他']];
 // Thông số máy in hiện tại (đầu in Galaxy 80 HM, bộ điều khiển Merlin D CE). Khoảng cách JA/PB lấy theo bảng tính của nhà cung cấp.
@@ -159,6 +164,8 @@ function dieuHuong(a, p, req) {
     case 'plcLineSave': return luuChuyenPLC(p, op);
     case 'plcNoteSave': return luuGhiChuPLC(p, op);
     case 'plcNoteDelete': return xoaGhiChuPLC(p);
+    case 'calcSave': return luuTinhDauIn(p, op);
+    case 'calcDelete': return xoaTinhDauIn(p);
     case 'translate': return dichMotDong(p);
   }
   throw loi('KHONG_HIEU', 'Máy chủ chưa hiểu yêu cầu này · 服务器无法识别: ' + a);
@@ -374,7 +381,7 @@ function apDich(x, cu, p, truong, truongDich, dichTay) {
 
 // ===================== Dữ liệu tổng =====================
 function layDuLieu() {
-  ['GhiChu', 'NhomTL', 'TaiLieu', 'DayDien', 'CauHinhMay', 'NhatKy', 'Chuyen', 'SanPham', 'ChuyenSP', 'ChaySP', 'ThongSo', 'BangMay', 'ChuyenPLC', 'GhiChuPLC'].forEach(trang);
+  ['GhiChu', 'NhomTL', 'TaiLieu', 'DayDien', 'CauHinhMay', 'NhatKy', 'Chuyen', 'SanPham', 'ChuyenSP', 'ChaySP', 'ThongSo', 'BangMay', 'ChuyenPLC', 'GhiChuPLC', 'TinhDauIn'].forEach(trang);
   var chuyenPLC = docBang('ChuyenPLC');
   if (!chuyenPLC.length) chuyenPLC = taoChuyenPLC();
   chuyenPLC = doiBangMayCu(chuyenPLC);
@@ -397,6 +404,7 @@ function layDuLieu() {
     chaySP: docBang('ChaySP').filter(function (x) { return !x.xoa; }).map(congKhai),
     thongSo: docBang('ThongSo').filter(function (x) { return !x.xoa; }).map(sachTS),
     bangMay: docBang('BangMay').filter(function (x) { return !x.xoa; }).map(congKhai),
+    tinhDauIn: docBang('TinhDauIn').filter(function (x) { return !x.xoa; }).map(sachGCP),
     ghiChuPLC: docBang('GhiChuPLC').filter(function (x) { return !x.xoa; }).map(sachGCP),
     chuyenPLC: chuyenPLC.filter(function (x) { return x.hoatDong; }).map(sachCPLC).sort(function (a, b) { return a.thuTu - b.thuTu; })
   };
@@ -906,6 +914,47 @@ function xoaThongSo(p) {
   x.xoa = 1;
   suaDong('ThongSo', x._r, thanhDong('ThongSo', x));
   ghiNhatKy('xoa', 'ThongSo', x.id, truoc, null);
+  return { id: x.id };
+}
+
+// ===================== Bảng tính Encoder / Delay / Alignment theo đầu in =====================
+// Ô xanh của bảng tính nhà cung cấp: [khoá, nhỏ nhất, lớn nhất, tên báo lỗi, bắt buộc]
+var TINH_O = [['encoderPPR', 1, 1000000, 'Encoder resolution', 1], ['duongKinh', 1, 2000, 'Roller Encoder mm', 1], ['divider', 1, 1000, 'Divider', 1],
+  ['kheHoPB1', -100, 100, 'PB1 Alignment Gap/Overlap mm', 0], ['lechPB2', -100, 100, 'PB2 offset mm', 0], ['daiSP', 1, 10000, 'PAD size mm', 0],
+  ['tocDo', 0, 100000, 'PPm', 0], ['dpiMoi', 0, 100000, 'New DPI', 0], ['dpiLapTrinh', 0, 100000, 'Programmable encoder DPI', 0]];
+function luuTinhDauIn(p, op) {
+  var ds = docBang('TinhDauIn');
+  if (op) { var t = ds.filter(function (x) { return x.opId === op; })[0]; if (t) return { dup: true, tinhDauIn: sachGCP(t) }; }
+  var cv = timChuyen(p.chuyen), nJA = cv.soMau * 4;
+  var x = { id: op ? maTuOp('TD', op) : idMoi('TD', dsIdCo(ds)), chuyen: cv.id, sanPham: '', ghiChu: catNhieuDong(p.ghiChu, 500) };
+  if (s(p.sanPham)) x.sanPham = timSP(p.sanPham).id;
+  TINH_O.forEach(function (k) {
+    x[k[0]] = soTS(p[k[0]], k);
+    if (k[4] && x[k[0]] === '') throw loi('TRONG', 'Nhập ' + k[3] + ' · 请输入 ' + k[3]);
+  });
+  var canh = Number(p.soCanh);
+  if (canh !== 1 && canh !== 2 && canh !== 4) throw loi('SO', 'Edges chỉ là 1, 2 hoặc 4 · 解码边沿只能为1、2或4');
+  x.soCanh = String(canh);
+  // Máy 1 màu chỉ có JA1–4, máy 2 màu JA1–8. Delay PB2 của bảng tính có thể lẻ (cộng độ lệch PB2 không làm tròn) nên nhận số thập phân.
+  x.thucTe = dayTS(p.thucTe, nJA, true, ['thucTe', 0, 1000000, 'JA thực tế (pixel)']);
+  x.tinhRa = dayTS(p.tinhRa, nJA, false, ['tinhRa', -1000000, 1000000, 'JA tính ra']);
+  var dichTay = {};
+  apDich(x, null, p, 'ghiChu', 'ghiChuDich', dichTay);
+  x.dichTay = Object.keys(dichTay).length ? JSON.stringify(dichTay) : '';
+  x.lucTao = thoiGianStr(); x.opId = op || ''; x.xoa = 0;
+  themNhieu('TinhDauIn', [thanhDong('TinhDauIn', x)]);
+  var sau = sachGCP(x);
+  ghiNhatKy('tao', 'TinhDauIn', x.id, null, sau);
+  return { tinhDauIn: sau };
+}
+function xoaTinhDauIn(p) {
+  var ds = docBang('TinhDauIn'), x = ds.filter(function (t) { return t.id === s(p.id); })[0];
+  if (!x) throw loi('KHONG_THAY', 'Không thấy lần lưu · 找不到记录');
+  if (x.xoa) return { id: x.id, dup: true };
+  var truoc = sachGCP(x);
+  x.xoa = 1;
+  suaDong('TinhDauIn', x._r, thanhDong('TinhDauIn', x));
+  ghiNhatKy('xoa', 'TinhDauIn', x.id, truoc, null);
   return { id: x.id };
 }
 
