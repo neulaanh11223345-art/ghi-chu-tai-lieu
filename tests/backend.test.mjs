@@ -516,3 +516,35 @@ test('ghi chú địa chỉ PLC: chặn rỗng, chuyền không có; xoá lần 
   err(b.call('plcNoteDelete', { id: 'GPKHONG' }, b.tk), 'KHONG_THAY');
   for (const a of ['plcNoteSave', 'plcNoteDelete']) err(b.call(a, {}, 'gia.mao'), 'HET_PHIEN');
 });
+
+// ===== v1.5.0: bảng tính Encoder/Delay/Alignment lưu theo đầu in, có lịch sử =====
+const TINH1 = { encoderPPR: '2500', duongKinh: '120', soCanh: 4, divider: '49', kheHoPB1: '0', lechPB2: '1,8', daiSP: '190', tocDo: '850', dpiMoi: '74.86', dpiLapTrinh: '1200' };
+test('bảng tính đầu in: lưu đúng các ô xanh, mỗi lần lưu một dòng mới (lịch sử), máy 2 màu nhận JA1–8, opId không trùng', () => {
+  const b = setup('demo');
+  const x = ok(b.call('calcSave', Object.assign({ chuyen: 'CV23', sanPham: 'SPTEST05', thucTe: '0/15/30/45/64/79/94/109', tinhRa: '0/15/30/45/63.97/78.97/93.97/108.97', ghiChu: 'Thông số ban đầu' }, TINH1), b.tk, 'op-t1')).tinhDauIn;
+  assert.equal(x.id, 'TDOPT1'); assert.equal(x.lechPB2, '1.8'); assert.equal(x.soCanh, '4'); assert.equal(x.divider, '49');
+  assert.equal(x.thucTe.split('/').length, 8); assert.equal(x.tinhRa.split('/')[4], '63.97'); assert.equal(x.ghiChuDich, '初始参数');
+  assert.equal(ok(b.call('calcSave', Object.assign({ chuyen: 'CV23' }, TINH1), b.tk, 'op-t1')).dup, true);
+  ok(b.call('calcSave', Object.assign({ chuyen: 'CV23' }, TINH1, { divider: '12' }), b.tk));
+  const ds = ok(b.call('data', {}, b.tk)).tinhDauIn.filter((t) => t.chuyen === 'CV23');
+  assert.deepEqual(ds.map((t) => t.divider), ['49', '12']);
+  assert.equal(ds[1].dpiMoi, '74.86'); assert.equal(ds[1].kheHoPB1, '0');
+});
+
+test('bảng tính đầu in: máy 1 màu chỉ JA1–4; chặn ô bắt buộc trống, số sai, edges lạ, chuyền/SP không có; xoá chỉ đánh dấu; cần đăng nhập', () => {
+  const b = setup('demo');
+  const p = (o) => Object.assign({ chuyen: 'CV01' }, TINH1, o);
+  err(b.call('calcSave', p({ thucTe: '1/2/3/4/5' }), b.tk), 'SO');
+  err(b.call('calcSave', p({ divider: '' }), b.tk), 'TRONG');
+  err(b.call('calcSave', p({ duongKinh: 'abc' }), b.tk), 'SO');
+  err(b.call('calcSave', p({ soCanh: 3 }), b.tk), 'SO');
+  err(b.call('calcSave', p({ thucTe: '0/15.5' }), b.tk), 'SO');
+  err(b.call('calcSave', p({ chuyen: 'PL06' }), b.tk), 'KHONG_THAY');
+  err(b.call('calcSave', p({ sanPham: 'SPKHONG' }), b.tk), 'KHONG_THAY');
+  const x = ok(b.call('calcSave', p({ thucTe: '0/15/30/45' }), b.tk)).tinhDauIn;
+  ok(b.call('calcDelete', { id: x.id }, b.tk));
+  assert.ok(!ok(b.call('data', {}, b.tk)).tinhDauIn.some((t) => t.id === x.id));
+  assert.ok(rawRows(b, 'TinhDauIn').some((r) => r[0] === x.id));
+  assert.deepEqual(ok(b.call('audit', { bang: 'TinhDauIn', khoa: x.id }, b.tk)).nhatKy.map((n) => n.hanhDong), ['xoa', 'tao']);
+  for (const a of ['calcSave', 'calcDelete']) err(b.call(a, {}, 'gia.mao'), 'HET_PHIEN');
+});
