@@ -26,9 +26,11 @@ const wait = (ms) => page.waitForTimeout(ms || 400);
 const text = (sel) => page.textContent(sel);
 let step = 0;
 const ok = (msg) => console.log(`✓ ${++step}. ${msg}`);
-// Thông số / Tính toán / Tra dây nằm trong tab "Máy in" (màn con chọn ở thanh trên)
+// Thông số / Tính toán / Tra dây nằm trong tab "Máy in" (màn con chọn ở thanh trên).
+// v1.6: thanh dưới = Trang chủ · Ghi chú · Tìm (nút giữa) · Máy in · Thêm; Tài liệu và Chương trình mở từ "Thêm"
 const tab = async (v) => {
   if (['may', 'tinh', 'day'].includes(v)) { await page.click('.tabs .tab[data-v="mayin"]'); await wait(); await page.click(`.seg button[data-v="${v}"]`); }
+  else if (['tl', 'ct'].includes(v)) { await page.click('.tabs .tab[data-v="them"]'); await wait(); await page.click(`#main .row[data-act="goV"][data-v="${v}"]`); }
   else await page.click(`.tabs .tab[data-v="${v}"]`);
   await wait();
 };
@@ -51,7 +53,37 @@ try {
   assert.match(await text('.toast'), /默认PIN/);
   ok('Đăng nhập PIN; sai PIN báo lỗi; PIN mặc định được nhắc đổi');
 
+  // 1b. v1.6 Trang chủ: lời chào, 6 ô tổng quan (bấm vào mở thẳng từng phần), thanh dưới có nút Tìm ở giữa, nút Cập nhật
+  assert.match(await text('header.bar h1'), /Trang chủ/);
+  assert.match(await text('header.bar h1'), /首页/);
+  assert.match(await text('#netInfo'), /Đã đồng bộ/);
+  assert.equal(await page.locator('#main .mtile').count(), 6);
+  for (const v of ['gc', 'tl', 'may', 'tinh', 'day', 'ct']) assert.equal(await page.locator(`#main .mtile[data-v="${v}"]`).count(), 1, 'thiếu ô ' + v);
+  assert.match(await text('.mtile[data-v="day"]'), /3\s*mạch/);
+  assert.match(await text('.mtile[data-v="day"]'), /1 chỗ cần kiểm tra/);
+  assert.match(await text('.mtile[data-v="ct"]'), /\/16/);
+  assert.match(await text('#main .hello'), /Chủ app/);
+  assert.equal((await text('#caiBtn')).trim(), 'C');
+  assert.deepEqual(await page.locator('.tabs .tab').evaluateAll((a) => a.map((x) => x.dataset.v)), ['home', 'gc', 'tim', 'mayin', 'them']);
+  assert.equal(await page.locator('.tabs .tab.sc[data-v="tim"]').count(), 1, 'nút Tìm ở giữa');
+  assert.equal(await page.locator('.tabs .bdg:visible').count(), 0, 'không có việc chờ thì không hiện số');
+  await shot('01b-trang-chu');
+  await page.click('.mtile[data-v="day"]');
+  await wait();
+  assert.equal(await page.locator('.seg button.on[data-v="day"]').count(), 1);
+  await page.click('.tabs .tab[data-v="home"]');
+  await wait();
+  await page.click('#capNhatBtn');
+  await page.waitForSelector('.toast:has-text("Đã cập nhật")', { timeout: 5000 });
+  assert.match(await text('.toast'), /Đã cập nhật dữ liệu mới nhất/);
+  assert.match(await text('.toast'), /已更新/);
+  await wait(300);
+  assert.match(await text('#lanCuoi'), /Cập nhật lúc/);
+  assert.equal(await page.locator('#capNhatBtn[disabled]').count(), 0, 'xong thì nút bấm lại được');
+  ok('Trang chủ kiểu app bảo dưỡng: ô tổng quan, thanh dưới 5 nút, nút Cập nhật tải lại dữ liệu');
+
   // 2. Trang Tìm: gõ không dấu ra cả ghi chú, tài liệu, dây
+  await tab('tim');
   await page.fill('#q', 'nguon 24');
   await wait(500);
   assert.equal(await page.locator('#main .row.wire').count(), 1);
@@ -140,6 +172,15 @@ try {
   await page.fill('#nBody', 'Viết khi mất mạng — đã sửa');
   await page.click('#nSave');
   await wait(600);
+  assert.match(await text('#qBtn'), /2 chờ gửi/);
+  // v1.6: số việc chờ hiện trên nút Trang chủ; bấm Cập nhật lúc mất mạng thì báo lỗi, việc chờ vẫn giữ nguyên
+  assert.equal((await text('.tabs .tab[data-v="home"] .bdg')).trim(), '2');
+  await page.click('.tabs .tab[data-v="home"]');
+  await wait();
+  assert.match(await text('#main .alert'), /2 việc đang chờ gửi/);
+  await page.click('#capNhatBtn');
+  await page.waitForSelector('.toast.bad', { timeout: 5000 });
+  assert.match(await text('.toast.bad'), /Không kết nối được máy chủ/);
   assert.match(await text('#qBtn'), /2 chờ gửi/);
   await page.click('#caiBtn');
   await wait();
@@ -291,6 +332,108 @@ try {
   const [dlTpl] = await Promise.all([page.waitForEvent('download'), page.click('[data-act="wireTpl"]')]);
   assert.match(dlTpl.suggestedFilename(), /\.xlsx$/);
   ok('Tải file mẫu nhập dây');
+
+  // 14b. v1.6 Tra theo mạch: gõ hàng kẹp ra cả mạch (điểm khớp tô vàng), lọc theo điện áp, gõ số dòng ra tờ nào
+  await page.fill('#wq', 'TB23');
+  await wait(500);
+  assert.equal(await page.locator('#main .card.mach').count(), 1);
+  const m1 = page.locator('#main .card.mach').first();
+  assert.match(await m1.textContent(), /TEST-PSC JK/);
+  assert.match(await m1.textContent(), /TEST-F2 10 A/);
+  assert.match(await m1.locator('.st.hit').textContent(), /TB23/);
+  assert.match(await m1.locator('.path.ve').textContent(), /TB27/);
+  assert.match(await m1.textContent(), /Dây về/);
+  await shot('07b-tra-mach');
+  await page.fill('#wq', '');
+  await wait(400);
+  assert.equal(await page.locator('#bangNguon tr[data-act="machView"]').count(), 3);
+  await page.click('.chips.ap button[data-ap="48 V"]');
+  await wait();
+  assert.equal(await page.locator('#bangNguon tr[data-act="machView"]').count(), 1);
+  await page.click('.chips.ap button[data-ap=""]');
+  await wait();
+  await page.click('#bangNguon tr[data-act="machView"]:has-text("TEST-PSB H")');
+  await wait();
+  assert.match(await text('#ov'), /TEST-J53 chân 1/);
+  assert.match(await text('#ov .canlo'), /bản vẽ ghi lẫn/);
+  await page.click('#ov [data-act="machOpenDoc"]');
+  await page.waitForSelector('#viewer #vFrame');
+  await page.click('#viewer [data-act="viewClose"]');
+  await page.click('#ov [data-act="close"]');
+  await page.fill('#wq', '261');
+  await wait(500);
+  assert.match(await text('#dtKq'), /Dòng 261 nằm ở tờ 8/);
+  assert.match(await text('#dtKq'), /第261行在第8页/);
+  await page.click('#dtKq [data-act="dtOpen"]');
+  await page.waitForSelector('#viewer #vFrame');
+  await page.click('#viewer [data-act="viewClose"]');
+  await page.fill('#wq', '367');
+  await wait(500);
+  assert.match(await text('#main'), /TEST-PSC JK/, 'mạch có điểm đến "→ dòng 367"');
+  ok('Tra theo mạch: hàng kẹp → cả đường đi + dây về; lọc điện áp; số dòng → tờ, mở bản vẽ');
+
+  // 14c. Thêm mạch tay, ghi chú điện áp đo cho mạch (ghi chú thường, mã máy = tên mạch)
+  await page.fill('#wq', '');
+  await wait(400);
+  await page.click('[data-act="machNew"]');
+  await wait();
+  await page.click('#mSave');
+  await wait();
+  assert.match(await text('.toast'), /tên mạch/);
+  await page.fill('#m_ten', 'TEST-PSE Q');
+  await page.fill('#m_capCho', 'Gia nhiệt 2');
+  await page.fill('#m_dienAp', '48 VDC');
+  await page.fill('#m_nguon', 'TEST-PSE đầu ra Q-R');
+  await page.fill('#m_cauChi', 'TEST-F5 10 A');
+  await page.fill('#m_kepDuong', 'TB26');
+  await page.fill('#m_den', 'TEST-J60 chân 1');
+  await page.fill('#m_kepAm', 'TB30');
+  await page.fill('#m_banVe', 'TEST-BV01');
+  await page.click('#mSave');
+  await wait(700);
+  await page.fill('#wq', 'TB30');
+  await wait(500);
+  const m2 = page.locator('#main .card.mach', { hasText: 'TEST-PSE Q' });
+  assert.match(await m2.textContent(), /加热 2/, '"cấp cho" tự dịch');
+  await m2.locator('[data-act="machNote"]').click();
+  await wait();
+  assert.equal(await page.inputValue('#nMay'), 'TEST-PSE Q');
+  assert.match(await page.inputValue('#nTitle'), /Đo TEST-PSE Q/);
+  await page.fill('#nBody', 'Đo giữa TB26 và TB30: 47,8 V');
+  await page.click('#nSave');
+  await wait(700);
+  await tab('day');
+  await page.fill('#wq', 'TB30');
+  await wait(500);
+  assert.equal(await page.locator('#main .card.mach', { hasText: 'TEST-PSE Q' }).locator('[data-act="noteView"]').count(), 1, 'ghi chú hiện dưới mạch');
+  await page.fill('#wq', '');
+  await wait(400);
+  ok('Thêm mạch tay, tự dịch; ghi chú điện áp đo gắn với mạch');
+
+  // 14d. Nhập một file 3 trang: Dây điện + Mạch + Dòng → Tờ; trang khác bị bỏ qua; dòng lỗi báo đúng trang
+  await page.click('[data-act="wireImport"]');
+  await wait();
+  await page.setInputFiles('#wImport', join(ROOT, 'tests/fixtures/TEST-nguon.xlsx'));
+  await page.waitForSelector('#wImpOk', { timeout: 8000 });
+  assert.match(await text('#wImpOk'), /Thêm 1 · Cập nhật 0 · Lỗi 1/);
+  assert.match(await text('#wImpMach'), /Mạch: thêm 1 · cập nhật 1/);
+  assert.match(await text('#wImpDong'), /Dòng → Tờ: thêm 1 · cập nhật 0/);
+  assert.match(await text('#wImpOk'), /Bỏ qua trang跳过工作表: Cách đọc/);
+  assert.match(await text('#wImpOk'), /Dòng → Tờ · 行号→图页 — Dòng · 行 3/);
+  await page.click('#ov [data-act="close"]');
+  await page.fill('#wq', '290');
+  await wait(500);
+  assert.match(await text('#dtKq'), /tờ 9/);
+  await page.fill('#wq', 'TB17');
+  await wait(500);
+  assert.match(await text('#main .card.mach'), /TEST-PSD I/);
+  assert.match(await text('#main .row.wire'), /TEST-801/);
+  assert.match(await text('#main .row.wire'), /15 V/);
+  await page.fill('#wq', 'TB23');
+  await wait(500);
+  assert.match(await text('#main .card.mach'), /TEST-F2 8 A/, 'mạch trùng tên được cập nhật');
+  await page.fill('#wq', '');
+  ok('Nhập file Excel 3 trang (dây, mạch, dòng → tờ) một lần');
 
   // 15. Tính toán = bảng tính Encoder/Delay/Alignment của nhà cung cấp: nhập đúng các ô xanh của file mẫu,
   //     mọi số phải trùng với số Excel tính ra trong file (DPI 13,75; JA PB2 lẻ 63,97…; DPI mới 74,86 → 348…)
@@ -454,8 +597,9 @@ try {
   ok('Tab Máy in gom Thông số, Tính toán, Tra dây');
 
   // 20b. Chương trình: 16 chuyền PLC riêng (khác 9 chuyền máy in); chọn chuyền rồi gõ địa chỉ → ra ngay chú thích
-  await page.click('.tabs .tab[data-v="ct"]');
-  await wait();
+  await tab('ct');
+  assert.match(await text('header.bar h1'), /Chương trình/);
+  assert.equal(await page.locator('.tabs .tab.on[data-v="them"]').count(), 1);
   assert.equal(await page.locator('.chips.plcl button').count(), 16);
   assert.match(await page.locator('.chips.plcl').textContent(), /01.*02.*03.*04.*09.*10.*15.*21.*23.*06.*08.*12.*17.*18.*16.*13/);
   assert.equal(await page.locator('#psheet').count(), 0, 'không còn ô chọn sheet');
@@ -565,7 +709,7 @@ try {
   const [dlx] = await Promise.all([page.waitForEvent('download'), page.click('[data-act="export"]')]);
   const buf = readFileSync(await dlx.path()).toString('utf8');
   assert.match(dlx.suggestedFilename(), /^Ghi-chu-Tai-lieu_\d{4}-\d{2}-\d{2}\.xlsx$/);
-  for (const h of ['Tiêu đề · 标题', 'Tên · 名称', 'Số dây · 线号', 'TEST-201', '高速运行时喷印模糊', 'Thông số hiện tại · 当前参数', 'Fire Pulses', 'Fire Pulses JA8 (V)', 'Head Alignments JA1 (px)', 'TEST-SP09', 'Sản phẩm · 产品']) assert.ok(buf.includes(h), 'Excel thiếu ' + h);
+  for (const h of ['Mạch · 回路', 'TEST-PSE Q', 'Hàng kẹp (+) · 端子+', 'Dòng → Tờ · 行号对照', 'Điện áp · 电压', 'Tiêu đề · 标题', 'Tên · 名称', 'Số dây · 线号', 'TEST-201', '高速运行时喷印模糊', 'Thông số hiện tại · 当前参数', 'Fire Pulses', 'Fire Pulses JA8 (V)', 'Head Alignments JA1 (px)', 'TEST-SP09', 'Sản phẩm · 产品']) assert.ok(buf.includes(h), 'Excel thiếu ' + h);
   ok('Xuất Excel song ngữ (ghi chú, tài liệu, dây)');
 
   // 17. Nhật ký sửa đổi

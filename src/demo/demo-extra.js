@@ -16,7 +16,8 @@ __dichMau.push(
   ['Nguồn 24 VDC', '24 VDC 电源'], ['Nguồn 12 VDC cho trigger', '触发器 12 VDC 电源'], ['Mass chung', '公共地线'],
   ['Tín hiệu encoder kênh A', '编码器A相信号'], ['Tín hiệu encoder kênh B', '编码器B相信号'], ['Nối đất', '接地'],
   ['Ghi chú thử', '测试笔记'], ['Bảo trì', '维护'],
-  ['Thông số ban đầu', '初始参数'], ['Tăng điện áp vì in mờ', '因喷印模糊提高电压'], ['Hạ divider để giảm tần số', '调整分频以降低频率'], ['Băng 330 mm', '330毫米卫生巾'], ['Băng 190 mm', '190毫米卫生巾'], ['PB2 in mờ, tăng áp', 'PB2喷印模糊，提高电压'], ['X1002 | Máy nghiền lỗi | Y1002 | Khởi động máy nghiền', 'X1002 | 粉碎机异常 | Y1002 | 粉碎机启动'], ['M0 | Dừng khẩn cấp chưa reset | M600 | TEST-giới hạn bộ chỉnh lệch', 'M0 | 急停未复位 | M600 | TEST-纠偏器限位提示'], ['Đã đổi sang cảm biến mới', '已更换为新传感器'], ['Thêm nút dừng phụ', '增加辅助停止按钮']
+  ['Thông số ban đầu', '初始参数'], ['Tăng điện áp vì in mờ', '因喷印模糊提高电压'], ['Hạ divider để giảm tần số', '调整分频以降低频率'], ['Băng 330 mm', '330毫米卫生巾'], ['Băng 190 mm', '190毫米卫生巾'], ['PB2 in mờ, tăng áp', 'PB2喷印模糊，提高电压'], ['X1002 | Máy nghiền lỗi | Y1002 | Khởi động máy nghiền', 'X1002 | 粉碎机异常 | Y1002 | 粉碎机启动'], ['M0 | Dừng khẩn cấp chưa reset | M600 | TEST-giới hạn bộ chỉnh lệch', 'M0 | 急停未复位 | M600 | TEST-纠偏器限位提示'], ['Đã đổi sang cảm biến mới', '已更换为新传感器'], ['Thêm nút dừng phụ', '增加辅助停止按钮'],
+  ['Gia nhiệt 1', '加热 1'], ['Nhánh 24 VDC', '24 VDC 支路'], ['Encoder và trigger', '编码器与触发器'], ['Nối đất vỏ tủ', '柜体接地'], ['Gia nhiệt 2', '加热 2']
 );
 
 // PDF một trang nhỏ, tự tạo (có bảng xref đúng) — để thử mở tài liệu và nút "Mở bản vẽ" trong bản xem thử
@@ -72,17 +73,35 @@ function pdfMau(dong) {
       url: 'https://drive.google.com/file/d/TEST-LINK-01/view', phienBan: 1, hienHanh: 1, the: JSON.stringify(['TEST-HM']) })
   ]);
   // Bảng dây mẫu (số dây TEST-*, không phải dữ liệu bản vẽ thật)
-  function day(id, so, to, tu, den, mau, th, zh) {
+  function day(id, so, to, tu, den, mau, th, zh, ap, mach) {
     return thanhDong('DayDien', { id: id, soDay: so, banVe: 'TEST-BV01', to: to, tuDiem: tu, denDiem: den, mau: mau, tinHieu: th, tinHieuZh: zh,
-      taiLieuId: 'TLTEST02', trang: 1, ghiChu: '', capNhat: bay, opId: '', xoa: 0, dichTay: '' });
+      taiLieuId: 'TLTEST02', trang: 1, ghiChu: '', capNhat: bay, opId: '', xoa: 0, dichTay: '', dienAp: ap || '', mach: mach || '' });
   }
   themNhieu('DayDien', [
-    day('DDTEST01', 'TEST-101', '5', 'PS2-L', 'TB1-1', 'Cam/Đen', 'Nguồn 24 VDC', '24 VDC 电源'),
-    day('DDTEST02', 'TEST-102', '5', 'PS2-H', 'J53-1', 'Vàng/Đen', 'Nguồn 12 VDC cho trigger', '触发器 12 VDC 电源'),
+    day('DDTEST01', 'TEST-101', '5', 'PS2-L', 'TB1-1', 'Cam/Đen', 'Nguồn 24 VDC', '24 VDC 电源', '24 V', 'TEST-PSA L'),
+    day('DDTEST02', 'TEST-102', '5', 'PS2-H', 'J53-1', 'Vàng/Đen', 'Nguồn 12 VDC cho trigger', '触发器 12 VDC 电源', '12 V', 'TEST-PSB H'),
     day('DDTEST03', 'TEST-103', '15', 'J53-14', 'gSDP', 'Trắng', 'Tín hiệu encoder kênh A', '编码器A相信号'),
     day('DDTEST04', 'TEST-104', '15', 'J53-15', 'gSDP', 'Xanh dương', 'Tín hiệu encoder kênh B', '编码器B相信号'),
-    day('DDTEST05', 'TEST-105', '25', 'TB-PE', 'Vỏ tủ', 'Xanh lá/Vàng', 'Nối đất', '接地')
+    day('DDTEST05', 'TEST-105', '25', 'TB-PE', 'Vỏ tủ', 'Xanh lá/Vàng', 'Nối đất', '接地', 'PE')
   ]);
+  // Mạch điện mẫu (v1.6) — số liệu TEST minh hoạ cách tra, không phải bản vẽ thật
+  function mach(id, ten, cho, zh, ap, mau, o) {
+    return thanhDong('MachDien', Object.assign({ id: id, banVe: 'TEST-BV01', ten: ten, capCho: cho, capChoDich: zh, dienAp: ap, mau: mau, cauChiVe: '', canKiemTra: '',
+      taiLieuId: 'TLTEST02', trang: 1, capNhat: bay, opId: '', xoa: 0, dichTay: '' }, o));
+  }
+  themNhieu('MachDien', [
+    mach('MDTEST01', 'TEST-PSA L', 'Nguồn 24 VDC', '24 VDC 电源', '24 V', 'Cam', { nguon: 'TEST-PSA đầu ra L', capDi: 'Cam · cáp TEST-C01', cauChi: 'TEST-F11 4 A',
+      dayTrongTu: '18AWG cam TEST-W01', kepDuong: 'TB1-1 → TB1-4', den: 'TEST-J10 chân 1 (→ dòng 310)', kepAm: 'TB1-5 → TB1-8', diemVe: 'TEST-J10 chân 2', dayVe: 'Đen-cặp-cam · cáp TEST-C01',
+      cauChiVe: 'TEST-F12 4 A', to: '5', dong: '105' }),
+    mach('MDTEST02', 'TEST-PSB H', 'Nguồn 12 VDC cho trigger', '触发器 12 VDC 电源', '12 V', 'Vàng', { nguon: 'TEST-PSB đầu ra H', capDi: 'Vàng · cáp TEST-C02', cauChi: 'TEST-F6 2 A',
+      dayTrongTu: '22AWG vàng TEST-W02', kepDuong: 'TB2-1 + TB2-2', den: 'TEST-J53 chân 1 (→ dòng 305)', kepAm: 'TB2-3 + TB2-4', diemVe: 'TEST-J53 chân 2', dayVe: 'Đen-cặp-vàng · cáp TEST-C02',
+      to: '5', dong: '108', canKiemTra: 'TEST: bản vẽ ghi lẫn hai mã cáp — đối chiếu tủ thật' }),
+    mach('MDTEST03', 'TEST-PSC JK', 'Gia nhiệt 1', '加热 1', '48 V', 'Đỏ', { nguon: 'TEST-PSC đầu ra J-K', capDi: 'Đỏ · cáp TEST-C03', cauChi: 'TEST-F2 10 A',
+      dayTrongTu: '18AWG đỏ TEST-W03', kepDuong: 'TB23', den: 'TEST-J60 chân 1 (→ dòng 367)', kepAm: 'TB27', diemVe: 'TEST-J60 chân 3', dayVe: 'Đen-cặp-đỏ · cáp TEST-C03', to: '8', dong: '262' })
+  ]);
+  function dt(id, to, tu, den, nd, zh) { return thanhDong('DongTo', { id: id, banVe: 'TEST-BV01', to: to, tuDong: tu, denDong: den, noiDung: nd, noiDungDich: zh, taiLieuId: 'TLTEST02', trang: 1, capNhat: bay, opId: '', xoa: 0, dichTay: '' }); }
+  themNhieu('DongTo', [dt('DTTEST05', '5', 100, 119, 'Nhánh 24 VDC', '24 VDC 支路'), dt('DTTEST08', '8', 260, 279, 'Gia nhiệt 1', '加热 1'),
+    dt('DTTEST15', '15', 300, 319, 'Encoder và trigger', '编码器与触发器'), dt('DTTEST25', '25', 500, 519, 'Nối đất vỏ tủ', '柜体接地')]);
   // Sản phẩm, chuyền và thông số mẫu (mã TEST-*, số liệu minh hoạ — không phải thông số thật của nhà máy)
   // Chuyền đã được caiDatBanDau() tạo sẵn ở đầu hàm này
   function sp(id, ma, ten, zh, dai) { return thanhDong('SanPham', { id: id, ma: ma, ten: ten, tenDich: zh, daiSP: dai, ghiChu: '', hoatDong: 1, capNhat: bay, opId: '', dichTay: '' }); }
