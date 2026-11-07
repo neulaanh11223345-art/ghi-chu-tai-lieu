@@ -230,7 +230,11 @@ header.bar button.av{width:42px;height:42px;border-radius:50%;background:var(--p
 .hex{font:700 22px ui-monospace,SFMono-Regular,Menlo,monospace;border:2px solid var(--pri);padding:4px 12px;clip-path:polygon(14% 0,86% 0,100% 50%,86% 100%,14% 100%,0 50%);flex:none;min-width:70px;text-align:center}
 table.bn{font-size:13px}table.bn td,table.bn th{vertical-align:middle;padding:7px 5px}table.bn tr[data-act]{cursor:pointer}
 .chips.ap button .dt{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:0}
-.st .gcm{display:inline}
+.mach .mod{font-size:12px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.03em}.mach .mod .zh{display:inline;margin-left:4px}
+.mach .modten{font-size:18px;margin:2px 0 8px}.mach .modten .muted{font-size:14px}
+table.tuden{width:100%;border-collapse:collapse;margin-bottom:6px}table.tuden th{width:58px;text-align:left;vertical-align:top;font-size:13px;color:var(--sub);padding:6px 0;font-weight:700}
+table.tuden th .zh{display:inline;margin-left:3px}table.tuden td{padding:6px 0;font-weight:650;font-size:15px;border-bottom:1px dashed var(--line)}table.tuden tr:last-child td{border-bottom:0}
+details.ct{margin-top:6px;border-top:1px solid var(--line);padding-top:6px}details.ct summary{cursor:pointer;font-size:13px;color:var(--pri2);font-weight:600}details.ct summary .zh{display:inline;margin-left:4px}
 </style>
 </head>
 <body>
@@ -658,11 +662,13 @@ const rowGC = (x, q) => `<button class="row note" data-act="noteView" data-id="$
 const rowTL = (g, q) => { const x = g.hh; return `<button class="row doc" data-act="docView" data-matl="${esc(g.maTL)}">${x.kieu === 'LINK' ? IC.link : IC.tl}<div class="main">
   <div class="nm">${hl(x.ten, q || '')}</div>${x.tenDich ? `<div class="sub">${hl(x.tenDich, q || '')}</div>` : ''}
   <div><span class="chip">${esc(tenNhom(x.nhom))}</span><span class="chip ok">v${x.phienBan}</span>${g.ds.length > 1 ? `<span class="chip">${g.ds.length} ${T.soBan[0]}</span>` : ''}${S.offDocs[x.id] ? `<span class="chip ok">offline</span>` : ''}${(x.the || []).map((t) => `<span class="chip">#${esc(t)}</span>`).join('')}</div></div></button>`; };
-const rowDay = (x, q) => `<button class="row wire" data-act="wireView" data-id="${esc(x.id)}">${IC.day}<div class="main"><div class="nm mono">${hl(x.soDay, q || '')}
-  <span class="muted">${esc(x.banVe)}${x.to ? ' · ' + T.to[0] + ' ' + esc(x.to) : ''}</span></div>
-  <div class="sub">${hl(x.tuDiem, q || '')} → ${hl(x.denDiem, q || '')}${x.mau ? ' · ' + esc(x.mau) : ''}</div>
-  <div class="sub">${hl(x.tinHieu, q || '')}${x.tinHieuZh ? ' · ' + esc(x.tinHieuZh) : ''}${x._cho ? ` <span class="chip warn">${T.choGui[0]}</span>` : ''}</div>
-  ${x.dienAp || x.baoVe || x.cap || x.canKiemTra ? `<div>${x.dienAp ? `<span class="chip" style="background:${mauAp(nhomAp(x.dienAp))};color:#fff">${esc(x.dienAp)}</span>` : ''}${x.baoVe ? `<span class="chip">${hl(x.baoVe, q || '')}</span>` : ''}${x.cap ? `<span class="chip">${hl(x.cap, q || '')}</span>` : ''}${x.canKiemTra ? `<span class="chip warn">⚠ ${L('cần kiểm tra', '待核实').replace(/<[^>]+>/g, ' ')}</span>` : ''}</div>` : ''}</div></button>`;
+// Một dây: dòng trên là Module (mạch nó thuộc về, không có thì tín hiệu), dưới là Từ → Đến
+const machCuaDay = (x) => x.mach ? (S.data.machDien || []).find((c) => norm(c.ten) === norm(x.mach) && (!c.banVe || !x.banVe || c.banVe === x.banVe)) : null;
+const rowDay = (x, q) => { const m = machCuaDay(x), mod = m ? modCua(m) + (m.capChoDich ? ' · ' + m.capChoDich : '') : '';
+  return `<button class="row wire" data-act="wireView" data-id="${esc(x.id)}">${IC.day}<div class="main">
+  <div class="nm">${mod ? esc(mod) : hl(x.tinHieu || x.soDay, q || '')}${x.dienAp ? ` <span class="chip" style="background:${mauAp(nhomAp(x.dienAp))};color:#fff">${esc(x.dienAp)}</span>` : ''}</div>
+  <div class="sub"><b>${L('Từ', '从').replace(/<[^>]+>/g, ' ').trim()}:</b> ${hl(x.tuDiem, q || '')} → <b>${L('Đến', '到').replace(/<[^>]+>/g, ' ').trim()}:</b> ${hl(x.denDiem, q || '')}</div>
+  <div class="sub"><span class="mono">${hl(x.soDay, q || '')}</span> · ${esc(x.banVe)}${x.to ? ' · ' + T.to[0] + ' ' + esc(x.to) : ''}${mod ? ' · ' + hl(x.tinHieu, q || '') : ''}${x.tinHieuZh ? ' · ' + esc(x.tinHieuZh) : ''}${x.mau ? ' · ' + esc(x.mau) : ''}${x._cho ? ` <span class="chip warn">${T.choGui[0]}</span>` : ''}${x.canKiemTra ? ` <span class="chip warn">⚠ ${L('cần kiểm tra', '待核实').replace(/<[^>]+>/g, ' ')}</span>` : ''}</div></div></button>`; };
 
 VIEWS.tim = {
   html() {
@@ -939,17 +945,21 @@ function veMach(x, q) {
       ${diem(x.cauChiVe, ['cầu chì', '保险丝'])}${chung ? diem(chung + ' (−)', ['cực chung', '公共端']) : ''}</div>` : ''}`;
 }
 const ghiChuMach = (x) => S.data.ghiChu.filter((g) => g.maMay && norm(g.maMay) === norm(x.ten));
+// Một mạch chỉ hiện 3 thứ: Module (cấp cho thiết bị nào), Từ (bộ nguồn), Đến (thiết bị / chân).
+// Cầu chì, hàng kẹp, dây về nằm trong "Chi tiết" — tự mở khi chữ đang tìm nằm trong đó (ví dụ gõ TB23)
+const modCua = (x) => x.capCho || x.ten;
 function cardMach(x, q, day) {
-  const gcs = ghiChuMach(x);
-  return `<div class="card mach" data-id="${esc(x.id)}"><div class="mh"><b>${hl(x.ten, q || '')}</b>${vapChip(x.dienAp)}</div>
-    <div class="muted">${x.capCho ? hl(x.capCho, q || '') : ''}${x.capChoDich ? ' · ' + esc(x.capChoDich) : ''}</div>
-    <div class="muted">${esc(x.banVe)}${x.to ? ' · ' + T.to[0] + ' ' + esc(x.to) : ''}${x.dong ? ' · dòng/行 ' + esc(x.dong) : ''}${x._cho ? ` <span class="chip warn">${T.choGui[0]}</span>` : ''}</div>
-    ${veMach(x, q)}
-    ${x.canKiemTra ? `<div class="canlo">⚠ ${esc(x.canKiemTra)} <span class="muted">· ${L('đối chiếu tủ thật', '请对照实物').replace(/<[^>]+>/g, ' ')}</span></div>` : ''}
+  const gcs = ghiChuMach(x), qn = norm(q || '');
+  const moCT = !!qn && norm([x.cauChi, x.capDi, x.dayTrongTu, x.kepDuong, x.kepAm, x.diemVe, x.dayVe, x.cauChiVe].join(' ')).indexOf(qn) >= 0;
+  return `<div class="card mach" data-id="${esc(x.id)}"><div class="mh"><span class="mod">${L('Module', '模块')}</span>${vapChip(x.dienAp)}</div>
+    <div class="modten"><b>${hl(modCua(x), q || '')}</b>${x.capChoDich ? ` <span class="muted">${esc(x.capChoDich)}</span>` : ''}</div>
+    <table class="tuden"><tr><th>${L('Từ', '从')}</th><td>${hl(x.nguon || '—', q || '')}</td></tr><tr><th>${L('Đến', '到')}</th><td>${hl(x.den || '—', q || '')}</td></tr></table>
+    <div class="muted">${x.capCho ? hl(x.ten, q || '') + ' · ' : ''}${esc(x.banVe)}${x.to ? ' · ' + T.to[0] + ' ' + esc(x.to) + ' · 第' + esc(x.to) + '页' : ''}${x._cho ? ` <span class="chip warn">${T.choGui[0]}</span>` : ''}</div>
+    ${x.canKiemTra ? `<div class="canlo">⚠ ${esc(x.canKiemTra)}</div>` : ''}
+    <details class="ct"${moCT ? ' open' : ''}><summary>${L('Chi tiết: cầu chì, hàng kẹp, dây về', '详细：保险丝、端子、回线')}</summary>${veMach(x, q)}</details>
     ${gcs.length ? `<div style="margin-top:8px">${gcs.slice(0, 3).map((g) => `<button class="chip" data-act="noteView" data-id="${esc(g.id)}" style="border:0">📝 ${esc(g.tieuDe)}</button>`).join('')}</div>` : ''}
     <div class="btns">${x.taiLieuId ? `<button class="btn sm" data-act="machOpenDoc" data-id="${esc(x.id)}">${IC.tl}${L(T.moBanVe[0] + (x.to ? ' tờ ' + esc(x.to) : ''), T.moBanVe[1])}</button>` : ''}
-      <button class="btn sm ghost" data-act="machNote" data-id="${esc(x.id)}">${IC.gc}${L('Ghi chú / điện áp đo', '备注/实测电压')}</button>
-      ${day ? '' : `<button class="btn sm ghost" data-act="machEdit" data-id="${esc(x.id)}">${L(T.sua[0], T.sua[1])}</button>`}</div></div>`;
+      <button class="btn sm ghost" data-act="machNote" data-id="${esc(x.id)}">${IC.gc}${L('Ghi chú', '备注')}</button></div></div>`;
 }
 // Số dòng → tờ: số trong hình lục giác. Kèm các mạch / dây nhắc tới dòng đó
 function cardDong(n) {
@@ -963,9 +973,9 @@ function cardDong(n) {
 }
 function bangNguon(ds) {
   if (!ds.length) return '';
-  return `<div class="sec">${L(T.bangNguon[0], T.bangNguon[1])}<span>${ds.length}</span></div><div class="card" style="padding:4px 6px;overflow-x:auto"><table class="t bn" id="bangNguon">
-    <tr><th>${L('Mạch', '回路')}</th><th>${L('Cấp cho', '供电')}</th><th>${L('Áp', '电压')}</th><th>${L('Cầu chì', '保险丝')}</th><th>${L('Hàng kẹp', '端子')}</th></tr>
-    ${ds.map((x) => `<tr data-act="machView" data-id="${esc(x.id)}"><td><b>${esc(x.ten)}</b>${x.canKiemTra ? ' ⚠' : ''}</td><td>${esc(x.capCho)}</td><td>${vapChip(nhomAp(x.dienAp) || x.dienAp)}</td><td>${esc(x.cauChi)}</td><td class="mono">${esc(x.kepDuong)}${x.kepAm ? ' / ' + esc(x.kepAm) : ''}</td></tr>`).join('')}</table>
+  return `<div class="sec">${L('Các mạch: từ đâu đến đâu', '回路：从哪里到哪里')}<span>${ds.length}</span></div><div class="card" style="padding:4px 6px;overflow-x:auto"><table class="t bn" id="bangNguon">
+    <tr><th>${L('Module', '模块')}</th><th>${L('Từ → Đến', '从 → 到')}</th><th>${L('Áp', '电压')}</th></tr>
+    ${ds.map((x) => `<tr data-act="machView" data-id="${esc(x.id)}"><td><b>${esc(modCua(x))}</b>${x.canKiemTra ? ' ⚠' : ''}<div class="muted">${esc(x.ten)}</div></td><td>${esc(x.nguon || '—')}<div>→ ${esc(x.den || '—')}</div></td><td>${vapChip(nhomAp(x.dienAp) || x.dienAp)}</td></tr>`).join('')}</table>
     <div class="muted" style="margin:6px 6px 4px">${L('Bấm một dòng để xem cả mạch', '点击一行查看整条回路')}</div></div>`;
 }
 VIEWS.day = {
@@ -996,7 +1006,7 @@ function machView(id) {
     ${x._cho ? '' : `<button class="btn bad" data-act="machDel" data-id="${esc(x.id)}">${L(T.xoa[0], T.xoa[1])}</button>`}</div>`);
 }
 // Các ô của một mạch: [khoá, tiếng Việt, tiếng Trung, gợi ý]
-const O_MACH = [['ten', 'Tên mạch', '回路名称', 'TEST-PSC JK'], ['capCho', 'Cấp cho', '供电对象', 'Gia nhiệt 1'], ['dienAp', 'Điện áp', '电压', '48 V'], ['mau', 'Màu dây đi', '去线颜色', 'Đỏ'],
+const O_MACH = [['ten', 'Tên mạch', '回路名称', 'TEST-PSC JK'], ['capCho', 'Module (cấp cho)', '模块（供电对象）', 'Gia nhiệt 1'], ['dienAp', 'Điện áp', '电压', '48 V'], ['mau', 'Màu dây đi', '去线颜色', 'Đỏ'],
   ['nguon', 'Bộ nguồn / đầu ra', '电源/输出', 'TEST-PSC đầu ra J-K'], ['capDi', 'Cáp đi', '去线电缆', 'Đỏ · cáp TEST-C03'], ['cauChi', 'Cầu chì', '保险丝', 'FB2 10 A'], ['dayTrongTu', 'Dây trong tủ', '柜内线', '18AWG đỏ'],
   ['kepDuong', 'Hàng kẹp (+)', '端子+', 'TB23'], ['den', 'Đến (thiết bị / chân)', '去向', 'Đầu nối TEST-J60 chân 1'], ['diemVe', 'Chân về', '回线端', 'Đầu nối TEST-J60 chân 3'], ['dayVe', 'Dây về (−)', '回线', 'Đen-cặp-đỏ'],
   ['kepAm', 'Hàng kẹp (−)', '端子−', 'TB27'], ['cauChiVe', 'Cầu chì dây về', '回线保险丝', ''], ['banVe', 'Bản vẽ', '图号', ''], ['to', 'Tờ', '图页', ''], ['dong', 'Dòng', '行号', ''], ['canKiemTra', 'Cần kiểm tra', '待核实', '']];
@@ -1042,7 +1052,7 @@ function wireView(id) {
   const tl = S.data.taiLieu.find((t) => t.id === x.taiLieuId);
   const r = (k, v) => v ? `<tr><th>${L(T[k][0], T[k][1])}</th><td>${esc(v)}</td></tr>` : '';
   const m = x.mach && dsMachD().find((c) => norm(c.ten) === norm(x.mach) && (!c.banVe || !x.banVe || c.banVe === x.banVe));
-  sheet(`<span class="mono">${esc(x.soDay)}</span>`, `<table class="t">${r('banVe', x.banVe)}${r('to', x.to)}${r('dong', x.dong)}${r('tuDiem', x.tuDiem)}${r('denDiem', x.denDiem)}${r('mau', x.mau)}${r('cap', x.cap)}${r('capVoi', x.capVoi)}${r('dienAp', x.dienAp)}${r('baoVe', x.baoVe)}${r('tinHieu', x.tinHieu)}${r('tinHieuZh', x.tinHieuZh)}${r('mach', x.mach)}${r('ghiChu', x.ghiChu)}
+  sheet(`<span class="mono">${esc(x.soDay)}</span>`, `<table class="t">${m ? `<tr><th>${L('Module', '模块')}</th><td><b>${esc(modCua(m))}</b>${m.capChoDich ? ' · ' + esc(m.capChoDich) : ''}</td></tr>` : ''}${r('tuDiem', x.tuDiem)}${r('denDiem', x.denDiem)}${r('banVe', x.banVe)}${r('to', x.to)}${r('dong', x.dong)}${r('mau', x.mau)}${r('cap', x.cap)}${r('capVoi', x.capVoi)}${r('dienAp', x.dienAp)}${r('baoVe', x.baoVe)}${r('tinHieu', x.tinHieu)}${r('tinHieuZh', x.tinHieuZh)}${r('mach', x.mach)}${r('ghiChu', x.ghiChu)}
     ${x.canKiemTra ? `<tr><th>${L(T.canKiemTra[0], T.canKiemTra[1])}</th><td style="background:var(--warnbg)">⚠ ${esc(x.canKiemTra)}</td></tr>` : ''}
     ${tl ? `<tr><th>${L(T.tlBanVe[0], T.tlBanVe[1])}</th><td>${esc(tl.ten)} · v${tl.phienBan}${x.trang ? ' · ' + T.trang[0] + ' ' + x.trang : ''}</td></tr>` : ''}</table>
     <div class="btns">${tl ? `<button class="btn" data-act="wireOpenDoc" data-id="${esc(x.id)}">${IC.tl}${L(T.moBanVe[0], T.moBanVe[1])}</button>` : ''}${m ? `<button class="btn ghost" data-act="machView" data-id="${esc(m.id)}">${IC.set}${L('Xem cả mạch', '查看整条回路')}</button>` : ''}
@@ -1087,7 +1097,7 @@ function nhanCot(h) {
   return c ? c[0] : '';
 }
 // Trang "Mạch" và trang "Dòng → Tờ" của cùng file nhập: so đúng phần tiếng Việt (trước " · ") hoặc đúng phần tiếng Trung
-const COT_MACH = [['ten', 'Mạch', '回路'], ['capCho', 'Cấp cho', '供电'], ['capChoDich', 'Cấp cho (中文)', '供电（中文）'], ['dienAp', 'Điện áp', '电压'], ['mau', 'Màu dây đi (+)', '正线颜色', ['Màu dây']],
+const COT_MACH = [['ten', 'Mạch', '回路'], ['capCho', 'Cấp cho', '供电', ['Module']], ['capChoDich', 'Cấp cho (中文)', '供电（中文）'], ['dienAp', 'Điện áp', '电压'], ['mau', 'Màu dây đi (+)', '正线颜色', ['Màu dây']],
   ['nguon', 'Bộ nguồn', '电源'], ['capDi', 'Cáp đi', '电缆'], ['cauChi', 'Cầu chì', '保险丝'], ['dayTrongTu', 'Dây trong tủ', '柜内线'], ['kepDuong', 'Hàng kẹp (+)', '端子+'], ['den', 'Đến', '去向'],
   ['kepAm', 'Hàng kẹp (−)', '端子−', ['Hàng kẹp (-)']], ['diemVe', 'Chân về', '回线端', ['Điểm về']], ['dayVe', 'Dây về (−)', '回线', ['Dây về (-)', 'Dây về']], ['cauChiVe', 'Cầu chì dây về', '回线保险丝', ['Cầu chì về']],
   ['banVe', 'Bản vẽ', '图号'], ['to', 'Tờ', '图页'], ['dong', 'Dòng', '行号'], ['canKiemTra', 'Lưu ý', '注意', ['Cần kiểm tra']], ['trang', 'Trang PDF', 'PDF页码']];
