@@ -1,4 +1,4 @@
-# Ghi chú & Tra cứu tài liệu · 笔记与资料查询 (v1.6.0)
+# Ghi chú & Tra cứu tài liệu · 笔记与资料查询 (v1.6.1)
 
 App riêng cho một người dùng: ghi chú ngay tại máy, tra cứu tài liệu (sổ tay, bản vẽ, quy trình), tra số dây điện theo bản vẽ, lưu thông số máy in theo từng chuyền và sản phẩm, tính DPI, tần số phun, delay, và tra bảng chương trình PLC của từng chuyền.
 
@@ -116,6 +116,28 @@ Ký hiệu trong ngoặc là ô tương ứng trong file Excel.
 App làm đúng như file để số trùng với Excel. Lưu ý hai điểm của file:
 - Số PB2 có thể lẻ vì độ lệch PB2 không được làm tròn. App hiện cả số lẻ ("Tính ra") và số đã làm tròn ("Nhập máy").
 - Số ở DPI mới được nhân tỉ lệ từ số đã làm tròn, nên có thể lệch 1 chấm so với tính thẳng từ khoảng cách.
+
+## Điểm mới của v1.6.1: lưu encoder và đường kính trục theo từng chuyền máy in
+
+Mỗi chuyền máy in lưu phần cứng encoder của mình, đúng các ô xanh B1, D1, F1 của bảng tính:
+
+| Ô | Ví dụ |
+|---|---|
+| Encoder resolution (xung/vòng) | 2500 |
+| Đường kính trục encoder (Roller Encoder mm) | 120 |
+| Edges (số cạnh) | 4 |
+| Loại encoder / ghi chú | tuỳ ý |
+
+- **Nhập:** Máy in → Thông số → **Encoder & trục các chuyền** (bảng cả 9 chuyền, ô cam là chuyền chưa nhập) → **Sửa**. Hoặc mở một chuyền → mục **Encoder và trục** → Sửa.
+- **Xem:** mỗi chuyền trong danh sách Thông số có một dòng "Encoder 2500 · trục 120 mm · Edges 4". Ô Thông số máy in ở Trang chủ báo số chuyền chưa có encoder. So sánh các chuyền và Xuất Excel (trang *Chuyền máy in*) cũng có các số này.
+- **Tính toán** tự điền B1, D1, F1 theo chuyền đang chọn. Nếu bạn đổi một trong ba số rồi bấm **Lưu**, chuyền được cập nhật theo (có ghi Nhật ký), để lần sau mở ra đã đúng số mới.
+
+**Nâng cấp từ v1.6.0:**
+1. Dán `Code.gs-v1.6.1.txt` đè lên mã cũ, bấm Lưu.
+2. **Triển khai → Quản lý triển khai → Phiên bản mới**.
+3. Mở app, bấm **Cập nhật**.
+
+Trang `Chuyen` được thêm 4 cột ở **cuối**: `EncoderPPR`, `DuongKinhTruc`, `SoCanh`, `EncoderGhiChu`. Các cột này để trống, bạn nhập dần trong app. Chuyền cũ giữ nguyên.
 
 ## Điểm mới của v1.6.0: bố cục như app bảo dưỡng, nút Cập nhật, tra dây theo mạch
 
@@ -411,6 +433,6 @@ Quy ước dữ liệu:
 ## Kiểm thử
 
 ```
-npm test        # 43 bài kiểm thử máy chủ (chạy Code.gs trong máy chủ giả)
-npm run e2e     # build + Playwright bấm 34 bước trên docs/demo.html, không được có lỗi JavaScript
+npm test        # 46 bài kiểm thử máy chủ (chạy Code.gs trong máy chủ giả)
+npm run e2e     # build + Playwright bấm 35 bước trên docs/demo.html, không được có lỗi JavaScript
 ```

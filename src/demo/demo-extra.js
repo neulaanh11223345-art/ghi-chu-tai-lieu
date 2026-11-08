@@ -115,6 +115,8 @@ function pdfMau(dong) {
   themNhieu('ChaySP', ch.map(function (c, i) { return thanhDong('ChaySP', { id: 'CYTEST0' + (i + 1), chuyen: c[0], sanPham: c[1], tuNgay: c[2], lucTao: bay, opId: '', xoa: 0 }); }));
   var cv = docBang('Chuyen');
   cv.forEach(function (c) { if (c.id === 'CV01' || c.id === 'CV23') { c.seriDau = 'TEST-SN-' + c.ma; c.thayDau = '2026-08-01'; c.thayLoc = '2026-10-10'; suaDong('Chuyen', c._r, thanhDong('Chuyen', c)); } });
+  // Encoder / trục mẫu cho vài chuyền (số minh hoạ); chuyền 16 và 27 để trống để thấy nhắc "chưa nhập"
+  cv.forEach(function (c) { if (c.id !== 'CV16' && c.id !== 'CV27') { c.encoderPPR = c.id === 'CV06' ? '5000' : '2500'; c.duongKinhTruc = '120'; c.soCanh = '4'; c.encoderGhiChu = c.id === 'CV06' ? 'TEST-ENC-5000' : ''; suaDong('Chuyen', c._r, thanhDong('Chuyen', c)); } });
   var goc = { encDir: 'Forward', encDecode: 'All Four Edges', encDPI: '112.3', divider: '6', triggerMode: 'Once per Image', fireMode: 'External', formDelay: '0.5',
     align: '0/121/243/364', registration: '0', volt: '98/98/99/98', meniscus: '5', lungVac: '', purgeShort: '1.5', purgeLong: '3.5', nhietTam: '125',
     nhietBinh1: '120', lois1: '50', muc1: 'TEST-MUC', nhietBinh2: '', lois2: '', muc2: '', tocDo: '900', ghiChuDich: '', lucTao: bay, opId: '', xoa: 0, dichTay: '' };
