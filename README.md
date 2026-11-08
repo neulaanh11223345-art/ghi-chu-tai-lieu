@@ -1,4 +1,4 @@
-# Ghi chú & Tra cứu tài liệu · 笔记与资料查询 (v1.5.0)
+# Ghi chú & Tra cứu tài liệu · 笔记与资料查询 (v1.6.0)
 
 App riêng cho một người dùng: ghi chú ngay tại máy, tra cứu tài liệu (sổ tay, bản vẽ, quy trình), tra số dây điện theo bản vẽ, lưu thông số máy in theo từng chuyền và sản phẩm, tính DPI, tần số phun, delay, và tra bảng chương trình PLC của từng chuyền.
 
@@ -68,17 +68,20 @@ Giới hạn của PWA trên iPhone:
 
 ## Cách dùng nhanh
 
+Thanh dưới có 5 nút: **Trang chủ · Ghi chú · Tìm (nút tròn ở giữa) · Máy in · Thêm**. Tài liệu, Chương trình và Cài đặt nằm trong **Thêm** (và có ô riêng ở Trang chủ). Bấm hình tròn chữ cái ở góc phải trên cũng mở **Thêm**.
+
 | Màn | Làm gì |
 |---|---|
-| **Tìm · 搜索** | Một ô tìm chung cho ghi chú, tài liệu và số dây. Gõ không dấu cũng được ("loc muc"), gõ chữ Trung cũng được |
+| **Trang chủ · 首页** | Lời chào, ngày, 6 ô tổng quan (bấm vào mở thẳng phần đó), nút **Cập nhật**, ghi chú gần đây |
+| **Tìm · 搜索** | Một ô tìm chung cho ghi chú, tài liệu, số dây và mạch điện. Gõ không dấu cũng được ("loc muc"), gõ chữ Trung cũng được |
 | **Ghi chú · 笔记** | Tiêu đề, nội dung, thẻ, mã máy và tối đa 6 ảnh chụp tại chỗ (ảnh tự thu nhỏ). Lọc theo thẻ. Lúc mất mạng vẫn ghi và sửa được |
 | **Tài liệu · 资料** | Tải lên PDF, Word, Excel hoặc ảnh (tối đa 25 MB), hoặc dán link Google Drive cho tệp lớn hơn. Một tài liệu có nhiều phiên bản, và đúng một bản **Đang hiệu lực**. Bấm **Lưu xem khi mất mạng** để mở được cả khi không có sóng |
 | **Máy in · 喷码机** | Gom ba màn của máy in phun, chọn ở thanh trên: **Thông số**, **Tính toán**, **Tra dây** |
 | **Chương trình · PLC程序** | Chọn chuyền sản xuất (16 chuyền, danh sách riêng với máy in), gõ đúng địa chỉ như `M570` là ra ngay địa chỉ đó ứng với gì, kèm ghi chú của bạn và lịch sử sửa (xem Điểm mới của v1.4.0) |
 | ↳ **Thông số** | Thông số máy in theo chuyền → sản phẩm, chia đúng các màn hình bộ điều khiển Merlin D CE. Mỗi lần đổi là một lần ghi mới có ngày và lý do. Xem chi tiết ở phần Điểm mới của v1.1.0 |
-| ↳ **Tra dây** | Tìm theo số dây, điểm đầu/cuối, tín hiệu hoặc tờ bản vẽ. Nút **Mở bản vẽ** mở thẳng PDF ở đúng trang |
+| ↳ **Tra dây** | Tra theo **mạch**: gõ hàng kẹp, cầu chì, mã cáp hoặc điện áp là ra cả đường đi và dây về; gõ số dòng là ra tờ nào. Vẫn tìm theo số dây, điểm đầu/cuối, tín hiệu như cũ. Nút **Mở bản vẽ** mở thẳng PDF ở đúng trang (xem Điểm mới của v1.6.0) |
 | ↳ **Tính toán** | Bảng tính Encoder / Delay / Alignment của nhà cung cấp, đúng từng công thức. Nhập các ô xanh, ra delay JA1–8 để nhập máy, so với JA đang đặt trên máy; lưu theo từng đầu in, có lịch sử |
-| **Cài đặt** | Hàng chờ gửi, xuất Excel song ngữ, nhóm tài liệu, nhật ký sửa đổi, đổi PIN |
+| **Thêm · 更多** | Tài liệu, Chương trình, phiên bản app + nút Cập nhật, hàng chờ gửi, xuất Excel song ngữ, nhóm tài liệu, nhật ký sửa đổi, đổi PIN |
 
 ### Nhập bảng dây từ Excel
 
@@ -113,6 +116,65 @@ Ký hiệu trong ngoặc là ô tương ứng trong file Excel.
 App làm đúng như file để số trùng với Excel. Lưu ý hai điểm của file:
 - Số PB2 có thể lẻ vì độ lệch PB2 không được làm tròn. App hiện cả số lẻ ("Tính ra") và số đã làm tròn ("Nhập máy").
 - Số ở DPI mới được nhân tỉ lệ từ số đã làm tròn, nên có thể lệch 1 chấm so với tính thẳng từ khoảng cách.
+
+## Điểm mới của v1.6.0: bố cục như app bảo dưỡng, nút Cập nhật, tra dây theo mạch
+
+**Bố cục mới**
+- Thanh trên màu trắng: biểu tượng app, tên màn (Việt · 中文), trạng thái **Đã đồng bộ / n chờ gửi / Mất mạng**, hình tròn chữ cái đầu tên.
+- **Trang chủ** có thẻ lời chào (tên, ngày, thứ) và 6 ô tổng quan màu, bấm vào là mở thẳng:
+
+| Ô | Hiện gì |
+|---|---|
+| Ghi chú | tổng số, số ghi chú sửa trong 7 ngày |
+| Tài liệu | số tài liệu đang hiệu lực, số tài liệu lưu xem offline |
+| Thông số máy in | số chuyền đã ghi thông số / tổng số chuyền |
+| Tính toán | số đầu in đã lưu bảng tính; báo đỏ nếu JA thực tế lệch số tính ra |
+| Tra dây | số mạch, số đoạn dây; báo đỏ số chỗ **cần kiểm tra** |
+| Chương trình | số chuyền có bảng PLC / tổng chuyền PLC, số ghi chú địa chỉ |
+
+- Thanh dưới: Trang chủ · Ghi chú · **Tìm** (nút tròn ở giữa) · Máy in · Thêm. Còn việc chờ gửi thì nút Trang chủ hiện số.
+
+**Nút Cập nhật** (ở Trang chủ, cạnh "Tổng quan", và ở **Thêm → Ứng dụng**). Bấm sau khi sửa trên Google Sheet, dán lại Code.gs hoặc khi có bản app mới. App sẽ:
+1. gửi các việc còn chờ;
+2. tải lại toàn bộ dữ liệu từ Google Sheet;
+3. hỏi GitHub Pages xem có bản app mới không; có thì tải lại trang ngay.
+
+Dòng "Cập nhật lúc …" cho biết lần tải dữ liệu gần nhất. Nếu máy chủ còn chạy bản Code.gs cũ, Trang chủ hiện dòng đỏ nhắc dán lại Code.gs. Mất mạng thì báo lỗi, việc chờ giữ nguyên.
+
+**Tra dây theo mạch**
+
+Bản vẽ điện của máy in không đánh số dây. Dây được gọi theo **màu + mã cáp** (ví dụ "RED OF <mã cáp>" là sợi đỏ trong cáp đó), sợi "…'S BLACK" là sợi đen đi cặp, tức dây về. Số trong hình lục giác là **số dòng** ở tờ khác nơi dây đi tiếp. Vì vậy app thêm hai bảng:
+
+- **Mạch** (trang `MachDien`): mỗi mạch một dòng, đi trọn **bộ nguồn → cầu chì → hàng kẹp (+) → thiết bị**, rồi **chân về → hàng kẹp (−) → cực chung**.
+- **Số dòng → tờ** (trang `DongTo`): mỗi tờ một dải dòng, ví dụ tờ 8 = dòng 260–279.
+
+Ở **Máy in → Tra dây**:
+- Gõ hàng kẹp (`TB23`), cầu chì (`FB2`), mã cáp hoặc điện áp (`48V`) → ra cả mạch vẽ dọc. Dây đi màu theo điện áp, dây về màu đen, điểm khớp tô vàng.
+- Gõ số dòng (`261`) → "Dòng 261 nằm ở tờ 8", các mạch đi qua dòng đó, nút **Mở bản vẽ tờ 8**.
+- Chưa gõ gì → **Bảng nguồn**: mọi mạch với điện áp, cầu chì, hàng kẹp. Bấm một dòng để xem cả mạch.
+- Nút lọc theo điện áp: 150 V, 48 V, 24 V, 15 V, 12 V, AC, PE.
+- Mỗi mạch có nút **Ghi chú / điện áp đo**: mở ghi chú mới điền sẵn tên mạch (mã máy = tên mạch, thẻ `điện`). Ghi chú đó hiện ngay dưới mạch.
+- Chỗ bản vẽ ghi lẫn (cột **Cần kiểm tra**) được tô cam để đối chiếu tủ thật.
+- **+ Mạch** để thêm hoặc sửa mạch bằng tay.
+
+Bảng dây có thêm 7 cột: Dòng, Mạch, Cặp với, Cáp / mã dây, Điện áp, Bảo vệ, Cần kiểm tra.
+
+**Nhập Excel:** một file có thể có 3 trang, app tự nhận theo tiêu đề cột:
+
+| Trang | Nhận ra nhờ cột | Trùng thì cập nhật theo |
+|---|---|---|
+| Dây điện | Số dây | Số dây + Bản vẽ + Tờ |
+| Mạch | Mạch + (Bộ nguồn / Hàng kẹp (+) / Đến) | Bản vẽ + Mạch |
+| Dòng → Tờ | Tờ + Dòng (ghi `260–279`) hoặc Từ dòng / Đến dòng | Bản vẽ + Tờ |
+
+Trang khác (ví dụ "Cách đọc") được bỏ qua và báo tên. Dòng lỗi báo theo trang và số dòng. **Tải file mẫu** giờ có đủ 3 trang. **Xuất Excel song ngữ** có thêm trang Mạch và Dòng → Tờ.
+
+**Nâng cấp từ v1.5.0:**
+1. Dán `Code.gs-v1.6.0.txt` đè lên mã cũ, bấm Lưu.
+2. **Triển khai → Quản lý triển khai → Phiên bản mới**.
+3. Mở app, bấm **Cập nhật**.
+
+Trang `DayDien` được thêm 7 cột ở **cuối**: `Dong`, `Mach`, `Cap`, `CapVoi`, `DienAp`, `BaoVe`, `CanKiemTra`. Dây cũ giữ nguyên. Hai trang mới `MachDien` và `DongTo` được tự tạo. Không phải nhập lại gì.
 
 ## Điểm mới của v1.5.0: màn Tính toán làm theo bảng tính Encoder / Delay / Alignment
 
@@ -349,6 +411,6 @@ Quy ước dữ liệu:
 ## Kiểm thử
 
 ```
-npm test        # 39 bài kiểm thử máy chủ (chạy Code.gs trong máy chủ giả)
-npm run e2e     # build + Playwright bấm 30 bước trên docs/demo.html, không được có lỗi JavaScript
+npm test        # 43 bài kiểm thử máy chủ (chạy Code.gs trong máy chủ giả)
+npm run e2e     # build + Playwright bấm 34 bước trên docs/demo.html, không được có lỗi JavaScript
 ```

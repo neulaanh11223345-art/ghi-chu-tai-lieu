@@ -152,6 +152,89 @@ table.t td.n b{font-size:17px}
 .err{color:var(--bad);font-size:14px;min-height:20px}
 mark{background:#FFF0A8;border-radius:3px;padding:0 1px}
 @media (min-width:900px){.fab{right:calc(50% - 420px)}}
+/* ===================== v1.6: khung giống app bảo dưỡng — thanh trên trắng, Trang chủ có ô tổng quan, thanh dưới có nút Tìm ở giữa ===================== */
+header.bar{background:#fff;color:var(--ink);border-bottom:1px solid var(--line);padding:calc(env(safe-area-inset-top) + 10px) 14px 10px;gap:10px}
+header.bar .lgo{width:38px;height:38px;flex:none;display:grid;place-items:center}
+header.bar .lgo svg{width:38px;height:38px}
+header.bar h1{font-size:19px;min-width:0;overflow:hidden}
+header.bar h1 .vi{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header.bar h1 .zh{color:var(--sub);font-size:13px;font-weight:500}
+header.bar .demo{display:inline-block;white-space:nowrap;font-size:9px;font-weight:700;background:#FFF1DD;color:#A65B00;border-radius:6px;padding:1px 6px;margin-bottom:2px}
+#netInfo{display:flex;gap:6px;align-items:center;flex:none}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.15;text-align:left}
+.pill .zh{font-size:10.5px;font-weight:500}
+.pill i{width:8px;height:8px;border-radius:9px;background:#16A34A;flex:none}
+.pill.off i{background:#9AA6B8}.pill.off{color:var(--sub)}
+.pill.cho{border-color:#F3C37E;background:var(--warnbg);color:var(--warn)}.pill.cho i{background:#F59E0B}
+.pill.loi{border-color:#F3A29B;background:var(--badbg);color:var(--bad)}.pill.loi i{background:var(--bad)}
+header.bar button.av{width:42px;height:42px;border-radius:50%;background:var(--pri2);color:#fff;font-weight:700;font-size:17px;display:grid;place-items:center;padding:0;flex:none}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);align-items:end;box-shadow:0 -2px 10px rgba(20,33,61,.05)}
+.tab{position:relative;padding:8px 2px 7px;font-weight:600;color:#8592A6}
+.tab .vi{font-size:12px}.tab .zh{font-size:10.5px;color:inherit;opacity:.85}
+.tab.on{color:var(--pri2)}
+.tab .tic{position:relative;display:grid;place-items:center;height:24px}
+.tab .bdg[hidden]{display:none}.tab .bdg{position:absolute;top:-6px;left:calc(50% + 4px);background:#E5484D;color:#fff;border-radius:9px;min-width:18px;height:18px;font-size:11px;display:grid;place-items:center;padding:0 5px;font-weight:700}
+.tab.sc{padding-top:0}
+.tab.sc .tic{width:58px;height:58px;border-radius:18px;background:var(--pri2);color:#fff;margin:-26px auto 3px;box-shadow:0 6px 16px rgba(47,111,219,.38);border:3px solid #fff}
+.tab.sc .tic svg{width:26px;height:26px}
+.tab.sc.on{color:var(--pri2)}
+.hello{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:18px}
+.hello .avt{width:56px;height:56px;border-radius:50%;background:#E6EEFB;color:var(--pri2);font-weight:700;font-size:20px;display:grid;place-items:center;flex:none}
+.hello .hm{flex:1;min-width:0}.hello .hm b{display:block;font-size:19px;line-height:1.2}
+.hello .hm .muted{margin-top:2px}
+.hello .hd{text-align:right;flex:none}.hello .hd b{display:block;font-size:17px;font-variant-numeric:tabular-nums}.hello .hd .muted{font-size:12.5px}
+.sec .cn{margin-left:auto;text-transform:none;letter-spacing:0}
+.btn.cn{background:#fff;border:1px solid var(--line);color:var(--pri);padding:7px 12px;font-size:13px;border-radius:999px}
+.btn.cn .zh{color:var(--sub)}
+.btn.cn svg{width:16px;height:16px}
+.btn.cn.quay svg{animation:quay 1s linear infinite}
+@keyframes quay{to{transform:rotate(360deg)}}
+.lancuoi{font-size:12px;color:var(--sub);margin:-4px 2px 10px;text-align:right}
+.mtiles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:6px}
+@media (min-width:720px){.mtiles{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.mtile{display:flex;flex-direction:column;align-items:flex-start;gap:8px;border:0;border-radius:20px;padding:16px;text-align:left;color:#fff;min-height:150px;box-shadow:0 6px 16px rgba(20,33,61,.12)}
+.mtile .mic{width:44px;height:44px;border-radius:12px;background:rgba(255,255,255,.22);display:grid;place-items:center}
+.mtile .mic svg{width:24px;height:24px}
+.mtile .mtx{display:flex;flex-direction:column;gap:2px;min-width:0;width:100%}
+.mtile .mtx>span:first-child .vi{font-size:15.5px;font-weight:700;line-height:1.25}
+.mtile .zh{color:rgba(255,255,255,.9);font-size:12.5px}
+.mtile b.so{font-size:34px;line-height:1.05;font-variant-numeric:tabular-nums;margin-top:2px}
+.mtile b.so small{font-size:17px;opacity:.85;margin-left:2px}
+.mtile em{font-style:normal;font-size:12.5px;opacity:.95;line-height:1.3}
+.mtile em .zh{display:inline;margin-left:4px;font-size:12px}
+.mtile .warnx{background:#fff;color:#B42318;border-radius:7px;padding:2px 7px;font-weight:700;font-size:12px;display:inline-block}
+.mtile .warnx .zh{color:#B42318;display:inline;margin-left:4px}
+.mt-blue{background:linear-gradient(135deg,#2F6FED,#1E5EEA)}.mt-teal{background:linear-gradient(135deg,#14A39A,#0B8A8A)}
+.mt-sky{background:linear-gradient(135deg,#3B9BF5,#1C7FE0)}.mt-cyan{background:linear-gradient(135deg,#22B3D6,#0F93B8)}
+.mt-purple{background:linear-gradient(135deg,#8467F0,#6E4BE0)}.mt-orange{background:linear-gradient(135deg,#F59A3A,#E8710A)}
+.alert{display:flex;align-items:center;gap:12px;width:100%;border:1px solid #F3C37E;background:var(--warnbg);border-radius:14px;padding:11px 12px;text-align:left;margin-bottom:10px}
+.alert svg{width:22px;height:22px;color:var(--warn);flex:none}.alert .main{flex:1;min-width:0;font-weight:600;font-size:14.5px}
+.alert.bad{border-color:#F3A29B;background:var(--badbg)}.alert.bad svg{color:var(--bad)}
+/* ===================== v1.6: Tra dây theo mạch ===================== */
+.vap{display:inline-block;color:#fff;font-weight:800;font-size:13px;border-radius:8px;padding:2px 9px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.card.mach{padding:12px 14px}
+.mach .mh{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.mach .mh b{font-size:16px}
+.mach .mh .vap{margin-left:auto}
+.path{margin:10px 0 2px 8px;border-left:3px solid var(--c);padding:0 0 0 14px}
+.path.ve{--c:#1f2937;margin-top:8px}
+.path .st{position:relative;padding:3px 0;font-size:14px;line-height:1.35}
+.path .st:before{content:"";position:absolute;left:-22px;top:8px;width:9px;height:9px;border-radius:50%;background:#fff;border:2.5px solid var(--c)}
+.path .st.w{color:var(--sub);font-size:13px}.path .st.w:before{display:none}
+.path .st.w i{display:inline-block;width:18px;height:4px;border-radius:2px;background:var(--c);vertical-align:middle;margin-right:6px}
+.path .st b{font-weight:650}.path .st .k{font-size:12px;color:var(--sub);margin-left:4px}.path .st .k .zh{display:inline;margin-left:4px}
+.path .st.hit{background:#FFF4C2;border-radius:6px;margin-left:-6px;padding-left:6px}
+.path .lbl{font-size:12px;font-weight:700;color:var(--c);margin:0 0 2px -2px}
+.path .lbl .zh{display:inline;margin-left:4px;color:var(--c);opacity:.85}
+.canlo{margin-top:8px;background:var(--warnbg);border:1px solid #F3C37E;border-radius:10px;padding:7px 10px;font-size:13px}
+.dtcard{display:flex;gap:12px;align-items:center}
+.hex{font:700 22px ui-monospace,SFMono-Regular,Menlo,monospace;border:2px solid var(--pri);padding:4px 12px;clip-path:polygon(14% 0,86% 0,100% 50%,86% 100%,14% 100%,0 50%);flex:none;min-width:70px;text-align:center}
+table.bn{font-size:13px}table.bn td,table.bn th{vertical-align:middle;padding:7px 5px}table.bn tr[data-act]{cursor:pointer}
+.chips.ap button .dt{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;vertical-align:0}
+.mach .mod{font-size:12px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.03em}.mach .mod .zh{display:inline;margin-left:4px}
+.mach .modten{font-size:18px;margin:2px 0 8px}.mach .modten .muted{font-size:14px}
+table.tuden{width:100%;border-collapse:collapse;margin-bottom:6px}table.tuden th{width:58px;text-align:left;vertical-align:top;font-size:13px;color:var(--sub);padding:6px 0;font-weight:700}
+table.tuden th .zh{display:inline;margin-left:3px}table.tuden td{padding:6px 0;font-weight:650;font-size:15px;border-bottom:1px dashed var(--line)}table.tuden tr:last-child td{border-bottom:0}
+details.ct{margin-top:6px;border-top:1px solid var(--line);padding-top:6px}details.ct summary{cursor:pointer;font-size:13px;color:var(--pri2);font-weight:600}details.ct summary .zh{display:inline;margin-left:4px}
 </style>
 </head>
 <body>
@@ -159,7 +242,7 @@ mark{background:#FFF0A8;border-radius:3px;padding:0 1px}
 <script>
 const API_URL = "";
 const MODE = "live";
-const APP_VER = "1.5.0";
+const APP_VER = "1.6.0";
 const DemoBackend = null;
 'use strict';
 // ============ Tiện ích chung ============
@@ -194,7 +277,7 @@ const T = {
   soDay: ['Số dây', '线号'], banVe: ['Bản vẽ', '图号'], to: ['Tờ', '图页'], tuDiem: ['Từ điểm', '起点'], denDiem: ['Đến điểm', '终点'],
   mau: ['Màu dây', '颜色'], tinHieu: ['Tín hiệu', '信号'], tinHieuZh: ['Tín hiệu tiếng Trung', '中文信号'], ghiChu: ['Ghi chú', '备注'],
   tlBanVe: ['Tệp bản vẽ (PDF)', '图纸文件（PDF）'], trang: ['Trang trong PDF', 'PDF页码'], moBanVe: ['Mở bản vẽ', '打开图纸'], khongGan: ['— Không gắn —', '— 不关联 —'],
-  nhapExcel: ['Nhập từ Excel', '从Excel导入'], fileMau: ['Tải file mẫu', '下载模板'], timDay: ['Số dây, điểm đầu/cuối, tín hiệu, tờ…', '线号、起止点、信号、图页…'],
+  nhapExcel: ['Nhập từ Excel', '从Excel导入'], fileMau: ['Tải file mẫu', '下载模板'], timDay: ['Hàng kẹp, cầu chì, mã cáp, số dòng, 48V…', '端子、保险丝、电缆、行号、电压…'],
   ganTLNhap: ['Gắn các dòng chưa có tệp bản vẽ với', '未关联图纸的行关联到'], chonFile: ['Chọn file .xlsx', '选择 .xlsx 文件'],
   hangCho: ['Hàng chờ gửi', '待发送'], guiLai: ['Gửi lại', '重新发送'], boViec: ['Bỏ việc này', '删除此项'], khongCho: ['Không còn việc chờ gửi', '没有待发送的项目'],
   matMang: ['Mất mạng', '离线'], giaLap: ['Giả lập mất mạng', '模拟离线'], xuat: ['Xuất Excel song ngữ', '导出双语Excel'], doiPin: ['Đổi PIN', '修改PIN'],
@@ -206,6 +289,10 @@ const T = {
   dangTai: ['Đang tải…', '加载中…'], loiMang: ['Không kết nối được máy chủ', '无法连接服务器'], demo: ['BẢN XEM THỬ', '演示版'],
   choGui: ['chờ gửi', '待发送'], may: ['Thông số', '参数'], apDung: ['Ngày áp dụng', '生效日期'], chuaGhi: ['Chưa ghi thông số', '尚未记录参数'],
   capNhatTs: ['Cập nhật thông số', '更新参数'], lichSuTs: ['Lịch sử thông số', '参数历史'], hienTai: ['Hiện tại', '当前'], xoaNham: ['Xoá lần ghi nhầm', '删除误记'],
+  dong: ['Dòng', '行号'], cap: ['Cáp / mã dây', '电缆'], capVoi: ['Cặp với', '配对'], dienAp: ['Điện áp', '电压'], baoVe: ['Bảo vệ', '保险'], canKiemTra: ['Cần kiểm tra', '待核实'],
+  home: ['Trang chủ', '首页'], them: ['Thêm', '更多'], tongQuan: ['Tổng quan', '概览'], capNhat: ['Cập nhật', '更新'], dangCapNhat: ['Đang cập nhật…', '正在更新…'],
+  daDongBo: ['Đã đồng bộ', '已同步'], lanCuoi: ['Cập nhật lúc', '更新于'], mucKhac: ['Các mục', '功能'], mach: ['Mạch điện', '电路'], bangNguon: ['Bảng nguồn', '电源一览'],
+  themMach: ['Mạch', '回路'], dongTo: ['Số dòng → tờ', '行号 → 图页'], ungDung: ['Ứng dụng', '应用'],
   soSanh: ['So sánh các chuyền', '产线对比'], mayin: ['Máy in', '喷码机'], ct: ['Chương trình', 'PLC程序'], dangChay: ['Đang chạy', '运行中'], dsChuyen: ['Chuyền sản xuất', '生产线'], dangGui: ['Đang gửi…', '发送中…'], daGui: ['Đã gửi hết', '已全部发送'], loiGui: ['gửi lỗi', '发送失败']
 };
 const IC = {
@@ -223,7 +310,13 @@ const IC = {
   link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
   img: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 17-5-5-8 7"/></svg>',
   xls: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h8l4 4v14H6z"/><path d="m9 11 4 5M13 11l-4 5"/></svg>',
-  up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>'
+  up: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>',
+  home: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg>',
+  them: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg>',
+  cn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 3v5h5"/><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 21v-5h-5"/></svg>',
+  set: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>',
+  canh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17v.5"/></svg>',
+  logo: '<svg viewBox="0 0 40 40"><defs><linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2F6FDB"/><stop offset="1" stop-color="#1E3A5F"/></linearGradient></defs><rect x="2" y="2" width="36" height="36" rx="11" fill="url(#lg1)"/><path d="M12 11h11l5 5v13H12z" fill="#fff"/><path d="M23 11v5h5" fill="#C9D6EA"/><path d="M15.5 20h9M15.5 24h6" stroke="#2F6FDB" stroke-width="2" stroke-linecap="round"/><circle cx="27" cy="28" r="5" fill="#F59A3A" stroke="#fff" stroke-width="2"/></svg>'
 };
 
 // ============ Lưu trên máy: IndexedDB (hàng chờ kèm ảnh/tệp, bản sao dữ liệu, tài liệu xem khi mất mạng) ============
@@ -252,7 +345,7 @@ const store = (() => {
 })();
 
 // ============ Trạng thái ============
-const S = { tk: '', data: null, Q: [], view: 'tim', q: '', the: '', nhom: '', wq: '', cfgId: '', soMau: 0, offline: false, simOff: false, sending: false, anh: {}, offDocs: {} };
+const S = { tk: '', data: null, Q: [], view: 'home', lanCuoi: 0, apChon: '', q: '', the: '', nhom: '', wq: '', cfgId: '', soMau: 0, offline: false, simOff: false, sending: false, anh: {}, offDocs: {} };
 const DEV = (() => { try { let d = localStorage.getItem('gctl_dev'); if (!d) { d = 'D' + Math.random().toString(36).slice(2, 12); localStorage.setItem('gctl_dev', d); } return d; } catch (e) { return 'D-nostore'; } })();
 
 function apiUrl() { return (typeof API_URL === 'string' && API_URL) || S.api || ''; }
@@ -365,6 +458,10 @@ function gopKetQua(action, d) {
   if (d.day) upsert(D.dayDien, d.day);
   if (d.dayDien) D.dayDien = d.dayDien;
   if (action === 'wireDelete') D.dayDien = D.dayDien.filter((x) => x.id !== d.id);
+  if (d.mach) { D.machDien = D.machDien || []; upsert(D.machDien, d.mach); }
+  if (d.machDien) D.machDien = d.machDien;
+  if (d.dongTo) D.dongTo = d.dongTo;
+  if (action === 'circuitDelete') D.machDien = (D.machDien || []).filter((x) => x.id !== d.id);
   if (d.cauHinh) upsert(D.cauHinh, d.cauHinh);
   if (action === 'cfgDelete') D.cauHinh = D.cauHinh.filter((x) => x.id !== d.id);
   if (d.thongSo) { D.thongSo = D.thongSo || []; upsert(D.thongSo, d.thongSo); }
@@ -387,7 +484,7 @@ function gopKetQua(action, d) {
 async function refresh(im) {
   try {
     const d = await api('data');
-    S.data = d; await saveSnap();
+    S.data = d; await saveSnap(); await ghiLanCuoi();
     // Thao tác còn trong hàng chờ: áp lại lên dữ liệu mới để không "biến mất" trên màn hình
     S.Q.forEach((q) => { if (APDUNG[q.action]) APDUNG[q.action](q.op, q.payload); });
     if (!im) render();
@@ -412,6 +509,8 @@ const APDUNG = {
   noteDelete(op, p) { S.data.ghiChu = S.data.ghiChu.filter((x) => x.id !== p.id); },
   wireSave(op, p) { const id = p.id || maTuOp('DD', op); upsert(S.data.dayDien, Object.assign({}, S.data.dayDien.find((x) => x.id === id) || {}, p, { id, _cho: op })); },
   wireDelete(op, p) { S.data.dayDien = S.data.dayDien.filter((x) => x.id !== p.id); },
+  circuitSave(op, p) { S.data.machDien = S.data.machDien || []; const id = p.id || maTuOp('MD', op); upsert(S.data.machDien, Object.assign({ capChoDich: '' }, S.data.machDien.find((x) => x.id === id) || {}, p, { id, _cho: op })); },
+  circuitDelete(op, p) { S.data.machDien = (S.data.machDien || []).filter((x) => x.id !== p.id); },
   paramSave(op, p) {
     const c = (S.data.chuyen || []).find((x) => x.id === p.chuyen) || { soMau: 1 }, x = Object.assign({}, p, { id: maTuOp('TS', op), soMau: c.soMau,
       ghiChuDich: p.ghiChuDich || '', lucTao: new Date().toISOString().slice(0, 19).replace('T', ' '), dichTay: {}, _cho: op });
@@ -451,26 +550,35 @@ function theTu(v) { const o = [], co = {}; (Array.isArray(v) ? v : String(v || '
 
 // ============ Khung giao diện ============
 const VIEWS = {};
-const TABS = ['tim', 'gc', 'tl', 'mayin', 'ct'];
+// v1.6: thanh dưới giống app bảo dưỡng — Trang chủ · Ghi chú · [Tìm ở giữa] · Máy in · Thêm. Tài liệu, Chương trình, Cài đặt nằm trong "Thêm"
+// (và có ô riêng ở Trang chủ).
+const TABS = ['home', 'gc', 'tim', 'mayin', 'them'];
 // Tab "Máy in" gom ba màn của máy in phun: Thông số, Tính toán, Tra dây (bản vẽ máy in); nhớ màn con mở lần trước
 const SUB_MAYIN = ['may', 'tinh', 'day'];
-function go(v) { if (v === 'mayin') v = S.subMay || 'may'; if (SUB_MAYIN.indexOf(v) >= 0) S.subMay = v; S.view = v; render(); window.scrollTo(0, 0); }
+const TRONG_THEM = ['tl', 'ct', 'cai', 'them'];
+function go(v) { if (v === 'mayin') v = S.subMay || 'may'; if (v === 'cai') v = 'them'; if (SUB_MAYIN.indexOf(v) >= 0) S.subMay = v; S.view = v; render(); window.scrollTo(0, 0); }
+const tabCua = (v) => SUB_MAYIN.indexOf(v) >= 0 ? 'mayin' : TRONG_THEM.indexOf(v) >= 0 ? 'them' : TABS.indexOf(v) >= 0 ? v : 'home';
+// Chữ trên hình tròn: tên người Việt lấy chữ đầu của tên (từ cuối, "Bùi Văn Chung" → C); từ cuối viết thường (tên mặc định "Chủ app") thì lấy từ đầu
+const chuDau = () => { const w = String((S.data && S.data.toi && S.data.toi.ten) || 'C').trim().split(/\s+/), c = w[w.length - 1] || 'C'; return (c.charAt(0) === c.charAt(0).toUpperCase() ? c : w[0]).charAt(0).toUpperCase(); };
 function renderBar() {
   const b = $('header.bar'); if (!b) return;
   const n = S.Q.length, loi = S.Q.some((q) => q.err);
-  $('#netInfo').innerHTML = (S.offline ? `<span class="net">${T.matMang[0]} · ${T.matMang[1]}</span> ` : '') +
-    (n ? `<button id="qBtn" data-act="qOpen" style="${loi ? 'background:#B42318' : ''}">${S.sending ? T.dangGui[0] + ' · ' + T.dangGui[1] : n + ' ' + (loi ? T.loiGui[0] + ' · ' + T.loiGui[1] : T.choGui[0] + ' · ' + T.choGui[1])}</button>` : '');
+  // Hàng chờ còn việc → nút "n chờ gửi" (bấm mở hàng chờ); mất mạng → "Mất mạng"; còn lại "Đã đồng bộ"
+  $('#netInfo').innerHTML = (S.offline ? `<span class="pill off"><i></i>${L(T.matMang[0], T.matMang[1])}</span>` : '') +
+    (n ? `<button id="qBtn" class="pill ${loi ? 'loi' : 'cho'}" data-act="qOpen"><i></i>${S.sending ? L(T.dangGui[0], T.dangGui[1]) : L(n + ' ' + (loi ? T.loiGui[0] : T.choGui[0]), loi ? T.loiGui[1] : T.choGui[1])}</button>`
+      : !S.offline ? `<span class="pill" id="syncOk"><i></i>${L(T.daDongBo[0], T.daDongBo[1])}</span>` : '');
+  const bd = $('.tabs .tab[data-v="home"] .bdg'); if (bd) { bd.textContent = n; bd.hidden = !n; }
 }
 function render() {
   const app = $('#app');
   if (!S.tk) { renderLogin(); return; }
   if (!S.data) { app.innerHTML = `<div class="empty" style="padding-top:40vh">${TT('dangTai')}</div>`; return; }
-  const v = VIEWS[S.view] || VIEWS.tim, laMay = SUB_MAYIN.indexOf(S.view) >= 0, tab = laMay ? 'mayin' : TABS.indexOf(S.view) >= 0 ? S.view : 'cai';
+  const v = VIEWS[S.view] || VIEWS.home, laMay = SUB_MAYIN.indexOf(S.view) >= 0, tab = tabCua(S.view), tieuDe = laMay ? 'mayin' : T[S.view] ? S.view : tab;
   const seg = laMay ? `<div class="seg">${SUB_MAYIN.map((k) => `<button class="${S.view === k ? 'on' : ''}" data-act="sub" data-v="${k}">${L(T[k][0], T[k][1])}</button>`).join('')}</div>` : '';
-  app.innerHTML = `<header class="bar"><h1>${IS_DEMO ? `<span class="net" style="background:#fff;color:#1E3A5F">${T.demo[0]}</span> ` : ''}${L(T[tab][0], T[tab][1])}</h1>
-    <span id="netInfo"></span><button data-act="goCai" aria-label="Cài đặt" id="caiBtn">${IC.cai}</button></header>
+  app.innerHTML = `<header class="bar"><span class="lgo">${IC.logo}</span><h1>${IS_DEMO ? `<span class="demo">${T.demo[0]} · ${T.demo[1]}</span>` : ''}${L(T[tieuDe][0], T[tieuDe][1])}</h1>
+    <span id="netInfo"></span><button class="av" data-act="goCai" aria-label="Cài đặt · 设置" id="caiBtn">${esc(chuDau())}</button></header>
     <main id="main">${seg}${v.html()}</main>
-    <nav class="tabs">${TABS.map((k) => `<button class="tab${tab === k ? ' on' : ''}" data-v="${k}">${IC[k]}${L(T[k][0], T[k][1])}</button>`).join('')}</nav>`;
+    <nav class="tabs">${TABS.map((k) => `<button class="tab${k === 'tim' ? ' sc' : ''}${tab === k ? ' on' : ''}" data-v="${k}" aria-label="${T[k][0]} · ${T[k][1]}"><span class="tic">${IC[k]}${k === 'home' ? '<span class="bdg" hidden></span>' : ''}</span>${L(T[k][0], T[k][1])}</button>`).join('')}</nav>`;
   renderBar();
   if (v.after) v.after();
 }
@@ -525,7 +633,7 @@ async function logout() {
 // ============ Tìm kiếm chung ============
 function hayGC(x) { return norm([x.tieuDe, x.tieuDeDich, x.noiDung, x.noiDungDich, (x.the || []).join(' '), x.maMay, x.id].join(' ')); }
 function hayTL(x) { return norm([x.ten, x.tenDich, x.tenTep, (x.the || []).join(' '), tenNhom(x.nhom), 'v' + x.phienBan].join(' ')); }
-function hayDay(x) { return norm([x.soDay, x.banVe, 'to ' + x.to, x.tuDiem, x.denDiem, x.mau, x.tinHieu, x.tinHieuZh, x.ghiChu].join(' ')); }
+function hayDay(x) { return norm([x.soDay, x.banVe, 'to ' + x.to, x.tuDiem, x.denDiem, x.mau, x.tinHieu, x.tinHieuZh, x.ghiChu, x.dong ? 'dong ' + x.dong : '', x.mach, x.cap, x.capVoi, x.dienAp, x.baoVe, x.canKiemTra].join(' ')); }
 function khop(hay, q) { const ws = norm(q).split(' ').filter(Boolean); return ws.every((w) => hay.indexOf(w) >= 0); }
 function tenNhom(id) { const n = ((S.data && S.data.nhom) || []).find((x) => x.id === id); return n ? n.ten + ' · ' + n.tenZh : ''; }
 function nhomObj(id) { return ((S.data && S.data.nhom) || []).find((x) => x.id === id); }
@@ -554,10 +662,13 @@ const rowGC = (x, q) => `<button class="row note" data-act="noteView" data-id="$
 const rowTL = (g, q) => { const x = g.hh; return `<button class="row doc" data-act="docView" data-matl="${esc(g.maTL)}">${x.kieu === 'LINK' ? IC.link : IC.tl}<div class="main">
   <div class="nm">${hl(x.ten, q || '')}</div>${x.tenDich ? `<div class="sub">${hl(x.tenDich, q || '')}</div>` : ''}
   <div><span class="chip">${esc(tenNhom(x.nhom))}</span><span class="chip ok">v${x.phienBan}</span>${g.ds.length > 1 ? `<span class="chip">${g.ds.length} ${T.soBan[0]}</span>` : ''}${S.offDocs[x.id] ? `<span class="chip ok">offline</span>` : ''}${(x.the || []).map((t) => `<span class="chip">#${esc(t)}</span>`).join('')}</div></div></button>`; };
-const rowDay = (x, q) => `<button class="row wire" data-act="wireView" data-id="${esc(x.id)}">${IC.day}<div class="main"><div class="nm mono">${hl(x.soDay, q || '')}
-  <span class="muted">${esc(x.banVe)}${x.to ? ' · ' + T.to[0] + ' ' + esc(x.to) : ''}</span></div>
-  <div class="sub">${hl(x.tuDiem, q || '')} → ${hl(x.denDiem, q || '')}${x.mau ? ' · ' + esc(x.mau) : ''}</div>
-  <div class="sub">${hl(x.tinHieu, q || '')}${x.tinHieuZh ? ' · ' + esc(x.tinHieuZh) : ''}${x._cho ? ` <span class="chip warn">${T.choGui[0]}</span>` : ''}</div></div></button>`;
+// Một dây: dòng trên là Module (mạch nó thuộc về, không có thì tín hiệu), dưới là Từ → Đến
+const machCuaDay = (x) => x.mach ? (S.data.machDien || []).find((c) => norm(c.ten) === norm(x.mach) && (!c.banVe || !x.banVe || c.banVe === x.banVe)) : null;
+const rowDay = (x, q) => { const m = machCuaDay(x), mod = m ? modCua(m) + (m.capChoDich ? ' · ' + m.capChoDich : '') : '';
+  return `<button class="row wire" data-act="wireView" data-id="${esc(x.id)}">${IC.day}<div class="main">
+  <div class="nm">${mod ? esc(mod) : hl(x.tinHieu || x.soDay, q || '')}${x.dienAp ? ` <span class="chip" style="background:${mauAp(nhomAp(x.dienAp))};color:#fff">${esc(x.dienAp)}</span>` : ''}</div>
+  <div class="sub"><b>${L('Từ', '从').replace(/<[^>]+>/g, ' ').trim()}:</b> ${hl(x.tuDiem, q || '')} → <b>${L('Đến', '到').replace(/<[^>]+>/g, ' ').trim()}:</b> ${hl(x.denDiem, q || '')}</div>
+  <div class="sub"><span class="mono">${hl(x.soDay, q || '')}</span> · ${esc(x.banVe)}${x.to ? ' · ' + T.to[0] + ' ' + esc(x.to) : ''}${mod ? ' · ' + hl(x.tinHieu, q || '') : ''}${x.tinHieuZh ? ' · ' + esc(x.tinHieuZh) : ''}${x.mau ? ' · ' + esc(x.mau) : ''}${x._cho ? ` <span class="chip warn">${T.choGui[0]}</span>` : ''}${x.canKiemTra ? ` <span class="chip warn">⚠ ${L('cần kiểm tra', '待核实').replace(/<[^>]+>/g, ' ')}</span>` : ''}</div></div></button>`; };
 
 VIEWS.tim = {
   html() {
@@ -575,9 +686,11 @@ VIEWS.tim = {
     if (cv.length + sps.length) o += `<div class="sec">${L(T.may[0], T.may[1])}<span>${cv.length + sps.length}</span></div>` + cv.map(rowLine).join('') + sps.map(rowSP).join('');
     const plc = plcTim(q, {}, 5);
     if (plc.length) o += `<div class="sec">${L(T.ct[0], T.ct[1])}<span>${plc.length >= 5 ? '5+' : plc.length}</span></div>` + plc.map((h) => rowPLC(h, q, true)).join('');
-    if (!gc.length && !tl.length && !dd.length && !cv.length && !sps.length && !plc.length) return o + `<div class="card empty">${TT('khongThay')}</div>`;
+    const md = (D.machDien || []).filter((x) => khop(hayMach(x), q));
+    if (!gc.length && !tl.length && !dd.length && !cv.length && !sps.length && !plc.length && !md.length) return o + `<div class="card empty">${TT('khongThay')}</div>`;
     if (gc.length) o += `<div class="sec">${L(T.gc[0], T.gc[1])}<span>${gc.length}</span></div>` + gc.slice(0, 30).map((x) => rowGC(x, q)).join('');
     if (tl.length) o += `<div class="sec">${L(T.tl[0], T.tl[1])}<span>${tl.length}</span></div>` + tl.slice(0, 30).map((g) => rowTL(g, q)).join('');
+    if (md.length) o += `<div class="sec">${L(T.mach[0], T.mach[1])}<span>${md.length}</span></div>` + md.slice(0, 5).map((x) => cardMach(x, q)).join('');
     if (dd.length) o += `<div class="sec">${L(T.day[0], T.day[1])}<span>${dd.length}</span></div>` + dd.slice(0, 50).map((x) => rowDay(x, q)).join('');
     return o;
   },
@@ -617,13 +730,14 @@ function noteView(id) {
 }
 let ANH_MOI = [], ANH_GIU = [];
 function noteEdit(id) {
-  const x = id ? S.data.ghiChu.find((n) => n.id === id) : null;
+  const x = id ? S.data.ghiChu.find((n) => n.id === id) : null, pre = !x && S.preNote ? S.preNote : {};
+  S.preNote = null;
   ANH_MOI = []; ANH_GIU = x ? (x.anh || []).slice() : [];
   sheet(x ? L(T.sua[0], T.sua[1]) : L(T.themGC[0], T.themGC[1]), `
-    <label class="f"><span class="l">${L(T.tieuDe[0], T.tieuDe[1])}</span><input class="i" id="nTitle" value="${esc(x ? x.tieuDe : '')}" maxlength="200"></label>
-    <label class="f"><span class="l">${L(T.noiDung[0], T.noiDung[1])}</span><textarea class="i" id="nBody">${esc(x ? x.noiDung : '')}</textarea></label>
-    <div class="grid2"><label class="f"><span class="l">${L(T.the[0], T.the[1])}</span><input class="i" id="nTags" value="${esc(x ? (x.the || []).join(', ') : (S.the || ''))}"></label>
-    <label class="f"><span class="l">${L(T.maMay[0], T.maMay[1])}</span><input class="i" id="nMay" value="${esc(x ? x.maMay : '')}"></label></div>
+    <label class="f"><span class="l">${L(T.tieuDe[0], T.tieuDe[1])}</span><input class="i" id="nTitle" value="${esc(x ? x.tieuDe : pre.tieuDe || '')}" maxlength="200"></label>
+    <label class="f"><span class="l">${L(T.noiDung[0], T.noiDung[1])}</span><textarea class="i" id="nBody">${esc(x ? x.noiDung : pre.noiDung || '')}</textarea></label>
+    <div class="grid2"><label class="f"><span class="l">${L(T.the[0], T.the[1])}</span><input class="i" id="nTags" value="${esc(x ? (x.the || []).join(', ') : (pre.the || S.the || ''))}"></label>
+    <label class="f"><span class="l">${L(T.maMay[0], T.maMay[1])}</span><input class="i" id="nMay" value="${esc(x ? x.maMay : pre.maMay || '')}"></label></div>
     <div class="f"><span class="l" style="font-weight:600;font-size:14px">${L(T.anh[0], T.anh[1])}</span>
     <div class="thumbs" id="nThumbs"></div>
     <label class="btn ghost sm" style="margin-top:8px">${IC.cam}${L(T.chupAnh[0], T.chupAnh[1])}<input type="file" id="nPhoto" accept="image/*" capture="environment" multiple hidden></label></div>
@@ -783,26 +897,165 @@ async function verOffline(id) {
 }
 
 // ============ Tra dây ============
+// ============ Tra dây (v1.6): tra theo MẠCH — gõ hàng kẹp / cầu chì / mã cáp / điện áp là ra cả đường đi;
+// gõ số trong hình lục giác (số dòng) là ra tờ nào. Bản vẽ không đánh số dây: dây gọi theo màu + mã cáp, sợi "…'S BLACK" là dây về.
+const dsMachD = () => (S.data.machDien || []);
+const dsDongTo = () => (S.data.dongTo || []);
+// Gom điện áp về nhãn lọc: "48 VDC" → "48 V", "208–240 VAC" → "AC", "PE" → "PE"; dây về "0 V" không thành nhãn riêng
+function nhomAp(v) {
+  const t = String(v || '').toUpperCase();
+  if (!t.trim()) return '';
+  if (/\bPE\b|ĐẤT|DAT\b/.test(t)) return 'PE';
+  if (/VAC|\bAC\b/.test(t)) return 'AC';
+  const m = /(\d+(?:[.,]\d+)?)\s*V/.exec(t);
+  return m && Number(m[1].replace(',', '.')) > 0 ? m[1].replace(',', '.') + ' V' : '';
+}
+const MAU_AP = { '150 V': '#7C3AED', '48 V': '#DC2626', '28 V': '#0F766E', '24 V': '#EA7A12', '15 V': '#2563EB', '12 V': '#C99A06', '5 V': '#0D9488', AC: '#7A5230', PE: '#15803D' };
+const mauAp = (n) => MAU_AP[n] || '#475569';
+const thuTuAp = (a) => a === 'AC' ? 1000 : a === 'PE' ? 2000 : -parseFloat(a);
+const vapChip = (v) => { const n = nhomAp(v); return v ? `<span class="vap" style="background:${mauAp(n)}">${esc(v)}</span>` : ''; };
+const hayMach = (x) => norm([x.ten, x.capCho, x.capChoDich, x.dienAp, x.mau, x.nguon, x.capDi, x.cauChi, x.dayTrongTu, x.kepDuong, x.den, x.kepAm, x.diemVe, x.dayVe, x.cauChiVe, x.banVe, 'to ' + x.to, 'dong ' + x.dong, x.canKiemTra].join(' '));
+// Các số dòng được nhắc tới trong một chuỗi: "→ dòng 373/374", "Dòng 313, 315 và 331"
+function soDongTrong(t) {
+  const o = []; String(t || '').replace(/d[òo]ng\s+([\d\s,/và&]+)/gi, (m, g) => { (g.match(/\d+/g) || []).forEach((n) => o.push(Number(n))); return m; });
+  return o;
+}
+function machKhopAp(x, ap) { return !ap || nhomAp(x.dienAp) === ap; }
+function dayKhopAp(x, ap) {
+  if (!ap) return true;
+  if (nhomAp(x.dienAp) === ap) return true;
+  const m = x.mach && dsMachD().find((c) => norm(c.ten) === norm(x.mach) && (!c.banVe || !x.banVe || c.banVe === x.banVe));
+  return !!(m && nhomAp(m.dienAp) === ap);
+}
+function cacAp() {
+  const co = {};
+  dsMachD().forEach((x) => { const n = nhomAp(x.dienAp); if (n) co[n] = 1; });
+  S.data.dayDien.forEach((x) => { const n = nhomAp(x.dienAp); if (n) co[n] = 1; });
+  return Object.keys(co).sort((a, b) => thuTuAp(a) - thuTuAp(b));
+}
+// Một mạch vẽ dọc: dây đi (+) màu theo điện áp, dây về (−) màu đen; điểm khớp chữ đang tìm được tô vàng
+function veMach(x, q) {
+  const c = mauAp(nhomAp(x.dienAp)), qn = norm(q || ''), hit = (t) => qn && norm(t).indexOf(qn) >= 0 ? ' hit' : '';
+  const diem = (t, k) => t ? `<div class="st${hit(t)}"><b>${hl(t, q || '')}</b>${k ? `<span class="k">${L(k[0], k[1])}</span>` : ''}</div>` : '';
+  const day = (t) => t ? `<div class="st w${hit(t)}"><i></i>${hl(t, q || '')}</div>` : '';
+  const chung = String(x.nguon || '').replace(/\s*đầu ra\s*/i, ' ').trim();
+  return `<div class="path" style="--c:${c}"><div class="lbl">${L('Dây đi (+)', '去线')}</div>${diem(x.nguon, ['nguồn', '电源'])}${day(x.capDi)}${diem(x.cauChi, ['cầu chì', '保险丝'])}${day(x.dayTrongTu)}
+      ${diem(x.kepDuong, ['hàng kẹp', '端子'])}${diem(x.den, ['đến', '去向'])}</div>
+    ${x.kepAm || x.diemVe || x.dayVe ? `<div class="path ve"><div class="lbl">${L('Dây về (−)', '回线')}</div>${diem(x.diemVe, ['chân về', '回线端'])}${day(x.dayVe)}${diem(x.kepAm, ['hàng kẹp', '端子'])}
+      ${diem(x.cauChiVe, ['cầu chì', '保险丝'])}${chung ? diem(chung + ' (−)', ['cực chung', '公共端']) : ''}</div>` : ''}`;
+}
+const ghiChuMach = (x) => S.data.ghiChu.filter((g) => g.maMay && norm(g.maMay) === norm(x.ten));
+// Một mạch chỉ hiện 3 thứ: Module (cấp cho thiết bị nào), Từ (bộ nguồn), Đến (thiết bị / chân).
+// Cầu chì, hàng kẹp, dây về nằm trong "Chi tiết" — tự mở khi chữ đang tìm nằm trong đó (ví dụ gõ TB23)
+const modCua = (x) => x.capCho || x.ten;
+function cardMach(x, q, day) {
+  const gcs = ghiChuMach(x), qn = norm(q || '');
+  const moCT = !!qn && norm([x.cauChi, x.capDi, x.dayTrongTu, x.kepDuong, x.kepAm, x.diemVe, x.dayVe, x.cauChiVe].join(' ')).indexOf(qn) >= 0;
+  return `<div class="card mach" data-id="${esc(x.id)}"><div class="mh"><span class="mod">${L('Module', '模块')}</span>${vapChip(x.dienAp)}</div>
+    <div class="modten"><b>${hl(modCua(x), q || '')}</b>${x.capChoDich ? ` <span class="muted">${esc(x.capChoDich)}</span>` : ''}</div>
+    <table class="tuden"><tr><th>${L('Từ', '从')}</th><td>${hl(x.nguon || '—', q || '')}</td></tr><tr><th>${L('Đến', '到')}</th><td>${hl(x.den || '—', q || '')}</td></tr></table>
+    <div class="muted">${x.capCho ? hl(x.ten, q || '') + ' · ' : ''}${esc(x.banVe)}${x.to ? ' · ' + T.to[0] + ' ' + esc(x.to) + ' · 第' + esc(x.to) + '页' : ''}${x._cho ? ` <span class="chip warn">${T.choGui[0]}</span>` : ''}</div>
+    ${x.canKiemTra ? `<div class="canlo">⚠ ${esc(x.canKiemTra)}</div>` : ''}
+    <details class="ct"${moCT ? ' open' : ''}><summary>${L('Chi tiết: cầu chì, hàng kẹp, dây về', '详细：保险丝、端子、回线')}</summary>${veMach(x, q)}</details>
+    ${gcs.length ? `<div style="margin-top:8px">${gcs.slice(0, 3).map((g) => `<button class="chip" data-act="noteView" data-id="${esc(g.id)}" style="border:0">📝 ${esc(g.tieuDe)}</button>`).join('')}</div>` : ''}
+    <div class="btns">${x.taiLieuId ? `<button class="btn sm" data-act="machOpenDoc" data-id="${esc(x.id)}">${IC.tl}${L(T.moBanVe[0] + (x.to ? ' tờ ' + esc(x.to) : ''), T.moBanVe[1])}</button>` : ''}
+      <button class="btn sm ghost" data-act="machNote" data-id="${esc(x.id)}">${IC.gc}${L('Ghi chú', '备注')}</button></div></div>`;
+}
+// Số dòng → tờ: số trong hình lục giác. Kèm các mạch / dây nhắc tới dòng đó
+function cardDong(n) {
+  const ds = dsDongTo().filter((d) => n >= Number(d.tuDong) && n <= Number(d.denDong));
+  if (!ds.length) return '';
+  const lienQuan = dsMachD().filter((x) => String(x.dong) === String(n) || soDongTrong([x.den, x.diemVe, x.nguon, x.kepDuong].join(' ')).indexOf(n) >= 0);
+  return ds.map((d) => `<div class="card" id="dtKq"><div class="dtcard"><span class="hex">${n}</span><div><b>${L('Dòng ' + n + ' nằm ở tờ ' + esc(d.to), '第' + n + '行在第' + esc(d.to) + '页')}</b>
+      <div class="muted">${esc(d.banVe)} · dải · 范围 ${esc(d.tuDong)}–${esc(d.denDong)}${d.noiDung ? ' · ' + esc(d.noiDung) : ''}${d.noiDungDich ? ' · ' + esc(d.noiDungDich) : ''}</div></div></div>
+      ${lienQuan.length ? `<div class="muted" style="margin-top:8px">${L('Mạch đi qua dòng này', '经过此行的回路')}:</div>${lienQuan.map((x) => `<button class="row" data-act="machView" data-id="${esc(x.id)}" style="margin:6px 0 0">${IC.set}<div class="main"><div class="nm">${esc(x.ten)} ${vapChip(x.dienAp)}</div><div class="sub">${esc(x.capCho)}</div></div></button>`).join('')}` : ''}
+      ${d.taiLieuId ? `<div class="btns"><button class="btn sm" data-act="dtOpen" data-id="${esc(d.id)}">${IC.tl}${L(T.moBanVe[0] + ' tờ ' + esc(d.to), T.moBanVe[1])}</button></div>` : ''}</div>`).join('');
+}
+function bangNguon(ds) {
+  if (!ds.length) return '';
+  return `<div class="sec">${L('Các mạch: từ đâu đến đâu', '回路：从哪里到哪里')}<span>${ds.length}</span></div><div class="card" style="padding:4px 6px;overflow-x:auto"><table class="t bn" id="bangNguon">
+    <tr><th>${L('Module', '模块')}</th><th>${L('Từ → Đến', '从 → 到')}</th><th>${L('Áp', '电压')}</th></tr>
+    ${ds.map((x) => `<tr data-act="machView" data-id="${esc(x.id)}"><td><b>${esc(modCua(x))}</b>${x.canKiemTra ? ' ⚠' : ''}<div class="muted">${esc(x.ten)}</div></td><td>${esc(x.nguon || '—')}<div>→ ${esc(x.den || '—')}</div></td><td>${vapChip(nhomAp(x.dienAp) || x.dienAp)}</td></tr>`).join('')}</table>
+    <div class="muted" style="margin:6px 6px 4px">${L('Bấm một dòng để xem cả mạch', '点击一行查看整条回路')}</div></div>`;
+}
 VIEWS.day = {
   html() {
-    const q = S.wq, ds = S.data.dayDien.filter((x) => !norm(q) || khop(hayDay(x), q))
-      .sort((a, b) => String(a.banVe + a.to).localeCompare(String(b.banVe + b.to), 'vi', { numeric: true }) || String(a.soDay).localeCompare(String(b.soDay), 'vi', { numeric: true }));
-    return `<div class="search">${IC.tim}<input id="wq" type="search" placeholder="${T.timDay[0]}" value="${esc(q)}" autocomplete="off"></div>
-      <div class="btns" style="margin:0 0 12px"><button class="btn sm ghost" data-act="wireImport">${IC.xls}${L(T.nhapExcel[0], T.nhapExcel[1])}</button><button class="btn sm ghost" data-act="wireTpl">${L(T.fileMau[0], T.fileMau[1])}</button></div>
-      <div class="muted" style="margin:0 2px 8px">${ds.length} / ${S.data.dayDien.length}</div>
-      ${ds.slice(0, 200).map((x) => rowDay(x, q)).join('') || `<div class="card empty">${TT('khongThay')}</div>`}
-      <button class="btn fab" id="fabWire" data-act="wireNew">${IC.plus}${L(T.themDay[0], T.themDay[1])}</button>`;
+    const q = S.wq, ap = S.apChon, so = /^\s*\d{1,4}\s*$/.test(q) ? Number(q) : null;
+    const xep = (a, b) => String(a.banVe + a.to).localeCompare(String(b.banVe + b.to), 'vi', { numeric: true });
+    const machs = dsMachD().filter((x) => machKhopAp(x, ap) && (!norm(q) || khop(hayMach(x), q) || (so !== null && soDongTrong(x.den + ' ' + x.diemVe).indexOf(so) >= 0)))
+      .sort((a, b) => thuTuAp(nhomAp(a.dienAp)) - thuTuAp(nhomAp(b.dienAp)) || xep(a, b) || String(a.ten).localeCompare(String(b.ten), 'vi', { numeric: true }));
+    const ds = S.data.dayDien.filter((x) => dayKhopAp(x, ap) && (!norm(q) || khop(hayDay(x), q)))
+      .sort((a, b) => xep(a, b) || String(a.soDay).localeCompare(String(b.soDay), 'vi', { numeric: true }));
+    const aps = cacAp();
+    let o = `<div class="search">${IC.tim}<input id="wq" type="search" placeholder="${T.timDay[0]}" value="${esc(q)}" autocomplete="off"></div>
+      ${aps.length ? `<div class="chips ap"><button class="${!ap ? 'on' : ''}" data-act="apChon" data-ap="">${L(T.tatCa[0], T.tatCa[1])}</button>${aps.map((a) => `<button class="${ap === a ? 'on' : ''}" data-act="apChon" data-ap="${esc(a)}"><span class="dt" style="background:${mauAp(a)}"></span>${esc(a)}</button>`).join('')}</div>` : ''}
+      <div class="btns" style="margin:0 0 12px"><button class="btn sm ghost" data-act="wireImport">${IC.xls}${L(T.nhapExcel[0], T.nhapExcel[1])}</button><button class="btn sm ghost" data-act="wireTpl">${L(T.fileMau[0], T.fileMau[1])}</button><button class="btn sm ghost" data-act="machNew">${IC.plus}${L(T.themMach[0], T.themMach[1])}</button></div>`;
+    if (so !== null) o += cardDong(so);
+    if (norm(q)) {
+      if (machs.length) o += `<div class="sec">${L(T.mach[0], T.mach[1])}<span>${machs.length}</span></div>` + machs.slice(0, 12).map((x) => cardMach(x, q)).join('');
+    } else o += bangNguon(machs);
+    o += `<div class="sec">${L(T.day[0], T.day[1])}<span>${ds.length} / ${S.data.dayDien.length}</span></div>`;
+    o += ds.slice(0, 200).map((x) => rowDay(x, q)).join('') || (machs.length || (so !== null && dsDongTo().some((d) => so >= d.tuDong && so <= d.denDong)) ? '' : `<div class="card empty">${TT('khongThay')}</div>`);
+    return o + `<button class="btn fab" id="fabWire" data-act="wireNew">${IC.plus}${L(T.themDay[0], T.themDay[1])}</button>`;
   },
   after() { const i = $('#wq'); i.addEventListener('input', debounce(() => { if (!i.isConnected) return; S.wq = i.value; const p = i.selectionStart; render(); const j = $('#wq'); if (j) { j.focus(); j.setSelectionRange(p, p); } }, 180)); }
 };
+function machView(id) {
+  const x = dsMachD().find((m) => m.id === id); if (!x) return;
+  sheet(esc(x.ten), cardMach(x, '', true) + `<div class="btns"><button class="btn ghost" data-act="machEdit" data-id="${esc(x.id)}">${L(T.sua[0], T.sua[1])}</button>
+    ${x._cho ? '' : `<button class="btn bad" data-act="machDel" data-id="${esc(x.id)}">${L(T.xoa[0], T.xoa[1])}</button>`}</div>`);
+}
+// Các ô của một mạch: [khoá, tiếng Việt, tiếng Trung, gợi ý]
+const O_MACH = [['ten', 'Tên mạch', '回路名称', 'TEST-PSC JK'], ['capCho', 'Module (cấp cho)', '模块（供电对象）', 'Gia nhiệt 1'], ['dienAp', 'Điện áp', '电压', '48 V'], ['mau', 'Màu dây đi', '去线颜色', 'Đỏ'],
+  ['nguon', 'Bộ nguồn / đầu ra', '电源/输出', 'TEST-PSC đầu ra J-K'], ['capDi', 'Cáp đi', '去线电缆', 'Đỏ · cáp TEST-C03'], ['cauChi', 'Cầu chì', '保险丝', 'FB2 10 A'], ['dayTrongTu', 'Dây trong tủ', '柜内线', '18AWG đỏ'],
+  ['kepDuong', 'Hàng kẹp (+)', '端子+', 'TB23'], ['den', 'Đến (thiết bị / chân)', '去向', 'Đầu nối TEST-J60 chân 1'], ['diemVe', 'Chân về', '回线端', 'Đầu nối TEST-J60 chân 3'], ['dayVe', 'Dây về (−)', '回线', 'Đen-cặp-đỏ'],
+  ['kepAm', 'Hàng kẹp (−)', '端子−', 'TB27'], ['cauChiVe', 'Cầu chì dây về', '回线保险丝', ''], ['banVe', 'Bản vẽ', '图号', ''], ['to', 'Tờ', '图页', ''], ['dong', 'Dòng', '行号', ''], ['canKiemTra', 'Cần kiểm tra', '待核实', '']];
+function machEdit(id) {
+  const x = id ? dsMachD().find((m) => m.id === id) : null, v = (k) => esc(x ? (x[k] === undefined ? '' : x[k]) : '');
+  const f = (o) => `<label class="f"><span class="l">${L(o[1], o[2])}</span><input class="i" id="m_${o[0]}" value="${v(o[0])}" ${o[3] ? `placeholder="${esc(o[3])}"` : ''} autocomplete="off"></label>`;
+  const nhom = (ks) => O_MACH.filter((o) => ks.indexOf(o[0]) >= 0).map(f).join('');
+  sheet(x ? L(T.sua[0], T.sua[1]) : L('Thêm mạch', '添加回路'), `<div class="grid2">${nhom(['ten', 'dienAp'])}</div>${nhom(['capCho'])}
+    <label class="f"><span class="l">${L('Cấp cho (中文)', '供电对象（中文）')}</span><input class="i" id="m_capChoDich" value="${v('capChoDich')}" placeholder="${T.dichSau[0]} · ${T.dichSau[1]}"></label>
+    <div class="sec">${L('Dây đi (+)', '去线')}</div>${nhom(['nguon', 'capDi'])}<div class="grid2">${nhom(['cauChi', 'mau'])}</div>${nhom(['dayTrongTu', 'kepDuong', 'den'])}
+    <div class="sec">${L('Dây về (−)', '回线')}</div>${nhom(['diemVe', 'dayVe'])}<div class="grid2">${nhom(['kepAm', 'cauChiVe'])}</div>
+    <div class="sec">${L('Bản vẽ', '图纸')}</div><div class="grid2">${nhom(['banVe', 'to', 'dong'])}
+    <label class="f"><span class="l">${L(T.trang[0], T.trang[1])}</span><input class="i" id="m_trang" type="number" min="0" inputmode="numeric" value="${v('trang')}"></label></div>
+    <label class="f"><span class="l">${L(T.tlBanVe[0], T.tlBanVe[1])}</span><select class="i" id="m_taiLieuId"><option value="">${T.khongGan[0]}</option>${tepPdf().map((t) => `<option value="${esc(t.id)}" ${x && x.taiLieuId === t.id ? 'selected' : ''}>${esc(t.ten)} · v${t.phienBan}</option>`).join('')}</select></label>
+    ${nhom(['canKiemTra'])}
+    <div class="btns"><button class="btn wide" id="mSave" data-act="machSave" data-id="${esc(x ? x.id : '')}">${L(T.luu[0], T.luu[1])}</button></div>`, (o) => { o.dataset.zh0 = x ? x.capChoDich || '' : ''; });
+}
+async function machSave(id) {
+  const o = $('#ov'), g = (k) => { const e = $('#m_' + k); return e ? e.value.trim() : ''; };
+  const p = { id: id || '' };
+  O_MACH.forEach((k) => { p[k[0]] = g(k[0]); });
+  p.taiLieuId = g('taiLieuId'); p.trang = Number(g('trang')) || 0;
+  if (g('capChoDich') !== o.dataset.zh0) p.capChoDich = g('capChoDich');
+  if (!p.ten) { toast(L('Nhập tên mạch', '请输入回路名称'), true); return; }
+  if (!p.nguon && !p.kepDuong && !p.den) { toast(L('Nhập ít nhất nguồn, hàng kẹp hoặc điểm đến', '请至少填写电源、端子或去向'), true); return; }
+  const r = await ghi('circuitSave', p, 'Mạch ' + p.ten, (op) => APDUNG.circuitSave(op, p));
+  if (r.ok) { closeSheet(); if (!r.queued) tt('daLuu'); render(); }
+}
+async function machDel(id) {
+  if (!confirmXoa()) return;
+  const r = await ghi('circuitDelete', { id }, 'Xoá mạch ' + id, (op) => APDUNG.circuitDelete(op, { id }));
+  if (r.ok) { closeSheet(); if (!r.queued) tt('daXoa'); render(); }
+}
+// Ghi chú cho một mạch (điện áp đo được, đã thay cầu chì…): ghi chú thường, mã máy = tên mạch, thẻ "điện"
+function machNote(id) {
+  const x = dsMachD().find((m) => m.id === id); if (!x) return;
+  S.preNote = { tieuDe: 'Đo ' + x.ten + (x.dienAp ? ' (' + x.dienAp + ')' : ''), noiDung: (x.kepDuong ? 'Đo giữa ' + x.kepDuong + (x.kepAm ? ' và ' + x.kepAm : '') + ': ' : ''), the: 'điện', maMay: x.ten };
+  noteEdit('');
+}
 const tepPdf = () => S.data.taiLieu.filter((x) => x.kieu === 'FILE');
 function wireView(id) {
   const x = S.data.dayDien.find((d) => d.id === id); if (!x) return;
   const tl = S.data.taiLieu.find((t) => t.id === x.taiLieuId);
   const r = (k, v) => v ? `<tr><th>${L(T[k][0], T[k][1])}</th><td>${esc(v)}</td></tr>` : '';
-  sheet(`<span class="mono">${esc(x.soDay)}</span>`, `<table class="t">${r('banVe', x.banVe)}${r('to', x.to)}${r('tuDiem', x.tuDiem)}${r('denDiem', x.denDiem)}${r('mau', x.mau)}${r('tinHieu', x.tinHieu)}${r('tinHieuZh', x.tinHieuZh)}${r('ghiChu', x.ghiChu)}
+  const m = x.mach && dsMachD().find((c) => norm(c.ten) === norm(x.mach) && (!c.banVe || !x.banVe || c.banVe === x.banVe));
+  sheet(`<span class="mono">${esc(x.soDay)}</span>`, `<table class="t">${m ? `<tr><th>${L('Module', '模块')}</th><td><b>${esc(modCua(m))}</b>${m.capChoDich ? ' · ' + esc(m.capChoDich) : ''}</td></tr>` : ''}${r('tuDiem', x.tuDiem)}${r('denDiem', x.denDiem)}${r('banVe', x.banVe)}${r('to', x.to)}${r('dong', x.dong)}${r('mau', x.mau)}${r('cap', x.cap)}${r('capVoi', x.capVoi)}${r('dienAp', x.dienAp)}${r('baoVe', x.baoVe)}${r('tinHieu', x.tinHieu)}${r('tinHieuZh', x.tinHieuZh)}${r('mach', x.mach)}${r('ghiChu', x.ghiChu)}
+    ${x.canKiemTra ? `<tr><th>${L(T.canKiemTra[0], T.canKiemTra[1])}</th><td style="background:var(--warnbg)">⚠ ${esc(x.canKiemTra)}</td></tr>` : ''}
     ${tl ? `<tr><th>${L(T.tlBanVe[0], T.tlBanVe[1])}</th><td>${esc(tl.ten)} · v${tl.phienBan}${x.trang ? ' · ' + T.trang[0] + ' ' + x.trang : ''}</td></tr>` : ''}</table>
-    <div class="btns">${tl ? `<button class="btn" data-act="wireOpenDoc" data-id="${esc(x.id)}">${IC.tl}${L(T.moBanVe[0], T.moBanVe[1])}</button>` : ''}
+    <div class="btns">${tl ? `<button class="btn" data-act="wireOpenDoc" data-id="${esc(x.id)}">${IC.tl}${L(T.moBanVe[0], T.moBanVe[1])}</button>` : ''}${m ? `<button class="btn ghost" data-act="machView" data-id="${esc(m.id)}">${IC.set}${L('Xem cả mạch', '查看整条回路')}</button>` : ''}
     <button class="btn ghost" data-act="wireEdit" data-id="${esc(x.id)}">${L(T.sua[0], T.sua[1])}</button><button class="btn bad" data-act="wireDel" data-id="${esc(x.id)}">${L(T.xoa[0], T.xoa[1])}</button></div>`);
 }
 function wireEdit(id) {
@@ -813,11 +1066,15 @@ function wireEdit(id) {
     ${f('tinHieuZh', 'wTinZh', `placeholder="${T.dichSau[0]} · ${T.dichSau[1]}"`)}
     <div class="grid2"><label class="f"><span class="l">${L(T.tlBanVe[0], T.tlBanVe[1])}</span><select class="i" id="wDoc"><option value="">${T.khongGan[0]}</option>${tepPdf().map((t) => `<option value="${esc(t.id)}" ${x && x.taiLieuId === t.id ? 'selected' : ''}>${esc(t.ten)} · v${t.phienBan}</option>`).join('')}</select></label>
     ${f('trang', 'wTrang', 'type="number" min="0" inputmode="numeric"')}</div>${f('ghiChu', 'wGhi')}
+    <details class="card"${x && (x.dienAp || x.mach || x.cap || x.baoVe || x.dong || x.capVoi || x.canKiemTra) ? ' open' : ''}><summary>${L('Mạch, điện áp, cầu chì', '回路、电压、保险')}</summary><div style="margin-top:10px">
+    <div class="grid2">${f('dienAp', 'wAp', 'placeholder="24 V"')}${f('baoVe', 'wBaoVe', 'placeholder="FB2 10 A"')}${f('cap', 'wCap')}${f('dong', 'wDong', 'inputmode="numeric"')}</div>
+    ${f('capVoi', 'wCapVoi')}${f('mach', 'wMach', 'placeholder="TEST-PSC JK"')}${f('canKiemTra', 'wKT')}</div></details>
     <div class="btns"><button class="btn wide" id="wSave" data-act="wireSave" data-id="${esc(x ? x.id : '')}">${L(T.luu[0], T.luu[1])}</button></div>`, (o) => { o.dataset.zh0 = x ? x.tinHieuZh || '' : ''; });
 }
 async function wireSave(id) {
   const o = $('#ov'), g = (e) => $(e).value.trim();
-  const p = { id: id || '', soDay: g('#wSo'), banVe: g('#wBanVe'), to: g('#wTo'), tuDiem: g('#wTu'), denDiem: g('#wDen'), mau: g('#wMau'), tinHieu: g('#wTin'), taiLieuId: g('#wDoc'), trang: Number(g('#wTrang')) || 0, ghiChu: g('#wGhi') };
+  const p = { id: id || '', soDay: g('#wSo'), banVe: g('#wBanVe'), to: g('#wTo'), tuDiem: g('#wTu'), denDiem: g('#wDen'), mau: g('#wMau'), tinHieu: g('#wTin'), taiLieuId: g('#wDoc'), trang: Number(g('#wTrang')) || 0, ghiChu: g('#wGhi'),
+    dienAp: g('#wAp'), baoVe: g('#wBaoVe'), cap: g('#wCap'), dong: g('#wDong'), capVoi: g('#wCapVoi'), mach: g('#wMach'), canKiemTra: g('#wKT') };
   if (g('#wTinZh') !== o.dataset.zh0) p.tinHieuZh = g('#wTinZh');
   if (!p.soDay) { toast(L('Nhập số dây', '请输入线号'), true); return; }
   const r = await ghi('wireSave', p, 'Dây ' + p.soDay, (op) => APDUNG.wireSave(op, p));
@@ -828,35 +1085,67 @@ async function wireDel(id) {
   const r = await ghi('wireDelete', { id }, 'Xoá dây ' + id, (op) => APDUNG.wireDelete(op, { id }));
   if (r.ok) { closeSheet(); if (!r.queued) tt('daXoa'); render(); }
 }
-// Cột của file mẫu nhập dây: [khoá, tiếng Việt, tiếng Trung]. Thứ tự: cột "(中文)" đứng trước để không bị nhận nhầm là cột tín hiệu.
+// Cột của file mẫu nhập dây: [khoá, tiếng Việt, tiếng Trung]. Thứ tự: cột "(中文)" đứng trước để không bị nhận nhầm là cột tín hiệu;
+// "Cặp với" đứng trước "Cáp" (cùng bắt đầu bằng "cap" khi bỏ dấu). 10 cột đầu giữ như bản cũ, v1.6 thêm 7 cột sau.
 const COT_DAY = [['soDay', 'Số dây', '线号'], ['banVe', 'Bản vẽ', '图号'], ['to', 'Tờ', '图页'], ['tuDiem', 'Từ điểm', '起点'], ['denDiem', 'Đến điểm', '终点'],
-  ['mau', 'Màu dây', '颜色'], ['tinHieu', 'Tín hiệu', '信号'], ['tinHieuZh', 'Tín hiệu (中文)', '中文信号'], ['trang', 'Trang PDF', 'PDF页码'], ['ghiChu', 'Ghi chú', '备注']];
+  ['mau', 'Màu dây', '颜色'], ['tinHieu', 'Tín hiệu', '信号'], ['tinHieuZh', 'Tín hiệu (中文)', '中文信号'], ['trang', 'Trang PDF', 'PDF页码'], ['ghiChu', 'Ghi chú', '备注'],
+  ['dong', 'Dòng', '行号'], ['mach', 'Mạch', '回路'], ['capVoi', 'Cặp với', '配对'], ['cap', 'Cáp / mã dây', '电缆'], ['dienAp', 'Điện áp', '电压'], ['baoVe', 'Bảo vệ', '保险'], ['canKiemTra', 'Cần kiểm tra', '待核实']];
 function nhanCot(h) {
   const n = norm(h);
   if (/中文/.test(h)) return 'tinHieuZh';
   const c = COT_DAY.find((c) => n === norm(c[1]) || n.indexOf(norm(c[1]) + ' ') === 0 || n.indexOf(norm(c[1]) + '·') === 0 || h.indexOf(c[2]) >= 0 || n === c[0].toLowerCase());
   return c ? c[0] : '';
 }
+// Trang "Mạch" và trang "Dòng → Tờ" của cùng file nhập: so đúng phần tiếng Việt (trước " · ") hoặc đúng phần tiếng Trung
+const COT_MACH = [['ten', 'Mạch', '回路'], ['capCho', 'Cấp cho', '供电', ['Module']], ['capChoDich', 'Cấp cho (中文)', '供电（中文）'], ['dienAp', 'Điện áp', '电压'], ['mau', 'Màu dây đi (+)', '正线颜色', ['Màu dây']],
+  ['nguon', 'Bộ nguồn', '电源'], ['capDi', 'Cáp đi', '电缆'], ['cauChi', 'Cầu chì', '保险丝'], ['dayTrongTu', 'Dây trong tủ', '柜内线'], ['kepDuong', 'Hàng kẹp (+)', '端子+'], ['den', 'Đến', '去向'],
+  ['kepAm', 'Hàng kẹp (−)', '端子−', ['Hàng kẹp (-)']], ['diemVe', 'Chân về', '回线端', ['Điểm về']], ['dayVe', 'Dây về (−)', '回线', ['Dây về (-)', 'Dây về']], ['cauChiVe', 'Cầu chì dây về', '回线保险丝', ['Cầu chì về']],
+  ['banVe', 'Bản vẽ', '图号'], ['to', 'Tờ', '图页'], ['dong', 'Dòng', '行号'], ['canKiemTra', 'Lưu ý', '注意', ['Cần kiểm tra']], ['trang', 'Trang PDF', 'PDF页码']];
+const COT_DT = [['banVe', 'Bản vẽ', '图号'], ['to', 'Tờ', '图页'], ['dai', 'Dòng', '行号', ['Dải dòng']], ['tuDong', 'Từ dòng', '起始行'], ['denDong', 'Đến dòng', '结束行'],
+  ['noiDung', 'Nội dung', '内容'], ['noiDungDich', 'Nội dung (中文)', '内容（中文）'], ['trang', 'Trang PDF', 'PDF页码']];
+function nhanCotTheo(h, cols) {
+  h = String(h || '').trim(); if (!h) return '';
+  const k = h.indexOf(' · '), vi = norm(k > 0 ? h.slice(0, k) : h), zh = k > 0 ? h.slice(k + 3).trim() : '';
+  const c = cols.find((c) => norm(c[1]) === vi || (c[3] || []).some((a) => norm(a) === vi) || (zh && zh === c[2]));
+  return c ? c[0] : '';
+}
+// Đọc mọi trang của file: trang có cột "Số dây" là bảng dây; có "Mạch" + đường đi là trang mạch; có "Tờ" + "Dòng" là trang số dòng → tờ
+function tachFileDay(sheets, doc) {
+  const kq = { rows: [], mach: [], dongTo: [], boQua: [] };
+  sheets.forEach((sh) => {
+    const rs = sh.rows.map((r, i) => ({ r, d: i + 1 })).filter((x) => x.r.some((v) => String(v || '').trim()));
+    if (rs.length < 2) { kq.boQua.push(sh.name); return; }
+    const h = rs[0].r, lay = (map) => rs.slice(1).map((x) => { const o = {}; map.forEach((k, i) => { if (k) o[k] = String(x.r[i] === undefined ? '' : x.r[i]).trim(); }); if (doc && !o.taiLieuId) o.taiLieuId = doc; return o; });
+    const mDay = h.map((v) => nhanCot(String(v || '')));
+    if (mDay.indexOf('soDay') >= 0) { kq.rows = kq.rows.concat(lay(mDay)); return; }
+    const mM = h.map((v) => nhanCotTheo(v, COT_MACH));
+    if (mM.indexOf('ten') >= 0 && ['kepDuong', 'nguon', 'den'].some((k) => mM.indexOf(k) >= 0)) { kq.mach = kq.mach.concat(lay(mM)); return; }
+    const mD = h.map((v) => nhanCotTheo(v, COT_DT));
+    if (mD.indexOf('to') >= 0 && (mD.indexOf('dai') >= 0 || mD.indexOf('tuDong') >= 0)) { kq.dongTo = kq.dongTo.concat(lay(mD)); return; }
+    kq.boQua.push(sh.name);
+  });
+  return kq;
+}
 function wireImportForm() {
-  sheet(L(T.nhapExcel[0], T.nhapExcel[1]), `<div class="card muted">${L('Dòng 1 là tiêu đề cột như file mẫu. Trùng số dây + bản vẽ + tờ thì cập nhật, không thì thêm mới.', '第1行为列标题（同模板）。线号+图号+图页相同则更新，否则新增。')}</div>
+  sheet(L(T.nhapExcel[0], T.nhapExcel[1]), `<div class="card muted">${L('Dòng 1 là tiêu đề cột như file mẫu. Một file có thể có 3 trang: Dây điện, Mạch, Dòng → Tờ. Trùng (số dây + bản vẽ + tờ), (bản vẽ + tên mạch), (bản vẽ + tờ) thì cập nhật, không thì thêm mới.', '第1行为列标题（同模板）。一个文件可含3个工作表：线号、回路、行号→图页。键相同则更新，否则新增。')}</div>
     <label class="f"><span class="l">${L(T.ganTLNhap[0], T.ganTLNhap[1])}</span><select class="i" id="wImpDoc"><option value="">${T.khongGan[0]}</option>${tepPdf().map((t) => `<option value="${esc(t.id)}">${esc(t.ten)} · v${t.phienBan}</option>`).join('')}</select></label>
     <label class="btn wide">${IC.xls}${L(T.chonFile[0], T.chonFile[1])}<input type="file" id="wImport" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" hidden></label>
     <div id="wImpKq"></div>`, (o) => {
     $('#wImport', o).addEventListener('change', async (e) => {
       const f = e.target.files[0]; if (!f) return;
       try {
-        const rows = await docXlsx(await f.arrayBuffer()); if (rows.length < 2) throw new Error('File không có dòng dữ liệu · 文件没有数据');
-        const map = rows[0].map((h) => nhanCot(String(h || '')));
-        if (map.indexOf('soDay') < 0) throw new Error('Không thấy cột "Số dây" · 找不到"线号"列');
-        const doc = $('#wImpDoc').value;
-        const ds = rows.slice(1).filter((r) => r.some((v) => String(v || '').trim())).map((r) => { const o2 = {}; map.forEach((k, i) => { if (k) o2[k] = String(r[i] === undefined ? '' : r[i]).trim(); }); if (doc) o2.taiLieuId = doc; return o2; });
-        $('#wImpKq').innerHTML = `<div class="card">${TT('dangGui')} ${ds.length}</div>`;
-        const r = await ghi('wireImport', { rows: ds, tenTep: f.name }, 'Nhập ' + f.name + ' (' + ds.length + ')');
+        const k = tachFileDay(await docXlsxAll(await f.arrayBuffer()), $('#wImpDoc').value), n = k.rows.length + k.mach.length + k.dongTo.length;
+        if (!n) throw new Error('Không thấy trang có cột "Số dây", "Mạch" hoặc "Tờ / Dòng" · 找不到"线号"、"回路"或"图页/行号"列');
+        $('#wImpKq').innerHTML = `<div class="card">${TT('dangGui')} ${n}</div>`;
+        const r = await ghi('wireImport', { rows: k.rows, mach: k.mach, dongTo: k.dongTo, tenTep: f.name }, 'Nhập ' + f.name + ' (' + n + ')');
         if (!r.ok) { $('#wImpKq').innerHTML = ''; return; }
         if (r.queued) { closeSheet(); render(); return; }
-        const d = r.data;
+        const d = r.data, ten = { mach: ['Mạch', '回路'], dongTo: ['Dòng → Tờ', '行号→图页'] };
         $('#wImpKq').innerHTML = `<div class="card" id="wImpOk"><b>${L('Thêm ' + d.them + ' · Cập nhật ' + d.sua + ' · Lỗi ' + d.loi.length, '新增 ' + d.them + ' · 更新 ' + d.sua + ' · 错误 ' + d.loi.length)}</b>
-          ${d.loi.map((x) => `<div class="muted">Dòng · 行 ${x.dong}: ${esc(x.loi)}</div>`).join('')}</div>`;
+          ${k.mach.length ? `<div id="wImpMach">${L('Mạch: thêm ' + (d.machThem || 0) + ' · cập nhật ' + (d.machSua || 0), '回路：新增 ' + (d.machThem || 0) + ' · 更新 ' + (d.machSua || 0))}</div>` : ''}
+          ${k.dongTo.length ? `<div id="wImpDong">${L('Dòng → Tờ: thêm ' + (d.dongThem || 0) + ' · cập nhật ' + (d.dongSua || 0), '行号→图页：新增 ' + (d.dongThem || 0) + ' · 更新 ' + (d.dongSua || 0))}</div>` : ''}
+          ${k.boQua.length ? `<div class="muted">${L('Bỏ qua trang', '跳过工作表')}: ${esc(k.boQua.join(', '))}</div>` : ''}
+          ${d.loi.map((x) => `<div class="muted">${x.trang ? esc(ten[x.trang][0] + ' · ' + ten[x.trang][1]) + ' — ' : ''}Dòng · 行 ${x.dong}: ${esc(x.loi)}</div>`).join('')}</div>`;
         render();
       } catch (x) { toast(errMsg(x), true); }
       e.target.value = '';
@@ -1656,6 +1945,91 @@ VIEWS.cai = {
       <div class="muted" style="text-align:center;margin-top:16px">${T.phienBanApp[0]} ${APP_VER}${S.data.phienBan && S.data.phienBan !== APP_VER ? ' · máy chủ ' + esc(S.data.phienBan) : ''}</div>`;
   }
 };
+// ============ Trang chủ (v1.6): lời chào, ô tổng quan bấm vào mở thẳng từng phần, nút Cập nhật ============
+const THU = [['Chủ nhật', '星期日'], ['Thứ Hai', '星期一'], ['Thứ Ba', '星期二'], ['Thứ Tư', '星期三'], ['Thứ Năm', '星期四'], ['Thứ Sáu', '星期五'], ['Thứ Bảy', '星期六']];
+const gioPhut = (t) => { const d = new Date(t + 7 * 3600000); return d.toISOString().slice(11, 16) + ' ' + d.toISOString().slice(8, 10) + '/' + d.toISOString().slice(5, 7); };
+// JA thực tế lệch bao nhiêu chấm so với số nhập máy của lần lưu bảng tính (giống cột "Lệch" ở màn Tính toán)
+function lechTinh(x) {
+  if (!x || !x.thucTe) return [];
+  const r = bangTinh({ encoderPPR: +x.encoderPPR, duongKinh: +x.duongKinh, soCanh: +x.soCanh, divider: +x.divider, kheHoPB1: +x.kheHoPB1 || 0, lechPB2: +x.lechPB2 || 0, daiSP: +x.daiSP || 0, tocDo: +x.tocDo || 0 });
+  return dayJA(x.thucTe).map((v, i) => v === '' || !isFinite(Number(v)) ? 0 : Number(v) - r.mayNhap[i]).filter((d) => d !== 0);
+}
+const oTong = (mau, v, ic, ten, so, them) => `<button class="mtile ${mau}" data-act="goV" data-v="${v}"><span class="mic">${ic}</span><span class="mtx"><span>${L(ten[0], ten[1])}</span>${so}${them || ''}</span></button>`;
+VIEWS.home = {
+  html() {
+    const D = S.data, homNay = TODAY(), thu = THU[new Date(homNay + 'T00:00:00Z').getUTCDay()], ten = (D.toi && D.toi.ten) || 'Chủ app';
+    const tuan = D.ghiChu.filter((x) => String(x.capNhat).slice(0, 10) >= new Date(Date.now() + 7 * 3600000 - 6 * 86400000).toISOString().slice(0, 10)).length;
+    const cvs = dsChuyen(), daGhi = cvs.filter((c) => (D.thongSo || []).some((t) => t.chuyen === c.id)).length;
+    const daTinh = cvs.filter((c) => tinhMoiNhat(c.id)).length, lechDau = cvs.filter((c) => lechTinh(tinhMoiNhat(c.id)).length).length;
+    const mach = D.machDien || [], canKT = mach.filter((x) => x.canKiemTra).length + D.dayDien.filter((x) => x.canKiemTra).length;
+    const plc = dsCPLC(), coBang = plc.filter((c) => bangCua(c.id)).length, nOff = Object.keys(S.offDocs || {}).length;
+    const soLon = (n, sau) => `<b class="so">${n}${sau ? `<small>${sau}</small>` : ''}</b>`, em = (vi, zh) => `<em>${L(vi, zh)}</em>`;
+    const lech = D.phienBan && D.phienBan !== APP_VER;
+    return `<div class="card hello"><span class="avt">${esc(chuDau())}</span><div class="hm"><b>${esc(ten)}</b><div class="muted">${L(T.app[0], T.app[1])}</div></div>
+      <div class="hd"><b>${homNay.slice(8, 10)}/${homNay.slice(5, 7)}/${homNay.slice(0, 4)}</b><div class="muted">${thu[0]} · ${thu[1]}</div></div></div>
+      ${S.Q.length ? `<button class="alert${S.Q.some((q) => q.err) ? ' bad' : ''}" data-act="qOpen">${IC.canh}<span class="main">${L(S.Q.length + ' việc đang chờ gửi lên máy chủ', S.Q.length + '项待发送到服务器')}</span></button>` : ''}
+      ${lech ? `<div class="alert bad" id="lechBan">${IC.canh}<span class="main">${L('Máy chủ đang chạy bản ' + esc(D.phienBan) + ', app bản ' + APP_VER + ' — dán lại Code.gs bản ' + APP_VER + ' rồi bấm Cập nhật', '服务器版本 ' + esc(D.phienBan) + '，应用版本 ' + APP_VER + ' — 请重新粘贴 Code.gs 后点“更新”')}</span></div>` : ''}
+      <div class="sec">${L(T.tongQuan[0], T.tongQuan[1])}<button class="btn cn" id="capNhatBtn" data-act="capNhat">${IC.cn}${L(T.capNhat[0], T.capNhat[1])}</button></div>
+      ${S.lanCuoi ? `<div class="lancuoi" id="lanCuoi">${T.lanCuoi[0]} · ${T.lanCuoi[1]} ${gioPhut(S.lanCuoi)}</div>` : ''}
+      <div class="mtiles">
+        ${oTong('mt-blue', 'gc', IC.gc, T.gc, soLon(D.ghiChu.length), em(tuan + ' sửa trong 7 ngày', '近7天' + tuan + '条'))}
+        ${oTong('mt-orange', 'tl', IC.tl, T.tl, soLon(tlNhom().length), em('đang hiệu lực' + (nOff ? ' · ' + nOff + ' xem offline' : ''), '现行' + (nOff ? ' · 离线' + nOff : '')))}
+        ${oTong('mt-teal', 'may', IC.may, ['Thông số máy in', '喷码参数'], soLon(daGhi, '/' + cvs.length), em('chuyền đã ghi thông số', '条产线已记录'))}
+        ${oTong('mt-sky', 'tinh', IC.tinh, T.tinh, soLon(daTinh, '/' + cvs.length), lechDau ? `<span class="warnx">${L(lechDau + ' đầu in JA lệch', lechDau + '个喷头JA偏差')}</span>` : em('đầu in đã lưu bảng tính', '个喷头已保存'))}
+        ${oTong('mt-purple', 'day', IC.day, T.day, soLon(mach.length, ' mạch'), (canKT ? `<span class="warnx">${L(canKT + ' chỗ cần kiểm tra', canKT + '处待核实')}</span>` : '') + em(D.dayDien.length + ' đoạn dây', D.dayDien.length + '段线'))}
+        ${oTong('mt-cyan', 'ct', IC.ct, T.ct, soLon(coBang, '/' + plc.length), em('chuyền có bảng PLC · ' + (D.ghiChuPLC || []).length + ' ghi chú', '条产线有PLC表 · 备注' + (D.ghiChuPLC || []).length))}
+      </div>
+      <div class="sec">${L(T.ganDay[0], T.ganDay[1])}</div>
+      ${D.ghiChu.slice().sort((a, b) => String(b.capNhat).localeCompare(String(a.capNhat))).slice(0, 3).map((x) => rowGC(x)).join('') || `<div class="card empty">—</div>`}`;
+  }
+};
+VIEWS.them = {
+  html() {
+    const D = S.data, r = (v, ic, ten, sub) => `<button class="row" data-act="goV" data-v="${v}">${ic}<div class="main"><div class="nm">${L(ten[0], ten[1])}</div><div class="sub">${sub}</div></div></button>`;
+    return `<div class="sec">${L(T.mucKhac[0], T.mucKhac[1])}</div>
+      ${r('tl', IC.tl, T.tl, tlNhom().length + ' đang hiệu lực · 现行 ' + tlNhom().length)}
+      ${r('ct', IC.ct, T.ct, dsCPLC().length + ' chuyền · ' + dsCPLC().length + '条产线')}
+      ${r('day', IC.day, T.day, (D.machDien || []).length + ' mạch · ' + D.dayDien.length + ' dây · ' + (D.machDien || []).length + '个回路 · ' + D.dayDien.length + '段线')}
+      ${r('tinh', IC.tinh, T.tinh, 'Encoder / Delay / Alignment')}
+      <div class="sec">${L(T.ungDung[0], T.ungDung[1])}</div>
+      <div class="card" id="banApp"><div style="display:flex;align-items:center;gap:10px"><div style="flex:1">
+        <div><b>${L('Phiên bản app', '应用版本')}</b> <span class="mono">${APP_VER}</span></div>
+        <div class="muted">Máy chủ · 服务器 <span class="mono">${esc(D.phienBan || '—')}</span>${S.lanCuoi ? ' · ' + T.lanCuoi[0] + ' · ' + T.lanCuoi[1] + ' ' + gioPhut(S.lanCuoi) : ''}</div></div>
+        <button class="btn sm" id="capNhatBtn2" data-act="capNhat">${IC.cn}${L(T.capNhat[0], T.capNhat[1])}</button></div>
+        <div class="muted" style="margin-top:6px">${L('Bấm sau khi sửa trên Google Sheet, dán lại Code.gs hoặc có bản app mới: gửi việc còn chờ, tải lại dữ liệu và lấy bản app mới nhất.', '在Google表格修改、重新粘贴Code.gs或有新版本后点击：发送待发项、重新加载数据并获取最新版本。')}</div></div>
+      ${VIEWS.cai.html()}`;
+  }
+};
+// Nút Cập nhật: gửi việc còn chờ → tải lại toàn bộ dữ liệu từ Google Sheet → hỏi trang app có bản mới không (có thì tải lại trang)
+async function capNhat() {
+  if (S.dangCN) return;
+  S.dangCN = true;
+  $$('[data-act="capNhat"]').forEach((b) => { b.classList.add('quay'); b.disabled = true; b.innerHTML = IC.cn + L(T.dangCapNhat[0], T.dangCapNhat[1]); });
+  try {
+    if (S.Q.length) { S.Q.forEach((q) => { q.err = ''; }); await guiHangCho(true); }
+    const d = await api('data');
+    S.data = d; S.Q.forEach((q) => { if (APDUNG[q.action]) APDUNG[q.action](q.op, q.payload); });
+    await saveSnap(); await ghiLanCuoi();
+    plcNap();
+    const moi = await banAppMoi();
+    if (moi) { toast(L('Có bản app mới ' + esc(moi) + ' — đang tải lại', '有新版本 ' + esc(moi) + '，正在重新加载')); await sleep(1200); location.reload(); return; }
+    toast(S.Q.length ? L('Đã tải dữ liệu mới; còn ' + S.Q.length + ' việc chưa gửi được', '数据已更新；仍有' + S.Q.length + '项未发送') : L('Đã cập nhật dữ liệu mới nhất', '已更新为最新数据'), !!S.Q.length);
+  } catch (e) {
+    if (e && e.code === 'MANG') setOffline(true);
+    toast(errMsg(e), true);
+  } finally { S.dangCN = false; render(); }
+}
+async function ghiLanCuoi() { S.lanCuoi = Date.now(); await store.set('lanCuoi', S.lanCuoi); }
+// Đọc trang app trên GitHub Pages (bỏ qua bộ nhớ đệm) xem số phiên bản; bản xem thử / mở từ file thì không kiểm
+async function banAppMoi() {
+  if (IS_DEMO || location.protocol !== 'https:') return '';
+  try {
+    if ('serviceWorker' in navigator) { const reg = await navigator.serviceWorker.getRegistration(); if (reg) await reg.update().catch(() => {}); }
+    const t = await (await fetch(location.pathname + '?kiem=' + Date.now(), { cache: 'no-store' })).text();
+    const m = /const APP_VER = "([^"]+)"/.exec(t);
+    return m && m[1] !== APP_VER ? m[1] : '';
+  } catch (e) { return ''; }
+}
 function pinForm() {
   sheet(L(T.doiPin[0], T.doiPin[1]), `<label class="f"><span class="l">${L(T.pinCu[0], T.pinCu[1])}</span><input class="i" id="pCu" type="password" inputmode="numeric" maxlength="6"></label>
     <label class="f"><span class="l">${L(T.pinMoi[0], T.pinMoi[1])}</span><input class="i" id="pMoi" type="password" inputmode="numeric" maxlength="6"></label>
@@ -1765,9 +2139,11 @@ function xuatExcel() {
     { name: 'Tài liệu · 资料', w: [14, 32, 28, 26, 10, 10, 12, 28, 12, 36, 20, 19],
       head: ['Mã · 编号', 'Tên · 名称', 'Tên (中文) · 中文名称', 'Nhóm · 分组', 'Loại · 类型', 'Phiên bản · 版本', 'Hiệu lực · 现行', 'Tên tệp · 文件名', 'Kích thước · 大小', 'Link · 链接', 'Thẻ · 标签', 'Cập nhật · 更新时间'],
       rows: D.taiLieu.slice().sort((a, b2) => String(a.maTL).localeCompare(String(b2.maTL)) || b2.phienBan - a.phienBan).map((x) => [x.id, x.ten, x.tenDich, nh(x.nhom), x.kieu === 'LINK' ? 'Link · 链接' : 'Tệp · 文件', x.phienBan, x.hienHanh ? 'Có · 是' : '', x.tenTep, x.kichThuoc ? kb(x.kichThuoc) : '', x.url, (x.the || []).join(', '), x.capNhat]) },
-    { name: 'Dây điện · 线号', w: [14, 14, 8, 16, 16, 14, 30, 26, 26, 8, 24],
-      head: COT_DAY.slice(0, 8).map((c) => c[1] + ' · ' + c[2]).concat(['Tệp bản vẽ · 图纸文件', 'Trang PDF · PDF页码', 'Ghi chú · 备注']),
-      rows: D.dayDien.map((x) => { const t = D.taiLieu.find((y) => y.id === x.taiLieuId); return [x.soDay, x.banVe, x.to, x.tuDiem, x.denDiem, x.mau, x.tinHieu, x.tinHieuZh, t ? t.ten + ' v' + t.phienBan : '', x.trang || '', x.ghiChu]; }) },
+    { name: 'Dây điện · 线号', w: [14, 14, 8, 16, 16, 14, 30, 26, 26, 8, 24, 8, 16, 22, 22, 10, 12, 30],
+      head: COT_DAY.slice(0, 8).map((c) => c[1] + ' · ' + c[2]).concat(['Tệp bản vẽ · 图纸文件', 'Trang PDF · PDF页码', 'Ghi chú · 备注']).concat(COT_DAY.slice(10).map((c) => c[1] + ' · ' + c[2])),
+      rows: D.dayDien.map((x) => { const t = D.taiLieu.find((y) => y.id === x.taiLieuId); return [x.soDay, x.banVe, x.to, x.tuDiem, x.denDiem, x.mau, x.tinHieu, x.tinHieuZh, t ? t.ten + ' v' + t.phienBan : '', x.trang || '', x.ghiChu,
+        x.dong || '', x.mach || '', x.capVoi || '', x.cap || '', x.dienAp || '', x.baoVe || '', x.canKiemTra || '']; }) },
+    sheetMach(D.machDien || []), sheetDongTo((D.dongTo || []).slice().sort((a, b) => a.tuDong - b.tuDong)),
     sheetTs('Thông số hiện tại · 当前参数', (D.chuyenSP || []).map((l) => hienTai(l.chuyen, l.sanPham)).filter(Boolean)),
     sheetTs('Lịch sử thông số · 参数历史', (D.thongSo || []).slice().sort((a, b) => String(a.chuyen + a.sanPham).localeCompare(String(b.chuyen + b.sanPham)) || khoaTs(b).localeCompare(khoaTs(a)))),
     { name: 'Sản phẩm · 产品', w: [14, 30, 28, 12, 30, 30], head: ['Mã SP · 产品编号', 'Tên · 名称', 'Tên (中文) · 中文名称', 'Dài (mm) · 长度', 'Chuyền · 产线', 'Ghi chú · 备注'],
@@ -1792,14 +2168,23 @@ function sheetTs(name, ds) {
       'Tốc độ · 速度', 'Tần số (Hz) · 频率', 'Lý do · 原因', 'Lý do (中文) · 原因']);
   return { name, rows, head, w: head.map((h, i) => i < 4 ? 14 : i >= head.length - 2 ? 30 : 11) };
 }
+// File mẫu 3 trang: Dây điện (mỗi đoạn dây một dòng), Mạch (mỗi mạch một dòng, đi trọn nguồn → cầu chì → hàng kẹp → thiết bị → dây về), Dòng → Tờ
+const sheetMach = (ds) => ({ name: 'Mạch · 回路', w: [14, 26, 24, 10, 12, 20, 22, 14, 20, 16, 34, 16, 26, 24, 12, 12, 6, 8, 30, 8],
+  head: COT_MACH.map((c) => c[1] + ' · ' + c[2]), rows: ds.map((x) => COT_MACH.map((c) => c[0] === 'trang' ? (x.trang || '') : (x[c[0]] === undefined ? '' : x[c[0]]))) });
+const sheetDongTo = (ds) => ({ name: 'Dòng → Tờ · 行号对照', w: [14, 8, 12, 10, 10, 30, 30, 10],
+  head: COT_DT.map((c) => c[1] + ' · ' + c[2]), rows: ds.map((x) => [x.banVe, x.to, x.tuDong + '–' + x.denDong, x.tuDong, x.denDong, x.noiDung, x.noiDungDich, x.trang || '']) });
 function fileMauDay() {
-  luuFile(xlsx([{ name: 'Dây điện · 线号', w: [14, 14, 8, 16, 16, 14, 30, 26, 10, 24], head: COT_DAY.map((c) => c[1] + ' · ' + c[2]),
-    rows: [['TEST-101', 'TEST-BV01', '5', 'PS2-L', 'TB1-1', 'Cam/Đen', 'Nguồn 24 VDC', '', 5, 'Dòng mẫu — xoá trước khi nhập']] }]), 'Mau-nhap-day-dien.xlsx');
+  luuFile(xlsx([{ name: 'Dây điện · 线号', w: [14, 14, 8, 16, 16, 14, 30, 26, 10, 24, 8, 16, 22, 22, 10, 12, 30], head: COT_DAY.map((c) => c[1] + ' · ' + c[2]),
+    rows: [['TEST-101', 'TEST-BV01', '5', 'PS2-L', 'TB1-1', 'Cam/Đen', 'Nguồn 24 VDC', '', 5, 'Dòng mẫu — xoá trước khi nhập', '105', 'TEST-PSA L', 'Đen-cặp-cam → TB1-5', 'cáp TEST-C01', '24 V', 'TEST-F11 4 A', '']] },
+  sheetMach([{ ten: 'TEST-PSA L', capCho: 'Nguồn 24 VDC', dienAp: '24 V', mau: 'Cam', nguon: 'TEST-PSA đầu ra L', capDi: 'Cam · cáp TEST-C01', cauChi: 'TEST-F11 4 A', dayTrongTu: '18AWG cam',
+    kepDuong: 'TB1-1 → TB1-4', den: 'TEST-J10 chân 1 (→ dòng 310)', kepAm: 'TB1-5 → TB1-8', diemVe: 'TEST-J10 chân 2', dayVe: 'Đen-cặp-cam · cáp TEST-C01', banVe: 'TEST-BV01', to: '5', dong: '105', canKiemTra: 'Dòng mẫu — xoá trước khi nhập' }]),
+  { name: 'Dòng → Tờ · 行号对照', w: [14, 8, 12, 30, 30, 10], head: ['Bản vẽ · 图号', 'Tờ · 图页', 'Dòng · 行号', 'Nội dung · 内容', 'Nội dung (中文) · 内容（中文）', 'Trang PDF · PDF页码'],
+    rows: [['TEST-BV01', '5', '100–119', 'Nhánh 24 VDC (dòng mẫu)', '', 5]] }]), 'Mau-nhap-day-dien.xlsx');
 }
 
 // ============ Bấm nút: một trình xử lý cho cả app ============
 const ACT = {
-  close: closeSheet, goCai: () => go('cai'), qOpen: () => go('cai'),
+  close: closeSheet, goCai: () => go('them'), qOpen: () => go('them'), goV: (b) => go(b.dataset.v), capNhat,
   theChon: (b) => { S.the = b.dataset.t; render(); }, nhomChon: (b) => { S.nhom = b.dataset.n; render(); },
   noteNew: () => noteEdit(''), noteView: (b) => noteView(b.dataset.id), noteEdit: (b) => noteEdit(b.dataset.id), noteSave: (b) => noteSave(b.dataset.id), noteDel: (b) => noteDel(b.dataset.id),
   anhBoGiu: (b) => { ANH_GIU.splice(Number(b.dataset.i), 1); veAnhSua(); }, anhBoMoi: (b) => { ANH_MOI.splice(Number(b.dataset.i), 1); veAnhSua(); },
@@ -1811,6 +2196,10 @@ const ACT = {
   wireNew: () => wireEdit(''), wireView: (b) => wireView(b.dataset.id), wireEdit: (b) => wireEdit(b.dataset.id), wireSave: (b) => wireSave(b.dataset.id), wireDel: (b) => wireDel(b.dataset.id),
   wireOpenDoc: (b) => { const x = S.data.dayDien.find((d) => d.id === b.dataset.id); if (x) moTL(x.taiLieuId, x.trang); },
   wireImport: wireImportForm, wireTpl: fileMauDay,
+  apChon: (b) => { S.apChon = b.dataset.ap; render(); }, machNew: () => machEdit(''), machView: (b) => machView(b.dataset.id), machEdit: (b) => machEdit(b.dataset.id),
+  machSave: (b) => machSave(b.dataset.id), machDel: (b) => machDel(b.dataset.id), machNote: (b) => { closeSheet(); machNote(b.dataset.id); },
+  machOpenDoc: (b) => { const x = dsMachD().find((m) => m.id === b.dataset.id); if (x) moTL(x.taiLieuId, x.trang); },
+  dtOpen: (b) => { const x = dsDongTo().find((m) => m.id === b.dataset.id); if (x) moTL(x.taiLieuId, x.trang); },
   mauChon: (b) => { S.soMau = Number(b.dataset.m); render(); }, lineView: (b) => lineView(b.dataset.id),
   tsView: (b) => tsView(b.dataset.cv, b.dataset.sp), tsShow: (b) => tsView(b.dataset.cv, b.dataset.sp, b.dataset.id), tsNew: (b) => tsForm(b.dataset.cv, b.dataset.sp),
   tsSave: (b) => tsSave(b.dataset.cv, b.dataset.sp), tsDel: (b) => tsDel(b.dataset.id), tsAlign,
@@ -1870,6 +2259,7 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
   S.tk = await store.get('tk', '');
   S.Q = await store.get('q', []);
   S.offDocs = await store.get('offDocs', {});
+  S.lanCuoi = await store.get('lanCuoi', 0);
   if (S.tk) { S.data = await store.get('snap', null); render(); await guiHangCho(); await refresh(); if (S.data) plcNap(); }
   else render();
   if (!IS_DEMO && 'serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});

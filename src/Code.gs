@@ -15,7 +15,7 @@
  * App chỉ có MỘT người dùng (chủ app), nên không chia vai trò. Mọi thao tác trừ ping/đăng nhập vẫn phải có
  * token hợp lệ: link /exec là công khai, không kiểm token thì ai biết link cũng đọc được tài liệu.
  */
-var PHIEN_BAN = '1.5.0';
+var PHIEN_BAN = '1.6.0';
 var TZ = 'Asia/Ho_Chi_Minh';
 var HAN_PHIEN_NGAY = 30;            // đăng nhập giữ 30 ngày
 var TEP_TOI_DA = 25 * 1024 * 1024;  // 25 MB/tệp: Apps Script nhận tối đa ~50 MB mỗi lần gửi, base64 làm to thêm 1/3
@@ -32,8 +32,16 @@ var BANG = {
   TaiLieu: ['ID', 'MaTL', 'Ten', 'TenDich', 'Nhom', 'Kieu', 'FileId', 'Mime', 'KichThuoc', 'Url', 'PhienBan', 'HienHanh',
     'The', 'TenTep', 'LucTao', 'CapNhat', 'OpId', 'Xoa', 'DichTay'],
   // Bảng tra dây: nhập tay theo bản vẽ (bản vẽ là nét vẽ, máy không đọc được chữ). TaiLieuID + Trang mở đúng tờ bản vẽ
+  // v1.6: thêm Dong (số dòng trên bản vẽ), Mach (thuộc mạch nào), Cap (cáp / mã dây), CapVoi (dây đi cặp), DienAp, BaoVe (cầu chì / aptomat),
+  // CanKiemTra (bản vẽ ghi lẫn, cần đối chiếu tủ thật)
   DayDien: ['ID', 'SoDay', 'BanVe', 'To', 'TuDiem', 'DenDiem', 'Mau', 'TinHieu', 'TinHieuZh', 'TaiLieuID', 'Trang', 'GhiChu',
-    'CapNhat', 'OpId', 'Xoa', 'DichTay'],
+    'CapNhat', 'OpId', 'Xoa', 'DichTay', 'Dong', 'Mach', 'Cap', 'CapVoi', 'DienAp', 'BaoVe', 'CanKiemTra'],
+  // Mạch điện (v1.6): mỗi dòng một mạch đi trọn từ bộ nguồn → cầu chì → hàng kẹp (+) → thiết bị, rồi dây về qua hàng kẹp (−) về cực chung.
+  // Tra một hàng kẹp / cầu chì / mã cáp là ra cả mạch. Khoá: BanVe + Ten.
+  MachDien: ['ID', 'BanVe', 'Ten', 'CapCho', 'CapChoDich', 'DienAp', 'Mau', 'Nguon', 'CapDi', 'CauChi', 'DayTrongTu', 'KepDuong', 'Den',
+    'KepAm', 'DiemVe', 'DayVe', 'CauChiVe', 'To', 'Dong', 'CanKiemTra', 'TaiLieuID', 'Trang', 'CapNhat', 'OpId', 'Xoa', 'DichTay'],
+  // Số dòng → tờ (v1.6): số trong hình lục giác trên bản vẽ là SỐ DÒNG ở tờ khác nơi dây đi tiếp. Mỗi tờ một dải dòng. Khoá: BanVe + To.
+  DongTo: ['ID', 'BanVe', 'To', 'TuDong', 'DenDong', 'NoiDung', 'NoiDungDich', 'TaiLieuID', 'Trang', 'CapNhat', 'OpId', 'Xoa', 'DichTay'],
   // Bộ thông số cho màn Tính toán (DPI, tần số phun, delay)
   CauHinhMay: ['ID', 'Ten', 'EncoderPPR', 'DuongKinh', 'SoCanh', 'Divider', 'DaiSP', 'TocDo', 'KhoangJA', 'KhoangPB', 'BuPB',
     'GioiHan', 'CapNhat', 'OpId', 'Xoa'],
@@ -74,11 +82,12 @@ var BANG = {
 var COT_SO = {
   NguoiDung: ['HoatDong'], GhiChu: ['Xoa'], NhomTL: ['ThuTu', 'HoatDong'], TaiLieu: ['KichThuoc', 'PhienBan', 'HienHanh', 'Xoa'],
   DayDien: ['Trang', 'Xoa'], CauHinhMay: ['EncoderPPR', 'DuongKinh', 'SoCanh', 'Divider', 'DaiSP', 'TocDo', 'KhoangJA', 'KhoangPB', 'BuPB', 'GioiHan', 'Xoa'],
-  NhatKy: [], Chuyen: ['SoMau', 'ThuTu', 'HoatDong'], SanPham: ['HoatDong'], ChuyenSP: ['HoatDong'], ChaySP: ['Xoa'], ThongSo: ['SoMau', 'Xoa'], BangMay: ['Xoa'], ChuyenPLC: ['ThuTu', 'HoatDong'], GhiChuPLC: ['Xoa'], TinhDauIn: ['Xoa']
+  NhatKy: [], Chuyen: ['SoMau', 'ThuTu', 'HoatDong'], SanPham: ['HoatDong'], ChuyenSP: ['HoatDong'], ChaySP: ['Xoa'], ThongSo: ['SoMau', 'Xoa'], BangMay: ['Xoa'], ChuyenPLC: ['ThuTu', 'HoatDong'], GhiChuPLC: ['Xoa'], TinhDauIn: ['Xoa'],
+  MachDien: ['Trang', 'Xoa'], DongTo: ['TuDong', 'DenDong', 'Trang', 'Xoa']
 };
 var COT_DD = { CauHinhMay: { DuongKinh: '0.###', KhoangJA: '0.####', KhoangPB: '0.####', BuPB: '0.###', GioiHan: '0.##', DaiSP: '0.##' } };
 var HANH_DONG_GHI = ['changePin', 'noteSave', 'noteDelete', 'groupSave', 'docUpload', 'docLink', 'docSave', 'docCurrent', 'docDelete',
-  'wireSave', 'wireImport', 'wireDelete', 'cfgSave', 'cfgDelete', 'lineSave', 'productSave', 'lineProduct', 'runSet', 'paramSave', 'paramDelete', 'plcUpload', 'plcDelete', 'plcLineSave', 'plcNoteSave', 'plcNoteDelete', 'calcSave', 'calcDelete'];
+  'wireSave', 'wireImport', 'wireDelete', 'cfgSave', 'cfgDelete', 'lineSave', 'productSave', 'lineProduct', 'runSet', 'paramSave', 'paramDelete', 'plcUpload', 'plcDelete', 'plcLineSave', 'plcNoteSave', 'plcNoteDelete', 'calcSave', 'calcDelete', 'circuitSave', 'circuitDelete'];
 var KIEU_TL = ['FILE', 'LINK'];
 var NHOM_MAU = [['Sổ tay thiết bị', '设备手册'], ['Bản vẽ điện', '电气图纸'], ['Quy trình', '操作规程'], ['Khác', '其他']];
 // Thông số máy in hiện tại (đầu in Galaxy 80 HM, bộ điều khiển Merlin D CE). Khoảng cách JA/PB lấy theo bảng tính của nhà cung cấp.
@@ -135,7 +144,7 @@ function dieuHuong(a, p, req) {
   if (a === 'login') return dangNhap(p, req.device);
   var u = xacThuc(req.token), op = s(req.opId);
   switch (a) {
-    case 'data': return layDuLieu();
+    case 'data': var dl = layDuLieu(); dl.toi = { ten: u.ten }; return dl;
     case 'changePin': return doiPin(u, p);
     case 'noteSave': return luuGhiChu(p, op);
     case 'noteDelete': return xoaGhiChu(p);
@@ -150,6 +159,8 @@ function dieuHuong(a, p, req) {
     case 'wireSave': return luuDay(p, op);
     case 'wireImport': return nhapDay(p, op);
     case 'wireDelete': return xoaDay(p);
+    case 'circuitSave': return luuMach(p, op);
+    case 'circuitDelete': return xoaMach(p);
     case 'cfgSave': return luuCauHinh(p, op);
     case 'cfgDelete': return xoaCauHinh(p);
     case 'audit': return docNhatKy(p);
@@ -381,7 +392,7 @@ function apDich(x, cu, p, truong, truongDich, dichTay) {
 
 // ===================== Dữ liệu tổng =====================
 function layDuLieu() {
-  ['GhiChu', 'NhomTL', 'TaiLieu', 'DayDien', 'CauHinhMay', 'NhatKy', 'Chuyen', 'SanPham', 'ChuyenSP', 'ChaySP', 'ThongSo', 'BangMay', 'ChuyenPLC', 'GhiChuPLC', 'TinhDauIn'].forEach(trang);
+  ['GhiChu', 'NhomTL', 'TaiLieu', 'DayDien', 'CauHinhMay', 'NhatKy', 'Chuyen', 'SanPham', 'ChuyenSP', 'ChaySP', 'ThongSo', 'BangMay', 'ChuyenPLC', 'GhiChuPLC', 'TinhDauIn', 'MachDien', 'DongTo'].forEach(trang);
   var chuyenPLC = docBang('ChuyenPLC');
   if (!chuyenPLC.length) chuyenPLC = taoChuyenPLC();
   chuyenPLC = doiBangMayCu(chuyenPLC);
@@ -406,7 +417,9 @@ function layDuLieu() {
     bangMay: docBang('BangMay').filter(function (x) { return !x.xoa; }).map(congKhai),
     tinhDauIn: docBang('TinhDauIn').filter(function (x) { return !x.xoa; }).map(sachGCP),
     ghiChuPLC: docBang('GhiChuPLC').filter(function (x) { return !x.xoa; }).map(sachGCP),
-    chuyenPLC: chuyenPLC.filter(function (x) { return x.hoatDong; }).map(sachCPLC).sort(function (a, b) { return a.thuTu - b.thuTu; })
+    chuyenPLC: chuyenPLC.filter(function (x) { return x.hoatDong; }).map(sachCPLC).sort(function (a, b) { return a.thuTu - b.thuTu; }),
+    machDien: dsMach(),
+    dongTo: dsDongTo()
   };
 }
 
@@ -637,6 +650,8 @@ function truongDay(p, x) {
   x.tuDiem = catChu(p.tuDiem, 80); x.denDiem = catChu(p.denDiem, 80); x.mau = catChu(p.mau, 40);
   x.tinHieu = catChu(p.tinHieu, 200); x.ghiChu = catNhieuDong(p.ghiChu, 1000);
   x.taiLieuId = s(p.taiLieuId); x.trang = Math.max(0, Math.round(soHuu(p.trang, 0)));
+  x.dong = catChu(p.dong, 40); x.mach = catChu(p.mach, 80); x.cap = catChu(p.cap, 80); x.capVoi = catChu(p.capVoi, 120);
+  x.dienAp = catChu(p.dienAp, 40); x.baoVe = catChu(p.baoVe, 60); x.canKiemTra = catChu(p.canKiemTra, 300);
   if (!x.soDay) throw loi('TRONG', 'Nhập số dây · 请输入线号');
   if (x.taiLieuId) timTL(x.taiLieuId);
 }
@@ -661,10 +676,13 @@ function luuDay(p, op) {
   return { day: sau };
 }
 // Nhập nhiều dòng từ Excel: trùng (số dây + bản vẽ + tờ) thì cập nhật, không thì thêm. Dòng lỗi báo lại, không dừng cả lượt.
+// v1.6: cùng một file có thể có thêm trang "Mạch" (p.mach) và trang "Dòng → Tờ" (p.dongTo); trùng khoá thì cập nhật.
 function nhapDay(p, op) {
   var ds = docBang('DayDien'), rows = Array.isArray(p.rows) ? p.rows.slice(0, 3000) : [];
-  if (op && ds.some(function (x) { return x.opId === op; })) return { dup: true, them: 0, sua: 0, loi: [] };
-  if (!rows.length) throw loi('TRONG', 'File không có dòng dữ liệu · 文件没有数据');
+  var mach = Array.isArray(p.mach) ? p.mach.slice(0, 500) : [], dongTo = Array.isArray(p.dongTo) ? p.dongTo.slice(0, 500) : [];
+  if (op && (ds.some(function (x) { return x.opId === op; }) || docBang('MachDien').some(function (x) { return x.opId === op; }) ||
+    docBang('DongTo').some(function (x) { return x.opId === op; }))) return { dup: true, them: 0, sua: 0, loi: [] };
+  if (!rows.length && !mach.length && !dongTo.length) throw loi('TRONG', 'File không có dòng dữ liệu · 文件没有数据');
   var theoKhoa = {}, daCo = dsIdCo(ds), them = [], sua = 0, loiDong = [], bay = thoiGianStr(), dichSo = 0;
   ds.forEach(function (d) { if (!d.xoa) theoKhoa[khoaDay(d)] = d; });
   rows.forEach(function (r, i) {
@@ -683,8 +701,12 @@ function nhapDay(p, op) {
     }
   });
   themNhieu('DayDien', them);
-  ghiNhatKy('nhap', 'DayDien', '', null, { them: them.length, sua: sua, loi: loiDong.length, tenTep: catChu(p.tenTep, 200) });
-  return { them: them.length, sua: sua, loi: loiDong.slice(0, 50), dayDien: docBang('DayDien').filter(function (x) { return !x.xoa; }).map(sachDay) };
+  var km = nhapMach(mach, them.length ? '' : op, dichSo), kd = nhapDongTo(dongTo, (them.length || km.them) ? '' : op, dichSo + km.dich);
+  km.loi.forEach(function (l) { loiDong.push({ dong: l.dong, loi: l.loi, trang: 'mach' }); });
+  kd.loi.forEach(function (l) { loiDong.push({ dong: l.dong, loi: l.loi, trang: 'dongTo' }); });
+  ghiNhatKy('nhap', 'DayDien', '', null, { them: them.length, sua: sua, mach: km.them + km.sua, dongTo: kd.them + kd.sua, loi: loiDong.length, tenTep: catChu(p.tenTep, 200) });
+  return { them: them.length, sua: sua, loi: loiDong.slice(0, 50), machThem: km.them, machSua: km.sua, dongThem: kd.them, dongSua: kd.sua,
+    dayDien: docBang('DayDien').filter(function (x) { return !x.xoa; }).map(sachDay), machDien: dsMach(), dongTo: dsDongTo() };
 }
 function xoaDay(p) {
   var x = docBang('DayDien').filter(function (d) { return d.id === s(p.id); })[0];
@@ -695,6 +717,99 @@ function xoaDay(p) {
   suaDong('DayDien', x._r, thanhDong('DayDien', x));
   ghiNhatKy('xoa', 'DayDien', x.id, truoc, null);
   return { id: x.id };
+}
+
+// ===================== Mạch điện, số dòng → tờ (v1.6) =====================
+function sachMach(x) { var o = congKhai(x); o.dichTay = docJson(x.dichTay, {}); return o; }
+function dsMach() { return docBang('MachDien').filter(function (x) { return !x.xoa; }).map(sachMach); }
+function dsDongTo() { return docBang('DongTo').filter(function (x) { return !x.xoa; }).map(sachMach); }
+function khoaMach(x) { return [x.banVe, x.ten].join('|').toUpperCase(); }
+function khoaDongTo(x) { return [x.banVe, x.to].join('|').toUpperCase(); }
+function truongMach(p, x) {
+  x.banVe = catChu(p.banVe, 40); x.ten = catChu(p.ten, 80); x.capCho = catChu(p.capCho, 200); x.dienAp = catChu(p.dienAp, 40);
+  x.mau = catChu(p.mau, 40); x.nguon = catChu(p.nguon, 120); x.capDi = catChu(p.capDi, 120); x.cauChi = catChu(p.cauChi, 60);
+  x.dayTrongTu = catChu(p.dayTrongTu, 120); x.kepDuong = catChu(p.kepDuong, 120); x.den = catNhieuDong(p.den, 400);
+  x.kepAm = catChu(p.kepAm, 120); x.diemVe = catNhieuDong(p.diemVe, 400); x.dayVe = catChu(p.dayVe, 120); x.cauChiVe = catChu(p.cauChiVe, 60);
+  x.to = catChu(p.to, 20); x.dong = catChu(p.dong, 40); x.canKiemTra = catChu(p.canKiemTra, 300);
+  x.taiLieuId = s(p.taiLieuId); x.trang = Math.max(0, Math.round(soHuu(p.trang, 0)));
+  if (!x.ten) throw loi('TRONG', 'Nhập tên mạch · 请输入回路名称');
+  if (!x.nguon && !x.kepDuong && !x.den) throw loi('TRONG', 'Nhập ít nhất nguồn, hàng kẹp hoặc điểm đến · 请至少填写电源、端子或去向');
+  if (x.taiLieuId) timTL(x.taiLieuId);
+}
+function luuMach(p, op) {
+  var ds = docBang('MachDien');
+  if (op) { var t = ds.filter(function (x) { return x.opId === op; })[0]; if (t) return { dup: true, mach: sachMach(t) }; }
+  var cu = s(p.id) ? ds.filter(function (x) { return x.id === s(p.id) && !x.xoa; })[0] : null;
+  if (s(p.id) && !cu) throw loi('KHONG_THAY', 'Không thấy mạch · 找不到回路');
+  var truoc = cu ? sachMach(cu) : null;
+  var x = cu || { id: op ? maTuOp('MD', op) : idMoi('MD', dsIdCo(ds)) };
+  truongMach(p, x);
+  var trung = ds.filter(function (d) { return !d.xoa && d.id !== x.id && khoaMach(d) === khoaMach(x); })[0];
+  if (trung) throw loi('TRUNG', 'Bản vẽ này đã có mạch ' + x.ten + ' · 该图纸已有此回路');
+  var dichTay = cu ? docJson(cu.dichTay, {}) : {};
+  apDich(x, truoc, p, 'capCho', 'capChoDich', dichTay);
+  x.dichTay = Object.keys(dichTay).length ? JSON.stringify(dichTay) : '';
+  x.capNhat = thoiGianStr(); x.opId = op || x.opId || ''; x.xoa = 0;
+  if (cu) suaDong('MachDien', cu._r, thanhDong('MachDien', x)); else themNhieu('MachDien', [thanhDong('MachDien', x)]);
+  var sau = sachMach(x);
+  ghiNhatKy(cu ? 'sua' : 'tao', 'MachDien', x.id, truoc, sau);
+  return { mach: sau };
+}
+function xoaMach(p) {
+  var x = docBang('MachDien').filter(function (d) { return d.id === s(p.id); })[0];
+  if (!x) throw loi('KHONG_THAY', 'Không thấy mạch · 找不到回路');
+  if (x.xoa) return { id: x.id, dup: true };
+  var truoc = sachMach(x);
+  x.xoa = 1; x.capNhat = thoiGianStr();
+  suaDong('MachDien', x._r, thanhDong('MachDien', x));
+  ghiNhatKy('xoa', 'MachDien', x.id, truoc, null);
+  return { id: x.id };
+}
+// Nhập mạch từ Excel. Dịch tối đa (150 − đã dịch) dòng: Apps Script giới hạn 6 phút mỗi lần chạy.
+function nhapMach(rows, op, daDich) {
+  var ds = docBang('MachDien'), theoKhoa = {}, daCo = dsIdCo(ds), them = [], sua = 0, loiDong = [], bay = thoiGianStr(), dich = 0;
+  ds.forEach(function (d) { if (!d.xoa) theoKhoa[khoaMach(d)] = d; });
+  rows.forEach(function (r, i) {
+    var x = {};
+    try { truongMach(r, x); } catch (e) { loiDong.push({ dong: i + 2, loi: e.message }); return; }
+    var cu = theoKhoa[khoaMach(x)];
+    x.capChoDich = s(r.capChoDich) || (cu && cu.capCho === x.capCho ? cu.capChoDich : (daDich + dich < 150 && x.capCho ? (dich++, dichChu(x.capCho)) : ''));
+    x.capNhat = bay; x.xoa = 0;
+    if (cu) {
+      x.id = cu.id; x.opId = cu.opId; x.dichTay = s(r.capChoDich) ? JSON.stringify({ capCho: 1 }) : cu.dichTay;
+      suaDong('MachDien', cu._r, thanhDong('MachDien', x)); sua++;
+    } else {
+      x.id = idMoi('MD', daCo); x.opId = them.length ? '' : (op || ''); x.dichTay = s(r.capChoDich) ? JSON.stringify({ capCho: 1 }) : '';
+      them.push(thanhDong('MachDien', x)); theoKhoa[khoaMach(x)] = x;
+    }
+  });
+  themNhieu('MachDien', them);
+  return { them: them.length, sua: sua, loi: loiDong, dich: dich };
+}
+function nhapDongTo(rows, op, daDich) {
+  var ds = docBang('DongTo'), theoKhoa = {}, daCo = dsIdCo(ds), them = [], sua = 0, loiDong = [], bay = thoiGianStr(), dich = 0;
+  ds.forEach(function (d) { if (!d.xoa) theoKhoa[khoaDongTo(d)] = d; });
+  rows.forEach(function (r, i) {
+    var x = { banVe: catChu(r.banVe, 40), to: catChu(r.to, 20), noiDung: catChu(r.noiDung, 200), taiLieuId: s(r.taiLieuId), trang: Math.max(0, Math.round(soHuu(r.trang, 0))) };
+    // Dải dòng ghi "260–279" (một ô) hoặc hai cột Từ dòng / Đến dòng
+    var m = /^\s*(\d+)\s*[-–—~]\s*(\d+)\s*$/.exec(s(r.dai));
+    x.tuDong = m ? Number(m[1]) : (s(r.tuDong) === '' ? NaN : Math.round(soHuu(r.tuDong, NaN))); x.denDong = m ? Number(m[2]) : (s(r.denDong) === '' ? NaN : Math.round(soHuu(r.denDong, NaN)));
+    if (!x.to) { loiDong.push({ dong: i + 2, loi: 'Thiếu số tờ · 缺少图页' }); return; }
+    if (!(x.tuDong >= 0) || !(x.denDong >= x.tuDong)) { loiDong.push({ dong: i + 2, loi: 'Dải dòng không hợp lệ (vd 260–279) · 行号范围无效' }); return; }
+    if (x.taiLieuId) { try { timTL(x.taiLieuId); } catch (e) { loiDong.push({ dong: i + 2, loi: e.message }); return; } }
+    var cu = theoKhoa[khoaDongTo(x)];
+    x.noiDungDich = s(r.noiDungDich) || (cu && cu.noiDung === x.noiDung ? cu.noiDungDich : (daDich + dich < 150 && x.noiDung ? (dich++, dichChu(x.noiDung)) : ''));
+    x.capNhat = bay; x.xoa = 0;
+    if (cu) {
+      x.id = cu.id; x.opId = cu.opId; x.dichTay = s(r.noiDungDich) ? JSON.stringify({ noiDung: 1 }) : cu.dichTay;
+      suaDong('DongTo', cu._r, thanhDong('DongTo', x)); sua++;
+    } else {
+      x.id = idMoi('DT', daCo); x.opId = them.length ? '' : (op || ''); x.dichTay = s(r.noiDungDich) ? JSON.stringify({ noiDung: 1 }) : '';
+      them.push(thanhDong('DongTo', x)); theoKhoa[khoaDongTo(x)] = x;
+    }
+  });
+  themNhieu('DongTo', them);
+  return { them: them.length, sua: sua, loi: loiDong };
 }
 
 // ===================== Cấu hình tính toán =====================

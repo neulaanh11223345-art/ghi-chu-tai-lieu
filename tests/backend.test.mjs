@@ -548,3 +548,82 @@ test('bảng tính đầu in: máy 1 màu chỉ JA1–4; chặn ô bắt buộc 
   assert.deepEqual(ok(b.call('audit', { bang: 'TinhDauIn', khoa: x.id }, b.tk)).nhatKy.map((n) => n.hanhDong), ['xoa', 'tao']);
   for (const a of ['calcSave', 'calcDelete']) err(b.call(a, {}, 'gia.mao'), 'HET_PHIEN');
 });
+
+// ===== v1.6.0: mạch điện, số dòng → tờ, cột mới của bảng dây =====
+const MACH = { banVe: 'TEST-BV09', ten: 'TEST-PS9 L', capCho: 'Nguồn 24 VDC', dienAp: '24 V', mau: 'Cam', nguon: 'TEST-PS9 đầu ra L', capDi: 'Cam · cáp TEST-C9',
+  cauChi: 'TEST-F9 4 A', kepDuong: 'TB91', den: 'TEST-J9 chân 1', kepAm: 'TB95', diemVe: 'TEST-J9 chân 2', dayVe: 'Đen-cặp-cam', to: '6', dong: '211' };
+
+test('mạch điện: lưu có tự dịch "cấp cho", chặn trùng tên trên cùng bản vẽ, chặn thiếu tên / thiếu đường đi / tài liệu không có', () => {
+  const b = setup('demo');
+  const m = ok(b.call('circuitSave', MACH, b.tk, 'op-m1')).mach;
+  assert.equal(m.capChoDich, '24 VDC 电源');
+  assert.equal(m.kepDuong, 'TB91'); assert.equal(m.den, 'TEST-J9 chân 1'); assert.equal(m.to, '6');
+  assert.equal(ok(b.call('circuitSave', MACH, b.tk, 'op-m1')).dup, true, 'gửi lại cùng opId không tạo bản trùng');
+  err(b.call('circuitSave', Object.assign({}, MACH, { ten: 'test-ps9 l' }), b.tk), 'TRUNG');
+  ok(b.call('circuitSave', Object.assign({}, MACH, { banVe: 'TEST-BV10' }), b.tk));
+  err(b.call('circuitSave', Object.assign({}, MACH, { ten: '' }), b.tk), 'TRONG');
+  err(b.call('circuitSave', { ten: 'TEST-RONG' }, b.tk), 'TRONG');
+  err(b.call('circuitSave', Object.assign({}, MACH, { ten: 'X', taiLieuId: 'TLKHONGCO' }), b.tk), 'KHONG_THAY');
+  err(b.call('circuitSave', Object.assign({}, MACH, { id: 'MDKHONGCO' }), b.tk), 'KHONG_THAY');
+  const d = ok(b.call('data', {}, b.tk));
+  assert.ok(d.machDien.some((x) => x.id === m.id));
+  assert.ok(d.machDien.some((x) => x.id === 'MDTEST03'), 'mạch mẫu của bản xem thử');
+  assert.equal(d.toi.ten, 'Chủ app');
+});
+
+test('mạch điện: sửa tay bản dịch thì lưu lại không dịch đè; xoá chỉ đánh dấu và ghi nhật ký', () => {
+  const b = setup('demo');
+  const m = ok(b.call('circuitSave', MACH, b.tk)).mach;
+  const tay = ok(b.call('circuitSave', Object.assign({}, MACH, { id: m.id, capChoDich: '手改电源' }), b.tk)).mach;
+  assert.equal(tay.capChoDich, '手改电源'); assert.equal(tay.dichTay.capCho, 1);
+  const lai = ok(b.call('circuitSave', Object.assign({}, MACH, { id: m.id, cauChi: 'TEST-F9 6 A' }), b.tk)).mach;
+  assert.equal(lai.capChoDich, '手改电源', 'không dịch đè bản đã sửa tay');
+  assert.equal(lai.cauChi, 'TEST-F9 6 A');
+  ok(b.call('circuitDelete', { id: m.id }, b.tk));
+  assert.equal(ok(b.call('circuitDelete', { id: m.id }, b.tk)).dup, true);
+  err(b.call('circuitDelete', { id: 'MDKHONGCO' }, b.tk), 'KHONG_THAY');
+  assert.ok(!ok(b.call('data', {}, b.tk)).machDien.some((x) => x.id === m.id));
+  assert.ok(rawRows(b, 'MachDien').some((r) => r[0] === m.id), 'không xoá dòng trên Sheet');
+  assert.deepEqual(ok(b.call('audit', { bang: 'MachDien', khoa: m.id }, b.tk)).nhatKy.map((n) => n.hanhDong).sort(), ['sua', 'sua', 'tao', 'xoa']);
+  err(b.call('circuitSave', MACH, 'gia.mao.token'), 'HET_PHIEN');
+});
+
+test('nhập Excel v1.6: một file gồm dây (cột mới), mạch và dòng → tờ; trùng khoá thì cập nhật; dòng lỗi báo đúng trang', () => {
+  const b = setup('demo');
+  const r = ok(b.call('wireImport', { tenTep: 'TEST-nguon.xlsx',
+    rows: [{ soDay: '08-01', banVe: 'TEST-BV02', to: '8', tuDiem: 'PS2 J-K', denDiem: 'FB2 → TB23', mau: 'Đỏ', tinHieu: 'Gia nhiệt 1', dong: '262', mach: 'PS2 J-K',
+      cap: 'cáp TEST-C23', capVoi: 'Đen-cặp-đỏ → TB27', dienAp: '48 VDC', baoVe: 'FB2 10 A', canKiemTra: '' }],
+    mach: [Object.assign({}, MACH, { banVe: 'TEST-BV02' }), { banVe: 'TEST-BV01', ten: 'TEST-PSC JK', capCho: 'Gia nhiệt 1', kepDuong: 'TB23', den: 'J60 chân 1', cauChi: 'TEST-F2 8 A' },
+      { banVe: 'TEST-BV02', ten: '' }],
+    dongTo: [{ banVe: 'TEST-BV02', to: '8', dai: '260–279', noiDung: 'Gia nhiệt 1' }, { banVe: 'TEST-BV02', to: '9', tuDong: '280', denDong: '299', noiDung: 'Nhánh 24 VDC', noiDungDich: '手改' },
+      { banVe: 'TEST-BV01', to: '5', dai: '100-119', noiDung: 'Nhánh 24 VDC' }, { banVe: 'TEST-BV02', to: '10', dai: 'abc' }, { banVe: 'TEST-BV02', to: '', dai: '1-2' },
+      { banVe: 'TEST-BV02', to: '11', tuDong: '320', denDong: '300' }]
+  }, b.tk, 'op-n1'));
+  assert.equal(r.them, 1); assert.equal(r.machThem, 1); assert.equal(r.machSua, 1); assert.equal(r.dongThem, 2); assert.equal(r.dongSua, 1);
+  assert.deepEqual(r.loi.map((l) => (l.trang || 'day') + ':' + l.dong), ['mach:4', 'dongTo:5', 'dongTo:6', 'dongTo:7']);
+  const w = r.dayDien.find((x) => x.soDay === '08-01');
+  assert.equal(w.dienAp, '48 VDC'); assert.equal(w.baoVe, 'FB2 10 A'); assert.equal(w.dong, '262'); assert.equal(w.capVoi, 'Đen-cặp-đỏ → TB27');
+  assert.equal(r.machDien.find((x) => x.id === 'MDTEST03').cauChi, 'TEST-F2 8 A', 'mạch trùng bản vẽ + tên được cập nhật');
+  const d8 = r.dongTo.find((x) => x.banVe === 'TEST-BV02' && x.to === '8');
+  assert.equal(d8.tuDong, 260); assert.equal(d8.denDong, 279); assert.equal(d8.noiDungDich, '加热 1');
+  const d9 = r.dongTo.find((x) => x.banVe === 'TEST-BV02' && x.to === '9');
+  assert.equal(d9.tuDong, 280); assert.equal(d9.noiDungDich, '手改'); assert.equal(d9.dichTay.noiDung, 1);
+  assert.equal(r.dongTo.filter((x) => x.banVe === 'TEST-BV01' && x.to === '5').length, 1, 'tờ đã có thì cập nhật, không thêm dòng');
+  assert.equal(ok(b.call('wireImport', { mach: [MACH] }, b.tk, 'op-n1')).dup, true, 'gửi lại cùng opId không nhập hai lần');
+  // File chỉ có trang mạch (không có trang dây) vẫn nhập được; cả ba trang trống thì báo lỗi
+  assert.equal(ok(b.call('wireImport', { mach: [Object.assign({}, MACH, { ten: 'TEST-CHI-MACH' })] }, b.tk)).machThem, 1);
+  err(b.call('wireImport', { rows: [], mach: [], dongTo: [] }, b.tk), 'TRONG');
+});
+
+test('nâng cấp v1.6: trang DayDien cũ (16 cột) được thêm 7 cột ở cuối, dây cũ giữ nguyên; tạo trang MachDien và DongTo', () => {
+  const b = setup('demo');
+  const sh = b.ctx.SpreadsheetApp.getActive().getSheetByName('DayDien');
+  sh.data = sh.data.map((r) => r.slice(0, 16));
+  const d = ok(b.call('data', {}, b.tk));
+  assert.equal(sh.data[0].length, 23);
+  assert.deepEqual(Array.from(sh.data[0].slice(16)), ['Dong', 'Mach', 'Cap', 'CapVoi', 'DienAp', 'BaoVe', 'CanKiemTra']);
+  assert.equal(d.dayDien.find((x) => x.soDay === 'TEST-101').tuDiem, 'PS2-L');
+  for (const t of ['MachDien', 'DongTo']) assert.ok(b.ctx.SpreadsheetApp.getActive().getSheetByName(t), t);
+  // Chữ bắt đầu bằng - (vd "-24V") vẫn lưu như chữ
+  assert.equal(b.ctx.thanhDong('MachDien', { ten: '-24V' })[2], "'-24V");
+});

@@ -1,7 +1,7 @@
 // Service worker: cho app mở được khi mất mạng (iPhone thêm vào màn hình chính).
 // Trang app: lấy bản mới khi có mạng (chờ tối đa 4 giây), mất mạng thì dùng bản đã lưu.
 // Thư viện / font từ CDN: dùng bản đã lưu, cập nhật ngầm. Không bao giờ lưu lời gọi máy chủ Apps Script.
-const VER = 'gctl-1.5.0-c9491436';
+const VER = 'gctl-1.6.0-ce86dcc0';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 const CDN = /^https:\/\/(cdn\.jsdelivr\.net|fonts\.googleapis\.com|fonts\.gstatic\.com)\//;
 
@@ -17,6 +17,8 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (/script\.google(usercontent)?\.com$/.test(url.hostname)) return;
+  // Nút Cập nhật hỏi thẳng máy chủ xem có bản mới (?kiem=…): không trả bản đã lưu, không lưu lại
+  if (url.searchParams.has('kiem')) return;
   if (req.mode === 'navigate') {
     e.respondWith((async () => {
       const c = await caches.open(VER);
