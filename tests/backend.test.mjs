@@ -627,3 +627,39 @@ test('nâng cấp v1.6: trang DayDien cũ (16 cột) được thêm 7 cột ở 
   // Chữ bắt đầu bằng - (vd "-24V") vẫn lưu như chữ
   assert.equal(b.ctx.thanhDong('MachDien', { ten: '-24V' })[2], "'-24V");
 });
+
+// ===== v1.6.0: encoder và trục của máy in trên từng chuyền =====
+test('chuyền lưu encoder / đường kính trục / Edges; kiểm số; form không gửi các ô này thì giữ nguyên', () => {
+  const b = setup('demo');
+  const c = ok(b.call('lineSave', { id: 'CV16', ma: '16', soMau: 1, encoderPPR: '2500', duongKinhTruc: '120,5', soCanh: '4', encoderGhiChu: 'TEST-ENC' }, b.tk)).chuyen;
+  assert.equal(c.encoderPPR, '2500'); assert.equal(c.duongKinhTruc, '120.5'); assert.equal(c.soCanh, '4'); assert.equal(c.encoderGhiChu, 'TEST-ENC');
+  const giu = ok(b.call('lineSave', { id: 'CV16', ma: '16', soMau: 1, ghiChu: 'đổi ghi chú' }, b.tk)).chuyen;
+  assert.equal(giu.encoderPPR, '2500', 'không gửi ô encoder thì không xoá số cũ'); assert.equal(giu.duongKinhTruc, '120.5');
+  const trong = ok(b.call('lineSave', { id: 'CV16', ma: '16', soMau: 1, encoderPPR: '', duongKinhTruc: '', soCanh: '' }, b.tk)).chuyen;
+  assert.equal(trong.encoderPPR, ''); assert.equal(trong.soCanh, '');
+  err(b.call('lineSave', { id: 'CV16', ma: '16', soMau: 1, soCanh: '3' }, b.tk), 'SO');
+  err(b.call('lineSave', { id: 'CV16', ma: '16', soMau: 1, encoderPPR: '0' }, b.tk), 'SO');
+  err(b.call('lineSave', { id: 'CV16', ma: '16', soMau: 1, duongKinhTruc: 'abc' }, b.tk), 'SO');
+  assert.equal(ok(b.call('data', {}, b.tk)).chuyen.find((x) => x.id === 'CV01').duongKinhTruc, '120', 'số mẫu của bản xem thử');
+});
+
+test('lưu bảng tính với encoder / trục khác số của chuyền thì chuyền được cập nhật và ghi nhật ký; giống thì không đụng', () => {
+  const b = setup('demo');
+  const r1 = ok(b.call('calcSave', Object.assign({ chuyen: 'CV23' }, TINH1, { encoderPPR: '5000', duongKinh: '119.5', soCanh: '2' }), b.tk));
+  assert.equal(r1.chuyen.encoderPPR, '5000'); assert.equal(r1.chuyen.duongKinhTruc, '119.5'); assert.equal(r1.chuyen.soCanh, '2');
+  const nk = ok(b.call('audit', { bang: 'Chuyen', khoa: 'CV23' }, b.tk)).nhatKy;
+  assert.ok(nk.some((n) => n.hanhDong === 'sua' && /119\.5/.test(JSON.stringify(n.sau))), 'nhật ký ghi số mới');
+  const r2 = ok(b.call('calcSave', Object.assign({ chuyen: 'CV23' }, TINH1, { encoderPPR: '5000', duongKinh: '119.5', soCanh: '2', divider: '10' }), b.tk));
+  assert.equal(r2.chuyen, undefined, 'cùng phần cứng thì không sửa chuyền');
+  assert.equal(ok(b.call('data', {}, b.tk)).chuyen.find((x) => x.id === 'CV23').encoderPPR, '5000');
+});
+
+test('nâng cấp v1.6: trang Chuyen cũ (13 cột) được thêm 4 cột encoder ở cuối, chuyền cũ giữ nguyên', () => {
+  const b = setup('demo');
+  const sh = b.ctx.SpreadsheetApp.getActive().getSheetByName('Chuyen');
+  sh.data = sh.data.map((r) => r.slice(0, 13));
+  const d = ok(b.call('data', {}, b.tk));
+  assert.deepEqual(Array.from(sh.data[0].slice(13)), ['EncoderPPR', 'DuongKinhTruc', 'SoCanh', 'EncoderGhiChu']);
+  assert.equal(d.chuyen.find((x) => x.id === 'CV01').seriDau, 'TEST-SN-01');
+  assert.equal(d.chuyen.find((x) => x.id === 'CV01').encoderPPR, '');
+});

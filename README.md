@@ -169,12 +169,28 @@ Bảng dây có thêm 7 cột: Dòng, Mạch, Cặp với, Cáp / mã dây, Đi�
 
 Trang khác (ví dụ "Cách đọc") được bỏ qua và báo tên. Dòng lỗi báo theo trang và số dòng. **Tải file mẫu** giờ có đủ 3 trang. **Xuất Excel song ngữ** có thêm trang Mạch và Dòng → Tờ.
 
+**Encoder và trục theo từng chuyền máy in**
+
+Mỗi chuyền máy in lưu phần cứng encoder của mình, đúng các ô xanh B1, D1, F1 của bảng tính:
+
+| Ô | Ví dụ |
+|---|---|
+| Encoder resolution (xung/vòng) | 2500 |
+| Đường kính trục encoder (Roller Encoder mm) | 120 |
+| Edges (số cạnh) | 4 |
+| Loại encoder / ghi chú | tuỳ ý |
+
+- **Nhập:** Máy in → Thông số → **Encoder & trục các chuyền** (bảng cả 9 chuyền, ô cam là chuyền chưa nhập) → **Sửa**. Hoặc mở một chuyền → mục **Encoder và trục** → Sửa.
+- **Xem:** mỗi chuyền trong danh sách Thông số có một dòng "Encoder 2500 · trục 120 mm · Edges 4". Ô Thông số máy in ở Trang chủ báo số chuyền chưa có encoder. So sánh các chuyền và Xuất Excel (trang *Chuyền máy in*) cũng có các số này.
+- **Tính toán** tự điền B1, D1, F1 theo chuyền đang chọn. Nếu bạn đổi một trong ba số rồi bấm **Lưu**, chuyền được cập nhật theo (có ghi Nhật ký), để lần sau mở ra đã đúng số mới.
+
 **Nâng cấp từ v1.5.0:**
 1. Dán `Code.gs-v1.6.0.txt` đè lên mã cũ, bấm Lưu.
 2. **Triển khai → Quản lý triển khai → Phiên bản mới**.
 3. Mở app, bấm **Cập nhật**.
 
-Trang `DayDien` được thêm 7 cột ở **cuối**: `Dong`, `Mach`, `Cap`, `CapVoi`, `DienAp`, `BaoVe`, `CanKiemTra`. Dây cũ giữ nguyên. Hai trang mới `MachDien` và `DongTo` được tự tạo. Không phải nhập lại gì.
+Trang `DayDien` được thêm 7 cột ở **cuối**: `Dong`, `Mach`, `Cap`, `CapVoi`, `DienAp`, `BaoVe`, `CanKiemTra`. Dây cũ giữ nguyên.
+Trang `Chuyen` được thêm 4 cột ở **cuối**: `EncoderPPR`, `DuongKinhTruc`, `SoCanh`, `EncoderGhiChu` (để trống, nhập dần trong app). Hai trang mới `MachDien` và `DongTo` được tự tạo. Không phải nhập lại gì.
 
 ## Điểm mới của v1.5.0: màn Tính toán làm theo bảng tính Encoder / Delay / Alignment
 
@@ -411,6 +427,6 @@ Quy ước dữ liệu:
 ## Kiểm thử
 
 ```
-npm test        # 43 bài kiểm thử máy chủ (chạy Code.gs trong máy chủ giả)
-npm run e2e     # build + Playwright bấm 34 bước trên docs/demo.html, không được có lỗi JavaScript
+npm test        # 46 bài kiểm thử máy chủ (chạy Code.gs trong máy chủ giả)
+npm run e2e     # build + Playwright bấm 35 bước trên docs/demo.html, không được có lỗi JavaScript
 ```

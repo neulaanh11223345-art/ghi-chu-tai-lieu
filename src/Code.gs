@@ -48,7 +48,10 @@ var BANG = {
   NhatKy: ['ID', 'ThoiGian', 'HanhDong', 'Bang', 'Khoa', 'Truoc', 'Sau'],
   // Chuyền sản xuất. Ma để dạng chữ để giữ số 0 đầu ("01", "06"). SoMau: 1 màu (chỉ PB1 = JA1–4) hoặc 2 màu (PB1 = JA1–4, PB2 = JA5–8).
   // SeriDau/ThayDau/ThayLoc là của đầu in lắp trên chuyền, không theo sản phẩm
-  Chuyen: ['ID', 'Ma', 'SoMau', 'GhiChu', 'ThuTu', 'HoatDong', 'CapNhat', 'OpId', 'SeriDau', 'ThayDau', 'ThayLoc', 'MauPB1', 'MauPB2'],
+  // v1.6: phần cứng encoder của máy in trên chuyền — Encoder resolution (xung/vòng), đường kính trục encoder (mm), Edges (1/2/4), ghi chú loại encoder.
+  // Màn Tính toán lấy 3 số này làm ô B1 / D1 / F1; lưu bảng tính với số khác thì chuyền được cập nhật theo.
+  Chuyen: ['ID', 'Ma', 'SoMau', 'GhiChu', 'ThuTu', 'HoatDong', 'CapNhat', 'OpId', 'SeriDau', 'ThayDau', 'ThayLoc', 'MauPB1', 'MauPB2',
+    'EncoderPPR', 'DuongKinhTruc', 'SoCanh', 'EncoderGhiChu'],
   // Sản phẩm: chiều dài miếng (mm) chính là Length ở màn Form Specification (máy hiện inch)
   SanPham: ['ID', 'Ma', 'Ten', 'TenDich', 'DaiSP', 'GhiChu', 'HoatDong', 'CapNhat', 'OpId', 'DichTay'],
   // Chuyền nào có những sản phẩm nào (cùng sản phẩm ở hai chuyền thì thông số khác nhau)
@@ -855,7 +858,15 @@ function xoaCauHinh(p) {
 // ===================== Chuyền sản xuất =====================
 function sachChuyen(x) {
   return { id: x.id, ma: x.ma, soMau: x.soMau, ghiChu: x.ghiChu, thuTu: x.thuTu, seriDau: x.seriDau, thayDau: x.thayDau, thayLoc: x.thayLoc,
-    mauPB1: x.mauPB1, mauPB2: x.mauPB2 };
+    mauPB1: x.mauPB1, mauPB2: x.mauPB2, encoderPPR: s(x.encoderPPR), duongKinhTruc: s(x.duongKinhTruc), soCanh: s(x.soCanh), encoderGhiChu: s(x.encoderGhiChu) };
+}
+// Kiểm số encoder / trục / Edges của chuyền; để trống được (chưa đo)
+function phanCungChuyen(p, x) {
+  x.encoderPPR = soTS(p.encoderPPR, ['encoderPPR', 1, 1000000, 'Encoder resolution']);
+  x.duongKinhTruc = soTS(p.duongKinhTruc, ['duongKinhTruc', 1, 2000, 'Roller Encoder mm']);
+  var c = s(p.soCanh);
+  if (c && c !== '1' && c !== '2' && c !== '4') throw loi('SO', 'Edges chỉ là 1, 2 hoặc 4 · 解码边沿只能为1、2或4');
+  x.soCanh = c; x.encoderGhiChu = catChu(p.encoderGhiChu, 120);
 }
 function taoChuyenMau() {
   var bay = thoiGianStr();
@@ -886,6 +897,8 @@ function luuChuyen(p, op) {
   x.ma = ma; x.soMau = soMau; x.ghiChu = catChu(p.ghiChu, 200);
   x.seriDau = catChu(p.seriDau, 60); x.thayDau = ngayTS(p.thayDau, 'Ngày thay đầu in'); x.thayLoc = ngayTS(p.thayLoc, 'Ngày thay lọc');
   x.mauPB1 = catChu(p.mauPB1, 40); x.mauPB2 = soMau === 2 ? catChu(p.mauPB2, 40) : '';
+  // Form cũ không gửi các ô encoder thì giữ nguyên số đã lưu
+  if (p.encoderPPR !== undefined || p.duongKinhTruc !== undefined || p.soCanh !== undefined) phanCungChuyen(p, x);
   x.hoatDong = p.hoatDong === undefined ? 1 : (hd(p.hoatDong) ? 1 : 0);
   if (p.thuTu !== undefined) x.thuTu = soHuu(p.thuTu, x.thuTu);
   x.capNhat = thoiGianStr(); x.opId = op || x.opId || '';
@@ -1060,7 +1073,16 @@ function luuTinhDauIn(p, op) {
   themNhieu('TinhDauIn', [thanhDong('TinhDauIn', x)]);
   var sau = sachGCP(x);
   ghiNhatKy('tao', 'TinhDauIn', x.id, null, sau);
-  return { tinhDauIn: sau };
+  // Encoder / trục / Edges của bảng tính là phần cứng của chuyền: khác số đã lưu ở chuyền thì cập nhật chuyền (có nhật ký)
+  var kq = { tinhDauIn: sau };
+  if (s(cv.encoderPPR) !== x.encoderPPR || s(cv.duongKinhTruc) !== x.duongKinh || s(cv.soCanh) !== x.soCanh) {
+    var truocCv = sachChuyen(cv);
+    cv.encoderPPR = x.encoderPPR; cv.duongKinhTruc = x.duongKinh; cv.soCanh = x.soCanh; cv.capNhat = thoiGianStr();
+    suaDong('Chuyen', cv._r, thanhDong('Chuyen', cv));
+    ghiNhatKy('sua', 'Chuyen', cv.id, truocCv, sachChuyen(cv));
+    kq.chuyen = sachChuyen(cv);
+  }
+  return kq;
 }
 function xoaTinhDauIn(p) {
   var ds = docBang('TinhDauIn'), x = ds.filter(function (t) { return t.id === s(p.id); })[0];

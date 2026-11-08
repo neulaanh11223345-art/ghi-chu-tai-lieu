@@ -456,6 +456,7 @@ function gopKetQua(action, d) {
   if (d.dayDien) D.dayDien = d.dayDien;
   if (action === 'wireDelete') D.dayDien = D.dayDien.filter((x) => x.id !== d.id);
   if (d.mach) { D.machDien = D.machDien || []; upsert(D.machDien, d.mach); }
+  if (d.chuyen && !Array.isArray(d.chuyen)) { D.chuyen = D.chuyen || []; upsert(D.chuyen, d.chuyen); }
   if (d.machDien) D.machDien = d.machDien;
   if (d.dongTo) D.dongTo = d.dongTo;
   if (action === 'circuitDelete') D.machDien = (D.machDien || []).filter((x) => x.id !== d.id);
@@ -540,6 +541,8 @@ const APDUNG = {
   calcSave(op, p) {
     S.data.tinhDauIn = S.data.tinhDauIn || [];
     upsert(S.data.tinhDauIn, Object.assign({}, p, { id: maTuOp('TD', op), soCanh: String(p.soCanh), ghiChuDich: '', lucTao: new Date(Date.now() + 7 * 3600000).toISOString().slice(0, 19).replace('T', ' '), dichTay: {}, _cho: op }));
+    const c = (S.data.chuyen || []).find((x) => x.id === p.chuyen);
+    if (c) { c.encoderPPR = String(p.encoderPPR); c.duongKinhTruc = String(p.duongKinh); c.soCanh = String(p.soCanh); }
   },
   calcDelete(op, p) { S.data.tinhDauIn = (S.data.tinhDauIn || []).filter((x) => x.id !== p.id); }
 };
@@ -1186,12 +1189,18 @@ const O_XANH = [['encoderPPR', 'Encoder resolution', 'Xung encoder / vòng', '�
 const MAC_DINH = { encoderPPR: 2500, duongKinh: 120, soCanh: 4, divider: 12, kheHoPB1: 0, lechPB2: 1.8, daiSP: 190, tocDo: 850, dpiMoi: '', dpiLapTrinh: 1200 };
 const dsTinh = (cv) => (DL().tinhDauIn || []).filter((t) => t.chuyen === cv).sort((a, b) => String(a.lucTao + a.id).localeCompare(String(b.lucTao + b.id)));
 const tinhMoiNhat = (cv) => { const d = dsTinh(cv); return d[d.length - 1] || null; };
-// Encoder / trục của một đầu in: lần lưu bảng tính mới nhất; chưa lưu thì dùng số mặc định của bảng tính
+// v1.6: encoder (xung/vòng), đường kính trục (mm), Edges là phần cứng lưu ở chuyền. Chuyền chưa nhập thì lấy lần lưu bảng tính mới nhất,
+// chưa có nữa thì số mặc định của bảng tính.
+const coPhanCung = (c) => !!(c && c.encoderPPR && c.duongKinhTruc && c.soCanh);
 function coBo(cv) {
-  const t = cv ? tinhMoiNhat(cv) : null;
-  return { encoderPPR: Number(t ? t.encoderPPR : MAC_DINH.encoderPPR), duongKinh: Number(t ? t.duongKinh : MAC_DINH.duongKinh), soCanh: Number(t ? t.soCanh : MAC_DINH.soCanh),
+  const t = cv ? tinhMoiNhat(cv) : null, c = cv ? cvOf(cv) : null;
+  const lay = (kc, kt) => Number(c && c[kc] ? c[kc] : t ? t[kt] : MAC_DINH[kt]);
+  return { encoderPPR: lay('encoderPPR', 'encoderPPR'), duongKinh: lay('duongKinhTruc', 'duongKinh'), soCanh: lay('soCanh', 'soCanh'),
     kheHoPB1: Number(t ? t.kheHoPB1 : 0) || 0, lechPB2: Number(t ? t.lechPB2 : MAC_DINH.lechPB2) || 0, gioiHan: 8 };
 }
+// Một dòng mô tả phần cứng của chuyền, hoặc nhắc chưa nhập
+const moTaPhanCung = (c) => coPhanCung(c) ? `Encoder ${esc(c.encoderPPR)} · trục/辊径 ${esc(so(Number(c.duongKinhTruc), 2))} mm · Edges ${esc(c.soCanh)}${c.encoderGhiChu ? ' · ' + esc(c.encoderGhiChu) : ''}`
+  : `<span class="chip warn">${L('Chưa nhập encoder / trục', '未录入编码器/辊径')}</span>`;
 function chonDauIn() {
   if (S.tcv && cvOf(S.tcv)) return S.tcv;
   try { const v = localStorage.getItem('gctl_tcv'); if (v && cvOf(v)) return (S.tcv = v); } catch (e) { /* bỏ qua */ }
@@ -1207,6 +1216,10 @@ function giaTriDauIn(cv) {
     if (ts && ts.tocDo) o.tocDo = ts.tocDo;
   }
   if (sp && daiSPmm(sp) && !t) o.daiSP = daiSPmm(sp);
+  const c = cvOf(cv);
+  if (c && c.encoderPPR) o.encoderPPR = c.encoderPPR;
+  if (c && c.duongKinhTruc) o.duongKinh = c.duongKinhTruc;
+  if (c && c.soCanh) o.soCanh = c.soCanh;
   o.thucTe = t && t.thucTe ? t.thucTe : (ts && ts.align ? ts.align : '');
   o.nguonThucTe = t && t.thucTe ? 'luu' : (ts && ts.align ? 'ts' : '');
   return o;
@@ -1218,8 +1231,10 @@ VIEWS.tinh = {
     const o = giaTriDauIn(cv), spId = dangChay(cv), sp = spOf(spId), ds = dsTinh(cv);
     return `<div class="chips plcl">${dsChuyen().map((x) => `<button class="${x.id === cv ? 'on' : ''}${dsTinh(x.id).length ? '' : ' trong'}" data-act="tcvChon" data-cv="${esc(x.id)}">${esc(x.ma)}</button>`).join('')}</div>
       <div class="card"><b>${L('Đầu in chuyền ' + esc(c.ma), esc(c.ma) + '号线喷头')}</b> <span class="chip ${c.soMau === 2 ? 'pb2' : 'pb0'}">${nhanMau(c.soMau)}</span>
-        <div class="muted">${sp ? `${T.dangChay[0]}: <b class="mono">${esc(sp.ma)}</b> ${esc(sp.ten)}` : ''}${ds.length ? ` · ${L('Lưu lần cuối', '最后保存')} ${esc(String(ds[ds.length - 1].lucTao).slice(0, 16))}` : ` · ${L('Chưa lưu lần nào', '尚未保存')}`}</div></div>
+        <div class="muted">${sp ? `${T.dangChay[0]}: <b class="mono">${esc(sp.ma)}</b> ${esc(sp.ten)}` : ''}${ds.length ? ` · ${L('Lưu lần cuối', '最后保存')} ${esc(String(ds[ds.length - 1].lucTao).slice(0, 16))}` : ` · ${L('Chưa lưu lần nào', '尚未保存')}`}</div>
+        <div id="tPhanCung" style="margin-top:6px">${moTaPhanCung(c)}</div></div>
       <div class="card xanh"><div class="sec" style="margin-top:0">${L('Ô xanh — được chỉnh', '绿色单元格 — 可修改')}</div>
+        <div class="muted" style="margin:-4px 0 8px">${L('Encoder resolution, Roller Encoder mm, Edges là phần cứng của chuyền: lưu bảng tính với số khác thì chuyền được cập nhật theo.', '编码器、辊径、解码边沿属于产线硬件：保存不同数值时会同步更新产线。')}</div>
         <div class="grid2">${O_XANH.map((k) => k[0] === 'soCanh' ? `<label class="f"><span class="l"><span class="en">${k[1]}</span> <span class="zh" style="display:inline">${k[2]} · ${k[3]}</span></span><select class="i" id="t_soCanh">${[4, 2, 1].map((n) => `<option ${Number(o.soCanh) === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>`
           : `<label class="f"><span class="l"><span class="en">${k[1]}</span> <span class="zh" style="display:inline">${k[2]} · ${k[3]}</span></span><input class="i" id="t_${k[0]}" inputmode="decimal" autocomplete="off" value="${esc(o[k[0]] === undefined ? '' : o[k[0]])}"></label>`).join('')}</div></div>
       <div id="tKq"></div>
@@ -1303,7 +1318,7 @@ async function tSave(cv) {
   $('#tSave').disabled = true;
   const kq = await ghi('calcSave', p, 'Bảng tính ' + tenChuyen(c), (op) => APDUNG.calcSave(op, p));
   if (!kq.ok) { $('#tSave').disabled = false; return; }
-  if (!kq.queued) tt('daLuu');
+  if (!kq.queued) { if (kq.data && kq.data.chuyen) toast(L('Đã lưu · encoder / trục của chuyền ' + esc(c.ma) + ' cũng được cập nhật', '已保存 · 同时更新' + esc(c.ma) + '号线编码器/辊径')); else tt('daLuu'); }
   render();
 }
 async function tDel(id) {
@@ -1367,7 +1382,8 @@ const rowLine = (c) => {
   ${sp ? `<div class="sub"><span class="dot"></span>${T.dangChay[0]} · ${T.dangChay[1]}: <b class="mono">${esc(sp.ma)}</b> ${esc(sp.ten)}</div>` : `<div class="sub muted">${L('Chưa chọn sản phẩm đang chạy', '未选择运行产品')}</div>`}
   ${t ? `<div class="sub">Divider ${esc(soTs(t.divider) || '—')} · ${esc(soTs(t.encDPI) || '—')} dpi · ${esc(soTs(t.tocDo) || '—')} sp/ph ${chipKhz(t)}${t._cho ? ` <span class="chip warn">${T.choGui[0]}</span>` : ''}</div>`
     : sp ? `<div><span class="chip warn">${T.chuaGhi[0]} · ${T.chuaGhi[1]}</span></div>` : ''}
-  <div class="sub muted">${n} ${L('sản phẩm', '个产品').replace(/<\/?span[^>]*>/g, ' ')}</div></div></button>`;
+  <div class="sub muted">${n} ${L('sản phẩm', '个产品').replace(/<\/?span[^>]*>/g, ' ')}</div>
+  <div class="sub enc">${moTaPhanCung(c)}</div></div></button>`;
 };
 const rowSP = (sp) => `<button class="row prod" data-act="spView" data-id="${esc(sp.id)}">${IC.tl}<div class="main"><div class="nm"><span class="mono">${esc(sp.ma)}</span> ${esc(sp.ten)}</div>
   ${sp.tenDich ? `<div class="sub">${esc(sp.tenDich)}</div>` : ''}<div class="sub">${sp.daiSP ? esc(soTs(sp.daiSP)) + ' mm · ' : ''}${chuyenCuaSP(sp.id).map((c) => `<span class="chip">${esc(c.ma)}${dangChay(c.id) === sp.id ? ' ●' : ''}</span>`).join('') || '—'}</div></div></button>`;
@@ -1380,7 +1396,9 @@ VIEWS.may = {
         `<button class="btn fab" id="fabSP" data-act="spEdit" data-id="">${IC.plus}${L('Sản phẩm', '产品')}</button>`;
     }
     const ds = dsChuyen().filter((c) => !loc || c.soMau === loc);
-    return chips + `<div class="btns" style="margin:0 0 12px"><button class="btn sm ghost" data-act="tsCompare">${L(T.soSanh[0], T.soSanh[1])}</button></div>` + (ds.map(rowLine).join('') || `<div class="card empty">—</div>`);
+    const thieu = dsChuyen().filter((c) => !coPhanCung(c)).length;
+    return chips + `<div class="btns" style="margin:0 0 12px"><button class="btn sm ghost" data-act="tsCompare">${L(T.soSanh[0], T.soSanh[1])}</button>
+      <button class="btn sm ghost" id="encBtn" data-act="encList">${L('Encoder & trục các chuyền', '各线编码器与辊')}${thieu ? ` <span class="chip warn">${thieu}</span>` : ''}</button></div>` + (ds.map(rowLine).join('') || `<div class="card empty">—</div>`);
   }
 };
 // ----- Màn một chuyền -----
@@ -1402,6 +1420,13 @@ function lineView(id) {
     <div class="sec">${L('Sản phẩm của chuyền này', '本线产品')}<span>${ds.length}</span></div>
     ${ds.filter((sp) => sp.id !== run).map((sp) => the(sp, false)).join('')}
     <div class="btns"><button class="btn ghost wide" id="lineAddSp" data-act="lineAddSp" data-id="${esc(id)}">${IC.plus}${L('Thêm sản phẩm vào chuyền', '添加产品到本线')}</button></div>
+    <div class="sec">${L('Encoder và trục', '编码器与辊')}</div>
+    <div class="card" id="lvEnc"><table class="t kvt"><tr><th>Encoder resolution · ${L('xung / vòng', '脉冲/转').replace(/<[^>]+>/g, ' ')}</th><td><b>${esc(c.encoderPPR || '—')}</b></td></tr>
+    <tr><th>Roller Encoder mm · ${L('đường kính trục', '辊外径').replace(/<[^>]+>/g, ' ')}</th><td><b>${c.duongKinhTruc ? esc(so(Number(c.duongKinhTruc), 2)) + ' mm' : '—'}</b></td></tr>
+    <tr><th>Edges · ${L('số cạnh', '解码边沿').replace(/<[^>]+>/g, ' ')}</th><td><b>${esc(c.soCanh || '—')}</b></td></tr>
+    ${c.encoderGhiChu ? `<tr><th>${L('Loại encoder', '编码器型号')}</th><td>${esc(c.encoderGhiChu)}</td></tr>` : ''}</table>
+    ${coPhanCung(c) ? '' : `<div style="margin-top:6px"><span class="chip warn">${L('Chưa nhập đủ — màn Tính toán đang dùng số mặc định', '未填写完整 — 计算页使用默认值')}</span></div>`}
+    <div class="btns"><button class="btn sm ghost" data-act="lineEdit" data-id="${esc(id)}">${L(T.sua[0], T.sua[1])}</button></div></div>
     <div class="sec">${L('Đầu in trên chuyền', '本线喷头')}</div>
     <div class="card"><table class="t kvt"><tr><th>${L('Số seri đầu in', '喷头序列号')}</th><td>${esc(c.seriDau || '—')}</td></tr><tr><th>${L('Ngày thay đầu in', '换喷头日期')}</th><td>${esc(c.thayDau || '—')}</td></tr>
     <tr><th>${L('Ngày thay lọc mực', '换滤芯日期')}</th><td>${esc(c.thayLoc || '—')}</td></tr></table>
@@ -1623,11 +1648,22 @@ function tsCompare() {
   const hang = (ten, f) => `<tr><th>${ten}</th>${ds.map((x) => `<td>${x.t ? f(x) : ''}</td>`).join('')}</tr>`;
   sheet(L(T.soSanh[0], T.soSanh[1]), `<div style="overflow-x:auto"><table class="t" id="tsCmp" style="white-space:nowrap"><tr><th></th>${ds.map((x) => `<th>${esc(x.c.ma)}</th>`).join('')}</tr>
     <tr><th>${L('Đang chạy', '运行中')}</th>${ds.map((x) => `<td class="mono">${x.sp ? esc(x.sp.ma) : '—'}</td>`).join('')}</tr>
+    <tr><th>Encoder resolution</th>${ds.map((x) => `<td>${esc(x.c.encoderPPR || '—')}</td>`).join('')}</tr><tr><th>${L('Trục encoder mm', '编码器辊径')}</th>${ds.map((x) => `<td>${x.c.duongKinhTruc ? esc(so(Number(x.c.duongKinhTruc), 2)) : '—'}</td>`).join('')}</tr>
+    <tr><th>Edges</th>${ds.map((x) => `<td>${esc(x.c.soCanh || '—')}</td>`).join('')}</tr>
     ${hang(L(T.apDung[0], T.apDung[1]), (x) => esc(x.t.apDung))}${hang('Encoder DPI', (x) => esc(soTs(x.t.encDPI)))}${hang('Divider', (x) => esc(soTs(x.t.divider)))}
     ${hang(L('Tốc độ', '速度'), (x) => esc(soTs(x.t.tocDo)))}${hang('kHz', (x) => chipKhz(x.t))}
     ${hang('Fire Pulses PB1', (x) => pb(x, 'volt', 1))}${hang('Fire Pulses PB2', (x) => pb(x, 'volt', 2))}
     ${hang('Meniscus', (x) => esc(soTs(x.t.meniscus)))}${hang('Plate °C', (x) => esc(soTs(x.t.nhietTam)))}
     ${hang('Reservoir PB1 °C', (x) => esc(soTs(x.t.nhietBinh1)))}${hang('Reservoir PB2 °C', (x) => esc(soTs(x.t.nhietBinh2)))}</table></div>`);
+}
+// Bảng encoder / trục của mọi chuyền máy in: thấy ngay chuyền nào chưa nhập, bấm Sửa là vào form chuyền
+function encList() {
+  sheet(L('Encoder & trục các chuyền', '各线编码器与辊'), `<div class="card" style="padding:4px 6px;overflow-x:auto"><table class="t" id="encTbl">
+    <tr><th>${L('Chuyền', '产线')}</th><th>Encoder</th><th>${L('Trục mm', '辊径')}</th><th>Edges</th><th></th></tr>
+    ${dsChuyen().map((c) => `<tr${coPhanCung(c) ? '' : ' style="background:var(--warnbg)"'}><td><b>${esc(c.ma)}</b> <span class="muted">${nhanMau(c.soMau)}</span>${c.encoderGhiChu ? `<div class="muted">${esc(c.encoderGhiChu)}</div>` : ''}</td>
+      <td class="mono">${esc(c.encoderPPR || '—')}</td><td class="mono">${c.duongKinhTruc ? esc(so(Number(c.duongKinhTruc), 2)) : '—'}</td><td class="mono">${esc(c.soCanh || '—')}</td>
+      <td><button class="btn sm ghost" data-act="lineEdit" data-id="${esc(c.id)}">${L(T.sua[0], T.sua[1])}</button></td></tr>`).join('')}</table></div>
+    <div class="muted">${L('Ô cam = chưa nhập đủ; màn Tính toán sẽ dùng lần lưu bảng tính gần nhất hoặc số mặc định (2500 · 120 mm · 4).', '橙色=未填写完整；计算页将使用最近保存值或默认值（2500 · 120 mm · 4）。')}</div>`);
 }
 function linesForm() {
   sheet(L(T.dsChuyen[0], T.dsChuyen[1]), dsChuyen().map((c) => `<div class="card" style="display:flex;gap:8px;align-items:center"><div style="flex:1"><b>${esc(tenChuyen(c))}</b> <span class="chip">${nhanMau(c.soMau)}</span>${c.ghiChu ? `<div class="muted">${esc(c.ghiChu)}</div>` : ''}</div>
@@ -1641,6 +1677,11 @@ function lineEdit(id) {
     ${oTs('lPB1', 'Mực PB1 (JA1–4)', 'PB1墨水', v('mauPB1'), 'autocomplete="off"')}${oTs('lPB2', 'Mực PB2 (JA5–8)', 'PB2墨水', v('mauPB2'), 'autocomplete="off"')}
     ${oTs('lSeri', 'Số seri đầu in', '喷头序列号', v('seriDau'), 'autocomplete="off"')}${oTs('lThayDau', 'Ngày thay đầu in', '换喷头日期', v('thayDau'), 'type="date"')}
     ${oTs('lThayLoc', 'Ngày thay lọc mực', '换滤芯日期', v('thayLoc'), 'type="date"')}</div>
+    <div class="sec">${L('Encoder và trục (như ô B1, D1, F1 của bảng tính)', '编码器与辊（对应计算表B1、D1、F1）')}</div>
+    <div class="grid2">${oTs('lEnc', 'Encoder resolution (xung/vòng)', '编码器脉冲/转', v('encoderPPR'), 'inputmode="numeric" autocomplete="off" placeholder="2500"')}
+    ${oTs('lTruc', 'Đường kính trục encoder (mm)', '编码器辊外径（mm）', v('duongKinhTruc'), 'inputmode="decimal" autocomplete="off" placeholder="120"')}
+    <label class="f"><span class="l">${L('Edges (số cạnh)', '解码边沿')}</span><select class="i" id="lCanh"><option value="">—</option>${[4, 2, 1].map((n) => `<option ${String(v('soCanh')) === String(n) ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+    ${oTs('lEncGhi', 'Loại encoder / ghi chú', '编码器型号/备注', v('encoderGhiChu'), 'autocomplete="off"')}</div>
     ${oTs('lGhi', 'Ghi chú', '备注', v('ghiChu'), 'autocomplete="off"')}
     <div class="btns"><button class="btn" id="lSave" data-act="lineSave" data-id="${esc(c ? c.id : '')}">${L(T.luu[0], T.luu[1])}</button>
     ${c ? `<button class="btn bad" data-act="lineOff" data-id="${esc(c.id)}">${L('Ngừng dùng', '停用')}</button>` : ''}</div>`);
@@ -1649,7 +1690,8 @@ async function lineSave(id, tat) {
   const c = id ? cvOf(id) : null, g = (e) => $(e).value.trim();
   if (tat && !confirmXoa()) return;
   const p = tat ? Object.assign({}, c, { hoatDong: 0 }) : { id, ma: g('#lMa'), soMau: Number($('#lMau').value), mauPB1: g('#lPB1'), mauPB2: g('#lPB2'),
-    seriDau: g('#lSeri'), thayDau: g('#lThayDau'), thayLoc: g('#lThayLoc'), ghiChu: g('#lGhi') };
+    seriDau: g('#lSeri'), thayDau: g('#lThayDau'), thayLoc: g('#lThayLoc'), ghiChu: g('#lGhi'),
+    encoderPPR: g('#lEnc'), duongKinhTruc: g('#lTruc').replace(',', '.'), soCanh: $('#lCanh').value, encoderGhiChu: g('#lEncGhi') };
   try {
     const d = await api('lineSave', p, { opId: newOp() });
     DL().chuyen = dsChuyen();
@@ -1971,7 +2013,7 @@ VIEWS.home = {
       <div class="mtiles">
         ${oTong('mt-blue', 'gc', IC.gc, T.gc, soLon(D.ghiChu.length), em(tuan + ' sửa trong 7 ngày', '近7天' + tuan + '条'))}
         ${oTong('mt-orange', 'tl', IC.tl, T.tl, soLon(tlNhom().length), em('đang hiệu lực' + (nOff ? ' · ' + nOff + ' xem offline' : ''), '现行' + (nOff ? ' · 离线' + nOff : '')))}
-        ${oTong('mt-teal', 'may', IC.may, ['Thông số máy in', '喷码参数'], soLon(daGhi, '/' + cvs.length), em('chuyền đã ghi thông số', '条产线已记录'))}
+        ${oTong('mt-teal', 'may', IC.may, ['Thông số máy in', '喷码参数'], soLon(daGhi, '/' + cvs.length), (cvs.some((c) => !coPhanCung(c)) ? `<span class="warnx">${L(cvs.filter((c) => !coPhanCung(c)).length + ' chuyền chưa có encoder', cvs.filter((c) => !coPhanCung(c)).length + '条线缺编码器')}</span>` : '') + em('chuyền đã ghi thông số', '条产线已记录'))}
         ${oTong('mt-sky', 'tinh', IC.tinh, T.tinh, soLon(daTinh, '/' + cvs.length), lechDau ? `<span class="warnx">${L(lechDau + ' đầu in JA lệch', lechDau + '个喷头JA偏差')}</span>` : em('đầu in đã lưu bảng tính', '个喷头已保存'))}
         ${oTong('mt-purple', 'day', IC.day, T.day, soLon(mach.length, ' mạch'), (canKT ? `<span class="warnx">${L(canKT + ' chỗ cần kiểm tra', canKT + '处待核实')}</span>` : '') + em(D.dayDien.length + ' đoạn dây', D.dayDien.length + '段线'))}
         ${oTong('mt-cyan', 'ct', IC.ct, T.ct, soLon(coBang, '/' + plc.length), em('chuyền có bảng PLC · ' + (D.ghiChuPLC || []).length + ' ghi chú', '条产线有PLC表 · 备注' + (D.ghiChuPLC || []).length))}
@@ -2143,6 +2185,9 @@ function xuatExcel() {
     sheetMach(D.machDien || []), sheetDongTo((D.dongTo || []).slice().sort((a, b) => a.tuDong - b.tuDong)),
     sheetTs('Thông số hiện tại · 当前参数', (D.chuyenSP || []).map((l) => hienTai(l.chuyen, l.sanPham)).filter(Boolean)),
     sheetTs('Lịch sử thông số · 参数历史', (D.thongSo || []).slice().sort((a, b) => String(a.chuyen + a.sanPham).localeCompare(String(b.chuyen + b.sanPham)) || khoaTs(b).localeCompare(khoaTs(a)))),
+    { name: 'Chuyền máy in · 喷码产线', w: [10, 10, 14, 14, 8, 22, 18, 12, 12, 24],
+      head: ['Chuyền · 产线', 'Số màu · 颜色数', 'Encoder resolution · 编码器', 'Trục encoder (mm) · 辊径', 'Edges · 解码边沿', 'Loại encoder · 编码器型号', 'Số seri đầu in · 喷头序列号', 'Thay đầu in · 换喷头', 'Thay lọc · 换滤芯', 'Ghi chú · 备注'],
+      rows: (D.chuyen || []).map((c) => [c.ma, c.soMau, c.encoderPPR ? Number(c.encoderPPR) : '', c.duongKinhTruc ? Number(c.duongKinhTruc) : '', c.soCanh ? Number(c.soCanh) : '', c.encoderGhiChu || '', c.seriDau || '', c.thayDau || '', c.thayLoc || '', c.ghiChu || '']) },
     { name: 'Sản phẩm · 产品', w: [14, 30, 28, 12, 30, 30], head: ['Mã SP · 产品编号', 'Tên · 名称', 'Tên (中文) · 中文名称', 'Dài (mm) · 长度', 'Chuyền · 产线', 'Ghi chú · 备注'],
       rows: dsSP().map((x) => [x.ma, x.ten, x.tenDich, x.daiSP ? Number(x.daiSP) : '', chuyenCuaSP(x.id).map((c) => c.ma + (dangChay(c.id) === x.id ? ' (đang chạy)' : '')).join(', '), x.ghiChu]) }
   ]);
@@ -2192,7 +2237,7 @@ const ACT = {
   viewClose: () => { const v = $('#viewer'); if (v) { if (v.dataset.url) URL.revokeObjectURL(v.dataset.url); v.remove(); } },
   wireNew: () => wireEdit(''), wireView: (b) => wireView(b.dataset.id), wireEdit: (b) => wireEdit(b.dataset.id), wireSave: (b) => wireSave(b.dataset.id), wireDel: (b) => wireDel(b.dataset.id),
   wireOpenDoc: (b) => { const x = S.data.dayDien.find((d) => d.id === b.dataset.id); if (x) moTL(x.taiLieuId, x.trang); },
-  wireImport: wireImportForm, wireTpl: fileMauDay,
+  wireImport: wireImportForm, wireTpl: fileMauDay, encList,
   apChon: (b) => { S.apChon = b.dataset.ap; render(); }, machNew: () => machEdit(''), machView: (b) => machView(b.dataset.id), machEdit: (b) => machEdit(b.dataset.id),
   machSave: (b) => machSave(b.dataset.id), machDel: (b) => machDel(b.dataset.id), machNote: (b) => { closeSheet(); machNote(b.dataset.id); },
   machOpenDoc: (b) => { const x = dsMachD().find((m) => m.id === b.dataset.id); if (x) moTL(x.taiLieuId, x.trang); },
