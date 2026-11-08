@@ -62,6 +62,7 @@ try {
   assert.match(await text('.mtile[data-v="day"]'), /3\s*mạch/);
   assert.match(await text('.mtile[data-v="day"]'), /1 chỗ cần kiểm tra/);
   assert.match(await text('.mtile[data-v="ct"]'), /\/16/);
+  assert.match(await text('.mtile[data-v="may"]'), /2 chuyền chưa có encoder/);
   assert.match(await text('#main .hello'), /Chủ app/);
   assert.equal((await text('#caiBtn')).trim(), 'C');
   assert.deepEqual(await page.locator('.tabs .tab').evaluateAll((a) => a.map((x) => x.dataset.v)), ['home', 'gc', 'tim', 'mayin', 'them']);
@@ -487,6 +488,49 @@ try {
   await wait();
   assert.equal(await text('#tBangDPI td.hl'), '112,3');
   ok('Tính toán theo đúng bảng tính nhà cung cấp; so JA1–8 thực tế với số tính ra; lưu theo đầu in có lịch sử');
+
+  // 15b. v1.6 Encoder và trục theo chuyền: danh sách báo chuyền chưa nhập, sửa ở form chuyền, Tính toán lấy số của chuyền,
+  // lưu bảng tính với trục khác thì chuyền cập nhật theo; nhập sai bị chặn
+  await tab('may');
+  assert.match(await text('#main .row.line[data-id="CV01"] .enc'), /Encoder 2500 · trục\/辊径 120 mm · Edges 4/);
+  assert.match(await text('#main .row.line[data-id="CV16"] .enc'), /Chưa nhập encoder/);
+  await page.click('#encBtn');
+  await wait();
+  assert.equal(await page.locator('#encTbl tr').count(), 10, '9 chuyền + tiêu đề');
+  assert.match(await text('#encTbl'), /5000/);
+  await page.click('#encTbl button[data-id="CV16"]');
+  await wait();
+  await page.fill('#lEnc', '0');
+  await page.click('#lSave');
+  await page.waitForSelector('.toast.bad', { timeout: 5000 });
+  assert.match(await text('.toast.bad'), /Encoder resolution/);
+  await page.fill('#lEnc', '2500');
+  await page.fill('#lTruc', '120,5');
+  await page.selectOption('#lCanh', '4');
+  await page.fill('#lEncGhi', 'TEST-ENC-16');
+  await page.click('#lSave');
+  await wait(700);
+  assert.match(await text('#lvEnc'), /2500/);
+  assert.match(await text('#lvEnc'), /120,5 mm/);
+  assert.match(await text('#lvEnc'), /TEST-ENC-16/);
+  await page.click('#ov [data-act="close"]');
+  await tab('tinh');
+  await page.click('.chips.plcl button[data-cv="CV16"]');
+  await wait();
+  assert.equal(await page.inputValue('#t_encoderPPR'), '2500');
+  assert.equal(await page.inputValue('#t_duongKinh'), '120.5', 'Tính toán lấy trục của chuyền');
+  assert.match(await text('#tPhanCung'), /trục\/辊径 120,5 mm/);
+  await page.fill('#t_duongKinh', '119.8');
+  await page.click('#tSave');
+  await page.waitForSelector('.toast:has-text("cũng được cập nhật")', { timeout: 5000 });
+  await wait(300);
+  assert.match(await text('#tPhanCung'), /trục\/辊径 119,8 mm/);
+  await tab('may');
+  assert.match(await text('#main .row.line[data-id="CV16"] .enc'), /119,8 mm/);
+  await page.click('.tabs .tab[data-v="home"]');
+  await wait();
+  assert.match(await text('.mtile[data-v="may"]'), /1 chuyền chưa có encoder/);
+  ok('Encoder và trục lưu theo từng chuyền; Tính toán dùng số của chuyền và cập nhật ngược khi đổi');
 
   // 16a. Thông số máy: danh sách chuyền có sản phẩm đang chạy
   await tab('may');
