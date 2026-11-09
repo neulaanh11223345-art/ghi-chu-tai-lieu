@@ -17,7 +17,7 @@ __dichMau.push(
   ['Tín hiệu encoder kênh A', '编码器A相信号'], ['Tín hiệu encoder kênh B', '编码器B相信号'], ['Nối đất', '接地'],
   ['Ghi chú thử', '测试笔记'], ['Bảo trì', '维护'],
   ['Thông số ban đầu', '初始参数'], ['Tăng điện áp vì in mờ', '因喷印模糊提高电压'], ['Hạ divider để giảm tần số', '调整分频以降低频率'], ['Băng 330 mm', '330毫米卫生巾'], ['Băng 190 mm', '190毫米卫生巾'], ['PB2 in mờ, tăng áp', 'PB2喷印模糊，提高电压'], ['X1002 | Máy nghiền lỗi | Y1002 | Khởi động máy nghiền', 'X1002 | 粉碎机异常 | Y1002 | 粉碎机启动'], ['M0 | Dừng khẩn cấp chưa reset | M600 | TEST-giới hạn bộ chỉnh lệch', 'M0 | 急停未复位 | M600 | TEST-纠偏器限位提示'], ['Đã đổi sang cảm biến mới', '已更换为新传感器'], ['Thêm nút dừng phụ', '增加辅助停止按钮'],
-  ['Gia nhiệt 1', '加热 1'], ['Nhánh 24 VDC', '24 VDC 支路'], ['Encoder và trigger', '编码器与触发器'], ['Nối đất vỏ tủ', '柜体接地'], ['Gia nhiệt 2', '加热 2']
+  ['dừng máy', '停止'], ['cảm biến', '传感器'], ['Gia nhiệt 1', '加热 1'], ['Nhánh 24 VDC', '24 VDC 支路'], ['Encoder và trigger', '编码器与触发器'], ['Nối đất vỏ tủ', '柜体接地'], ['Gia nhiệt 2', '加热 2']
 );
 
 // PDF một trang nhỏ, tự tạo (có bảng xref đúng) — để thử mở tài liệu và nút "Mở bản vẽ" trong bản xem thử

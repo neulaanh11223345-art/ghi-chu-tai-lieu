@@ -117,7 +117,19 @@ App làm đúng như file để số trùng với Excel. Lưu ý hai điểm c�
 - Số PB2 có thể lẻ vì độ lệch PB2 không được làm tròn. App hiện cả số lẻ ("Tính ra") và số đã làm tròn ("Nhập máy").
 - Số ở DPI mới được nhân tỉ lệ từ số đã làm tròn, nên có thể lệch 1 chấm so với tính thẳng từ khoảng cách.
 
-## Điểm mới của v1.7.0: tìm bằng ghi chú
+## Điểm mới của v1.7.0: tìm chương trình PLC bằng chữ mô tả, tìm bằng ghi chú
+
+**Màn Chương trình: gõ chữ mô tả cũng ra địa chỉ**
+
+Ô tìm của màn Chương trình giờ nhận hai kiểu gõ:
+- **Gõ địa chỉ** (một cụm liền có chữ số: `X1`, `M570`, `D120`) → tra **đúng tên** như cũ.
+- **Gõ chữ mô tả** (`cảm biến`, `dừng máy`, hoặc chữ Trung `传感器`) → ra các địa chỉ có mô tả đó:
+  1. **Ghi chú của bạn** cho từng địa chỉ (cả các lần ghi cũ), khớp tiếng Việt không dấu hoặc tiếng Trung. Bấm vào → tra đúng địa chỉ đó.
+  2. **Trong bảng chương trình**: bảng viết tiếng Trung, nên chữ tiếng Việt được Google Dịch sang tiếng Trung (ví dụ "dừng máy" → 停止) rồi tìm. Kết quả hiện như "M1 → 主机停止_1#".
+- Chữ Trung dịch ra nằm trong một ô sửa được. Nếu bảng dùng từ khác (ví dụ 感应器 thay vì 传感器), sửa ở đó. App nhớ cho lần sau, nên lúc mất mạng vẫn tìm được từ đã dùng.
+- Gõ thẳng chữ Trung thì tìm luôn, không cần dịch.
+
+**Ô Tìm chung: ghi chú ở các mục khác**
 
 Ô **Tìm** giờ tìm cả trong ghi chú nằm ở các mục khác, không chỉ mục Ghi chú:
 

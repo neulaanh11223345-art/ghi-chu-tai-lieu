@@ -1919,22 +1919,88 @@ function ttPLC() {
     <button class="btn sm ghost" data-act="plcForm" data-cv="${esc(cv)}">${IC.up}${L('Tải bản mới', '上传新版')}</button>
     <button class="btn sm bad" data-act="plcDel" data-id="${esc(x.id)}">${L('Gỡ', '移除')}</button></div></div>`;
 }
+// v1.7: ô tìm của màn Chương trình nhận hai kiểu:
+//  - gõ địa chỉ (X1, M570, D120) → tra ĐÚNG TÊN như cũ;
+//  - gõ chữ mô tả ("cảm biến", "传感器") → tìm theo nội dung: ghi chú của bạn (tiếng Việt / Trung) và chú thích trong bảng.
+//    Bảng PLC viết tiếng Trung nên chữ tiếng Việt được dịch sang tiếng Trung trước (nhớ lại để lần sau / lúc mất mạng khỏi dịch),
+//    và cho sửa chữ Trung nếu Google dịch ra từ khác với từ trong bảng (vd 感应器 / 传感器).
+// Gõ liền một cụm có chữ số (X1, M570, D120, TEST-201) = tra địa chỉ; có dấu cách, không có số hoặc có chữ Trung = tìm theo chữ
+const laTimDiaChi = (q) => { const t = String(q).trim(); return !!t && !/\s/.test(t) && /\d/.test(t) && !/[\u4e00-\u9fff]/.test(t); };
+// Ô trong bảng trông như địa chỉ PLC (để tìm ô địa chỉ nằm cạnh chú thích)
+const oDiaChi = (v) => /^[A-Z]{1,3}\d[0-9A-F.]*$/i.test(String(v).trim());
+const coChuTrung = (t) => /[一-鿿]/.test(t);
+let TU_DICH = null;
+function tuDich() { if (!TU_DICH) { try { TU_DICH = JSON.parse(localStorage.getItem('gctl_tudich') || '{}') || {}; } catch (e) { TU_DICH = {}; } } return TU_DICH; }
+function nhoTuDich(vi, zh) { tuDich()[norm(vi)] = zh; try { localStorage.setItem('gctl_tudich', JSON.stringify(TU_DICH)); } catch (e) { /* bỏ qua */ } }
+// Tìm chữ (tiếng Trung hoặc chữ Latin) trong ô chú thích; kết quả là ô địa chỉ cạnh đó + chú thích
+function plcTimChu(cv, chu, toiDa) {
+  const p = PLC.nap[cv]; if (!p || !chu) return [];
+  const can = String(chu).toLowerCase(), out = [], daCo = {};
+  p.sheets.forEach((sh, si) => sh.rows.forEach((row, ri) => {
+    row.forEach((v, ti) => {
+      if (out.length >= (toiDa || 100) || !v || !laChu(v) || String(v).toLowerCase().indexOf(can) < 0) return;
+      let ci = -1;
+      for (let d = 1; d <= 3 && ci < 0; d++) { if (row[ti - d] && oDiaChi(row[ti - d])) ci = ti - d; else if (row[ti + d] && oDiaChi(row[ti + d])) ci = ti + d; }
+      const k = cv + '|' + (ci >= 0 ? chuanDC(row[ci]) : si + ':' + ri) + '|' + v;
+      if (daCo[k]) return; daCo[k] = 1;
+      out.push({ cv, si, ri, ci: ci >= 0 ? ci : ti, diem: ci >= 0 ? 0 : 1, mt: ci >= 0 ? v : '' });
+    });
+  }));
+  return out;
+}
+let hoiDich = null;
 function veKqPLC() {
   const box = $('#plcKq'); if (!box) return;
   const q = S.pq || '', cv = chuyenChon(), dc = chuanDC(q);
   if (!dc) { box.innerHTML = ''; return; }
+  if (!laTimDiaChi(q)) { veKqChu(box, cv, q.trim()); return; }
   const gc = theGCP(cv, dc, false);
   if (bangCua(cv) && !PLC.nap[cv]) { box.innerHTML = gc + `<div class="card empty">${L('Đang đọc bảng…', '正在读取…')}</div>`; return; }
   const ds = bangCua(cv) ? plcTim(q, { cv }, 100) : [];
   box.innerHTML = gc + `<div class="sec">${L('Trong bảng chương trình', '程序表中')}<span>${ds.length >= 100 ? '100+' : ds.length}</span></div>` +
     (ds.map((h) => rowPLC(h, q)).join('') || `<div class="card empty">${L('Không có ô nào đúng tên ' + esc(dc), '没有完全匹配 ' + esc(dc) + ' 的单元格')}</div>`);
 }
+function veKqChu(box, cv, q) {
+  // 1) Ghi chú của bạn (cả các lần ghi cũ): khớp tiếng Việt (không dấu) hoặc tiếng Trung; mỗi địa chỉ hiện lần ghi khớp gần nhất
+  const moi = {};
+  (DL().ghiChuPLC || []).filter((g) => g.chuyen === cv && khop(norm([g.noiDung, g.noiDungDich, g.diaChi].join(' ')), q))
+    .sort((a, b) => String(a.lucTao + a.id).localeCompare(String(b.lucTao + b.id))).forEach((g) => { moi[g.diaChi] = g; });
+  const gcs = Object.keys(moi).map((k) => moi[k]);
+  let o = gcs.length ? `<div class="sec">${L('Ghi chú của bạn', '我的备注')}<span>${gcs.length}</span></div>` + gcs.map((g) => `<button class="row gcpk" data-act="plcDiaChi" data-dc="${esc(g.diaChi)}">${IC.gc}<div class="main">
+      <div class="nm"><span class="mono">${esc(g.diaChi)}</span> → ${hl(g.noiDung, q)}</div>${g.noiDungDich ? `<div class="sub">${esc(g.noiDungDich)}</div>` : ''}<div class="sub muted">${esc(String(g.lucTao).slice(0, 16))}</div></div></button>`).join('') : '';
+  // 2) Chú thích trong bảng (tiếng Trung): gõ tiếng Trung thì tìm thẳng; gõ tiếng Việt thì dịch sang tiếng Trung rồi tìm
+  const zh = coChuTrung(q) ? q : (S.pqZh && S.pqZhCua === norm(q) ? S.pqZh : tuDich()[norm(q)] || '');
+  if (!bangCua(cv)) { box.innerHTML = o + (o ? '' : `<div class="card empty">${TT('khongThay')}</div>`); return; }
+  if (!PLC.nap[cv]) { box.innerHTML = o + `<div class="card empty">${L('Đang đọc bảng…', '正在读取…')}</div>`; return; }
+  const oZh = coChuTrung(q) ? '' : `<div class="card" id="plcZh"><label class="f" style="margin:0"><span class="l">${L('Tìm trong bảng bằng chữ Trung', '在表中按中文搜索')}${zh ? ' · ' + L('dịch từ "' + esc(q) + '"', '译自"' + esc(q) + '"').replace(/<[^>]+>/g, ' ') : ''}</span>
+      <input class="i" id="pqZh" value="${esc(zh)}" placeholder="${zh ? '' : esc(T.dangTai[0]) + '…'}" autocomplete="off"></label>
+      <div class="muted" style="margin-top:4px">${L('Bảng dùng từ khác thì sửa chữ Trung ở đây.', '如表中用词不同，可在此修改中文。')}</div></div>`;
+  const ds = zh ? plcTimChu(cv, zh, 100) : [];
+  o += oZh + (zh ? `<div class="sec">${L('Trong bảng chương trình', '程序表中')}<span>${ds.length >= 100 ? '100+' : ds.length}</span></div>` +
+    (ds.map((h) => rowPLC(h, zh)).join('') || `<div class="card empty">${L('Không thấy "' + esc(zh) + '" trong bảng', '表中没有"' + esc(zh) + '"')}</div>`) : '');
+  box.innerHTML = o;
+  const i = $('#pqZh');
+  if (i) i.addEventListener('input', debounce(() => { if (!i.isConnected) return; S.pqZh = i.value.trim(); S.pqZhCua = norm(q); if (S.pqZh) nhoTuDich(q, S.pqZh); const p = i.selectionStart; veKqPLC(); const j = $('#pqZh'); if (j) { j.focus(); j.setSelectionRange(p, p); } }, 300));
+  // Chưa có chữ Trung cho từ này: hỏi Google Dịch (chờ người dùng ngừng gõ 0,7 giây)
+  if (!zh && !coChuTrung(q)) {
+    clearTimeout(hoiDich);
+    hoiDich = setTimeout(async () => {
+      if (norm(S.pq || '') !== norm(q) || S.offline) { if (S.offline) { const e = $('#pqZh'); if (e) e.placeholder = L('Mất mạng — gõ chữ Trung vào đây', '离线 — 请在此输入中文').replace(/<[^>]+>/g, ' '); } return; }
+      try {
+        const d = await api('translate', { text: q });
+        const t = String(d.dich || '').trim();
+        if (t && coChuTrung(t) && !/演示版/.test(t)) { nhoTuDich(q, t); if (norm(S.pq || '') === norm(q)) veKqPLC(); }
+        else { const e = $('#pqZh'); if (e) e.placeholder = L('Không dịch được — gõ chữ Trung vào đây', '无法翻译 — 请在此输入中文').replace(/<[^>]+>/g, ' '); }
+      } catch (e) { const x = $('#pqZh'); if (x) x.placeholder = errMsg(e).replace(/<[^>]+>/g, ' '); }
+    }, 700);
+  }
+}
 VIEWS.ct = {
   html() {
     const cv = chuyenChon(), c = plcOf(cv);
     return `<div class="sec" style="margin-top:0">${L('Chuyền sản xuất', '生产线')}<button class="btn sm ghost" style="padding:4px 10px" data-act="plcLines">${L('Sửa danh sách', '编辑')}</button></div>
       <div class="chips plcl">${dsCPLC().map((x) => `<button class="${x.id === cv ? 'on' : ''}${bangCua(x.id) ? '' : ' trong'}" data-act="plcCv" data-cv="${esc(x.id)}">${esc(x.ma)}</button>`).join('')}</div>
-      <div class="search">${IC.tim}<input id="pq" type="search" placeholder="${c ? 'Chuyền ' + esc(c.ma) + ': ' : ''}X1002, M570, D120…" value="${esc(S.pq || '')}" autocomplete="off" autocapitalize="characters"></div>
+      <div class="search">${IC.tim}<input id="pq" type="search" placeholder="${c ? 'Chuyền ' + esc(c.ma) + ': ' : ''}X1002, M570… ${L('hoặc chữ: cảm biến', '或文字：传感器').replace(/<[^>]+>/g, ' ')}" value="${esc(S.pq || '')}" autocomplete="off"></div>
       <div id="plcKq"></div><div id="plcTT">${ttPLC()}</div>
       <button class="btn fab" id="fabPLC" data-act="plcForm" data-cv="${esc(cv)}">${IC.up}${L('Tải bảng', '上传')}</button>`;
   },
@@ -2289,6 +2355,7 @@ const ACT = {
   plcTrang: (b) => plcMo(b.dataset.cv, Number(b.dataset.si), Number(b.dataset.ri), -1), plcThuLai: () => { PLC.loi = {}; plcNap(); },
   tsCompare, lines: linesForm, lineEdit: (b) => lineEdit(b.dataset.id), lineSave: (b) => lineSave(b.dataset.id), lineOff: (b) => lineSave(b.dataset.id, true),
   timLoai: (b) => { S.timLoai = b.dataset.v; render(); },
+  plcDiaChi: (b) => { S.pq = b.dataset.dc; const i = $('#pq'); if (i) i.value = S.pq; veKqPLC(); },
   goTinh: (b) => { S.tcv = b.dataset.cv; try { localStorage.setItem('gctl_tcv', S.tcv); } catch (e) { /* bỏ qua */ } go('tinh'); },
   goPLC: (b) => { S.pcv = b.dataset.cv; S.pq = b.dataset.dc; try { localStorage.setItem('gctl_pcv', S.pcv); } catch (e) { /* bỏ qua */ } go('ct'); },
   tcvChon: (b) => { S.tcv = b.dataset.cv; try { localStorage.setItem('gctl_tcv', S.tcv); } catch (e) { /* bỏ qua */ } render(); },

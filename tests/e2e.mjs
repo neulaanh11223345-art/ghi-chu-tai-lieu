@@ -714,10 +714,44 @@ try {
   await wait(600);
   assert.match(await text('#plcKq'), /Không có ô nào đúng tên M5999/);
   assert.equal(await page.locator('#gcpAdd').count(), 1);
+  // v1.7 Tìm theo chữ mô tả: tiếng Việt tự dịch sang tiếng Trung rồi tìm trong bảng; ghi chú của bạn cũng khớp; gõ thẳng tiếng Trung được
+  await page.fill('#pq', 'dừng máy');
+  await page.waitForFunction(() => (document.querySelector('#pqZh') || {}).value === '停止', null, { timeout: 5000 });
+  await wait(300);
+  const kqChu = await page.locator('#plcKq .traloi').allTextContents();
+  assert.ok(kqChu.some((t) => /M1 → 主机停止_1#/.test(t)), 'M1 có chữ 停止: ' + kqChu.join(' | '));
+  assert.ok(kqChu.some((t) => /M2 → 主机停止_2#/.test(t)));
+  await page.fill('#pq', 'cam bien');
+  await wait(600);
+  const gcpk = page.locator('#plcKq .row.gcpk');
+  assert.equal(await gcpk.count(), 1);
+  assert.match(await gcpk.textContent(), /M1 → Đã đổi sang cảm biến mới/, 'tìm cả lần ghi chú cũ');
+  await page.fill('#pq', 'nut dung');
+  await wait(600);
+  assert.match(await text('#plcKq .row.gcpk'), /M1 → Thêm nút dừng phụ/);
+  await page.click('#plcKq .row.gcpk');
+  await wait(400);
+  assert.equal(await page.inputValue('#pq'), 'M1', 'bấm ghi chú → tra đúng địa chỉ');
+  assert.match(await text('#plcKq .traloi'), /M1 → 主机停止_1#/);
+  await page.fill('#pq', '异常');
+  await wait(600);
+  assert.equal(await page.locator('#pqZh').count(), 0, 'gõ tiếng Trung thì tìm thẳng');
+  assert.ok((await page.locator('#plcKq .traloi').allTextContents()).some((t) => /X1002 → 粉碎机异常/.test(t)));
+  // Không dịch được (bản xem thử chỉ biết vài câu): báo, cho gõ chữ Trung tay; chữ đó được nhớ cho lần sau
+  await page.fill('#pq', 'quat gio');
+  await page.waitForFunction(() => /Không dịch được/.test((document.querySelector('#pqZh') || {}).placeholder || ''), null, { timeout: 5000 });
+  await page.fill('#pqZh', '风机');
+  await wait(800);
+  assert.ok((await page.locator('#plcKq .traloi').allTextContents()).some((t) => /X1000 → 输送风机异常/.test(t)));
+  await page.fill('#pq', '');
+  await wait(300);
+  await page.fill('#pq', 'quat gio');
+  await wait(600);
+  assert.equal(await page.inputValue('#pqZh'), '风机', 'nhớ chữ Trung đã sửa');
   await page.fill('#pq', '');
   await page.click('.chips.plcl button[data-cv="PL01"]');
   await wait();
-  ok('Tra đúng tên (M1 không ra M10); ghi chú địa chỉ có lịch sử, tự dịch; địa chỉ mới vẫn ghi chú được');
+  ok('Tra đúng tên (M1 không ra M10); tìm theo chữ mô tả (tự dịch sang tiếng Trung); ghi chú địa chỉ có lịch sử; địa chỉ mới vẫn ghi chú được');
 
   // 20c. Tải bảng cho chuyền 01 (file .xlsx thật, nén); file hỏng bị báo trước khi tải lên; thêm chuyền PLC mới
   await page.click('#plcTT [data-act="plcForm"]');
