@@ -81,6 +81,12 @@ try {
   await wait(300);
   assert.match(await text('#lanCuoi'), /Cập nhật lúc/);
   assert.equal(await page.locator('#capNhatBtn[disabled]').count(), 0, 'xong thì nút bấm lại được');
+  // Nhắc dán lại Code.gs chỉ khi máy chủ cũ hơn bản app cần (bản chỉ đổi giao diện thì không nhắc)
+  assert.equal(await page.locator('#lechBan').count(), 0);
+  await page.evaluate(() => { S.data.phienBan = '1.6.0'; render(); });
+  assert.match(await text('#lechBan'), /Máy chủ đang chạy bản 1\.6\.0, app cần từ bản 1\.6\.1/);
+  await page.evaluate(() => { S.data.phienBan = '1.6.1'; render(); });
+  assert.equal(await page.locator('#lechBan').count(), 0, 'Code.gs 1.6.1 vẫn dùng được với app 1.7.0');
   ok('Trang chủ kiểu app bảo dưỡng: ô tổng quan, thanh dưới 5 nút, nút Cập nhật tải lại dữ liệu');
 
   // 2. Trang Tìm: gõ không dấu ra cả ghi chú, tài liệu, dây
@@ -746,6 +752,38 @@ try {
   assert.ok(await page.locator('#main .plch').count() >= 1);
   await page.fill('#q', '');
   ok('Ô tìm chung có cả kết quả bảng chương trình');
+
+  // 20e. v1.7 Tìm bằng ghi chú: ra cả ghi chú ở thông số, bảng tính, địa chỉ PLC…, ghi rõ ở đâu, bấm vào mở đúng chỗ; chip "Chỉ ghi chú"
+  await page.fill('#q', 'cam bien moi');
+  await wait(600);
+  const gck = page.locator('#main .row.gck', { hasText: 'Đã đổi sang cảm biến mới' });
+  assert.equal(await gck.count(), 1);
+  assert.match(await gck.textContent(), /Địa chỉ PLC/);
+  assert.match(await gck.textContent(), /PLC chuyền 06/);
+  await gck.click();
+  await wait();
+  assert.match(await text('header.bar h1'), /Chương trình/);
+  assert.equal(await page.inputValue('#pq'), 'M1');
+  await page.waitForFunction(() => /M1 →/.test((document.querySelector('#plcKq') || {}).textContent || ''), null, { timeout: 15000 });
+  await tab('tim');
+  await page.click('#timLoai button[data-v="gc"]');
+  await page.fill('#q', 'in mo');
+  await wait(600);
+  assert.equal(await page.locator('#main .row.line, #main .row.wire, #main .plch').count(), 0, 'chỉ ghi chú: không ra chuyền, dây, bảng PLC');
+  const ts1 = page.locator('#main .row.gck', { hasText: 'Tăng điện áp vì in mờ' });
+  assert.match(await ts1.textContent(), /Thông số/);
+  assert.match(await ts1.textContent(), /因喷印模糊提高电压/);
+  await ts1.click();
+  await wait();
+  assert.match(await text('#ov'), /2026-10-28/);
+  assert.match(await text('#ov'), /Tăng điện áp vì in mờ/);
+  await page.click('#ov [data-act="close"]');
+  await page.fill('#q', 'khong co ghi chu nay');
+  await wait(600);
+  assert.match(await text('#main .card.empty'), /Không/);
+  await page.click('#timLoai button[data-v=""]');
+  await page.fill('#q', '');
+  ok('Tìm bằng ghi chú ở mọi mục (thông số, PLC…), bấm vào mở đúng chỗ; lọc "Chỉ ghi chú"');
 
   // 16. Xuất Excel song ngữ
   await page.click('#caiBtn');

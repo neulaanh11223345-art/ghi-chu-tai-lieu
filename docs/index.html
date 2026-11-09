@@ -242,7 +242,7 @@ details.ct{margin-top:6px;border-top:1px solid var(--line);padding-top:6px}detai
 <script>
 const API_URL = "";
 const MODE = "live";
-const APP_VER = "1.6.1";
+const APP_VER = "1.7.0";
 const DemoBackend = null;
 'use strict';
 // ============ Tiện ích chung ============
@@ -260,7 +260,7 @@ const TT = (k) => L(T[k][0], T[k][1]);
 const T = {
   tim: ['Tìm', '搜索'], gc: ['Ghi chú', '笔记'], tl: ['Tài liệu', '资料'], day: ['Tra dây', '查线号'], tinh: ['Tính toán', '计算'],
   cai: ['Cài đặt', '设置'], app: ['Ghi chú & Tài liệu', '笔记与资料'],
-  timGoiY: ['Tìm ghi chú, tài liệu, số dây… không dấu cũng được', '搜索笔记、资料、线号…'],
+  timGoiY: ['Tìm ghi chú, tài liệu, số dây, nội dung ghi chú… không dấu cũng được', '搜索笔记、资料、线号、备注内容…'],
   ganDay: ['Ghi chú gần đây', '最近笔记'], tlHH: ['Tài liệu đang hiệu lực', '现行资料'], khongThay: ['Không thấy kết quả', '没有找到结果'],
   themGC: ['Ghi chú', '笔记'], themTL: ['Tài liệu', '资料'], themDay: ['Dây', '线号'],
   tieuDe: ['Tiêu đề', '标题'], noiDung: ['Nội dung', '内容'], the: ['Thẻ (cách nhau bởi dấu phẩy)', '标签（用逗号分隔）'], maMay: ['Mã máy', '设备编号'],
@@ -677,11 +677,19 @@ VIEWS.tim = {
   html() {
     const q = S.q, D = S.data;
     let o = `<div class="search">${IC.tim}<input id="q" type="search" placeholder="${T.timGoiY[0]}" value="${esc(q)}" autocomplete="off"></div>`;
+    o += `<div class="chips" id="timLoai">${[['', 'Tất cả', '全部'], ['gc', 'Chỉ ghi chú', '仅备注']].map((x) => `<button class="${(S.timLoai || '') === x[0] ? 'on' : ''}" data-act="timLoai" data-v="${x[0]}">${L(x[1], x[2])}</button>`).join('')}</div>`;
     if (!norm(q)) {
       const gc = D.ghiChu.slice().sort((a, b) => String(b.capNhat).localeCompare(String(a.capNhat))).slice(0, 5);
       o += `<div class="sec">${L(T.ganDay[0], T.ganDay[1])}</div>` + (gc.length ? gc.map((x) => rowGC(x)).join('') : `<div class="card empty">—</div>`);
       o += `<div class="sec">${L(T.tlHH[0], T.tlHH[1])}</div>` + tlNhom().slice(0, 5).map((g) => rowTL(g)).join('');
       return o;
+    }
+    // v1.7: chip "Chỉ ghi chú" — chỉ tìm trong ghi chú (mục Ghi chú + ghi chú ở thông số, bảng tính, địa chỉ PLC, sản phẩm, chuyền, dây, mạch)
+    const gk = ghiChuKhac(q);
+    if (S.timLoai === 'gc') {
+      const g1 = D.ghiChu.filter((x) => khop(hayGC(x), q));
+      if (!g1.length && !gk.length) return o + `<div class="card empty">${TT('khongThay')}</div>`;
+      return o + (g1.length ? `<div class="sec">${L(T.gc[0], T.gc[1])}<span>${g1.length}</span></div>` + g1.slice(0, 30).map((x) => rowGC(x, q)).join('') : '') + secGhiChuKhac(gk, q);
     }
     const cv = (D.chuyen || []).filter((c) => khop(norm(['chuyen ' + c.ma, c.ghiChu, c.seriDau, c.mauPB1, c.mauPB2].join(' ')), q));
     const sps = (D.sanPham || []).filter((x) => khop(norm([x.ma, x.ten, x.tenDich].join(' ')), q));
@@ -690,8 +698,9 @@ VIEWS.tim = {
     const plc = plcTim(q, {}, 5);
     if (plc.length) o += `<div class="sec">${L(T.ct[0], T.ct[1])}<span>${plc.length >= 5 ? '5+' : plc.length}</span></div>` + plc.map((h) => rowPLC(h, q, true)).join('');
     const md = (D.machDien || []).filter((x) => khop(hayMach(x), q));
-    if (!gc.length && !tl.length && !dd.length && !cv.length && !sps.length && !plc.length && !md.length) return o + `<div class="card empty">${TT('khongThay')}</div>`;
+    if (!gc.length && !tl.length && !dd.length && !cv.length && !sps.length && !plc.length && !md.length && !gk.length) return o + `<div class="card empty">${TT('khongThay')}</div>`;
     if (gc.length) o += `<div class="sec">${L(T.gc[0], T.gc[1])}<span>${gc.length}</span></div>` + gc.slice(0, 30).map((x) => rowGC(x, q)).join('');
+    o += secGhiChuKhac(gk, q);
     if (tl.length) o += `<div class="sec">${L(T.tl[0], T.tl[1])}<span>${tl.length}</span></div>` + tl.slice(0, 30).map((g) => rowTL(g, q)).join('');
     if (md.length) o += `<div class="sec">${L(T.mach[0], T.mach[1])}<span>${md.length}</span></div>` + md.slice(0, 5).map((x) => cardMach(x, q)).join('');
     if (dd.length) o += `<div class="sec">${L(T.day[0], T.day[1])}<span>${dd.length}</span></div>` + dd.slice(0, 50).map((x) => rowDay(x, q)).join('');
@@ -699,6 +708,25 @@ VIEWS.tim = {
   },
   after() { const i = $('#q'); i.addEventListener('input', debounce(() => { if (!i.isConnected) return; S.q = i.value; const p = i.selectionStart; render(); const j = $('#q'); if (j) { j.focus(); j.setSelectionRange(p, p); } }, 180)); }
 };
+// Ghi chú nằm ở các mục khác (không phải mục Ghi chú): tìm theo nội dung, mỗi kết quả ghi rõ ở đâu và bấm vào là mở đúng chỗ
+function ghiChuKhac(q) {
+  const D = S.data, o = [], co = (...a) => khop(norm(a.join(' ')), q), ma = (cv) => { const c = cvOf(cv); return c ? c.ma : cv; };
+  (D.thongSo || []).forEach((t) => { if (t.ghiChu && co(t.ghiChu, t.ghiChuDich)) { const sp = spOf(t.sanPham);
+    o.push({ ngay: t.apDung, nhan: ['Thông số', '参数'], ghi: t.ghiChu, dich: t.ghiChuDich, noi: 'Chuyền ' + ma(t.chuyen) + (sp ? ' · ' + sp.ma : '') + ' · ' + t.apDung, act: `data-act="tsShow" data-cv="${esc(t.chuyen)}" data-sp="${esc(t.sanPham)}" data-id="${esc(t.id)}"` }); } });
+  (D.tinhDauIn || []).forEach((t) => { if (t.ghiChu && co(t.ghiChu, t.ghiChuDich)) o.push({ ngay: t.lucTao, nhan: ['Bảng tính', '计算'], ghi: t.ghiChu, dich: t.ghiChuDich, noi: 'Chuyền ' + ma(t.chuyen) + ' · ' + String(t.lucTao).slice(0, 16), act: `data-act="goTinh" data-cv="${esc(t.chuyen)}"` }); });
+  (D.ghiChuPLC || []).forEach((g) => { if (co(g.noiDung, g.noiDungDich, g.diaChi)) { const c = plcOf(g.chuyen);
+    o.push({ ngay: g.lucTao, nhan: ['Địa chỉ PLC', 'PLC地址'], ghi: g.diaChi + ': ' + g.noiDung, dich: g.noiDungDich, noi: 'PLC chuyền ' + (c ? c.ma : g.chuyen) + ' · ' + String(g.lucTao).slice(0, 16), act: `data-act="goPLC" data-cv="${esc(g.chuyen)}" data-dc="${esc(g.diaChi)}"` }); } });
+  (D.sanPham || []).forEach((x) => { if (x.ghiChu && co(x.ghiChu)) o.push({ ngay: x.capNhat, nhan: ['Sản phẩm', '产品'], ghi: x.ghiChu, dich: '', noi: x.ma + ' ' + x.ten, act: `data-act="spView" data-id="${esc(x.id)}"` }); });
+  (D.chuyen || []).forEach((c) => { if (c.ghiChu && co(c.ghiChu)) o.push({ ngay: c.capNhat, nhan: ['Chuyền', '产线'], ghi: c.ghiChu, dich: '', noi: tenChuyen(c), act: `data-act="lineView" data-id="${esc(c.id)}"` }); });
+  (D.dayDien || []).forEach((x) => { if (x.ghiChu && co(x.ghiChu)) o.push({ ngay: x.capNhat, nhan: ['Dây', '线'], ghi: x.ghiChu, dich: '', noi: x.soDay + ' · ' + x.banVe + (x.to ? ' · tờ ' + x.to : ''), act: `data-act="wireView" data-id="${esc(x.id)}"` }); });
+  (D.machDien || []).forEach((x) => { if (x.canKiemTra && co(x.canKiemTra)) o.push({ ngay: x.capNhat, nhan: ['Mạch', '回路'], ghi: x.canKiemTra, dich: '', noi: modCua(x) + ' · ' + x.ten, act: `data-act="machView" data-id="${esc(x.id)}"` }); });
+  return o.sort((a, b) => String(b.ngay).localeCompare(String(a.ngay)));
+}
+function secGhiChuKhac(ds, q) {
+  if (!ds.length) return '';
+  return `<div class="sec" id="secGCK">${L('Ghi chú ở các mục khác', '其他位置的备注')}<span>${ds.length}</span></div>` + ds.slice(0, 40).map((x) => `<button class="row gck" ${x.act}>${IC.gc}<div class="main">
+    <div class="nm">${hl(x.ghi, q)}</div>${x.dich ? `<div class="sub">${esc(x.dich)}</div>` : ''}<div class="sub"><span class="chip">${x.nhan[0]} · ${x.nhan[1]}</span> ${esc(x.noi)}</div></div></button>`).join('');
+}
 function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
 
 // ============ Ghi chú ============
@@ -1988,6 +2016,10 @@ VIEWS.cai = {
   }
 };
 // ============ Trang chủ (v1.6): lời chào, ô tổng quan bấm vào mở thẳng từng phần, nút Cập nhật ============
+// Bản Code.gs cũ nhất mà app này chạy được. Bản app chỉ đổi giao diện (như v1.7.0) không cần dán lại Code.gs,
+// nên chỉ nhắc khi máy chủ cũ hơn số này. Lần nào Code.gs có thay đổi thật thì nâng số này lên đúng bản đó.
+const MAY_CHU_CAN = '1.6.1';
+const soSanhBan = (a, b) => { const x = String(a).split('.').map(Number), y = String(b).split('.').map(Number); for (let i = 0; i < 3; i++) { if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) - (y[i] || 0); } return 0; };
 const THU = [['Chủ nhật', '星期日'], ['Thứ Hai', '星期一'], ['Thứ Ba', '星期二'], ['Thứ Tư', '星期三'], ['Thứ Năm', '星期四'], ['Thứ Sáu', '星期五'], ['Thứ Bảy', '星期六']];
 const gioPhut = (t) => { const d = new Date(t + 7 * 3600000); return d.toISOString().slice(11, 16) + ' ' + d.toISOString().slice(8, 10) + '/' + d.toISOString().slice(5, 7); };
 // JA thực tế lệch bao nhiêu chấm so với số nhập máy của lần lưu bảng tính (giống cột "Lệch" ở màn Tính toán)
@@ -2006,11 +2038,11 @@ VIEWS.home = {
     const mach = D.machDien || [], canKT = mach.filter((x) => x.canKiemTra).length + D.dayDien.filter((x) => x.canKiemTra).length;
     const plc = dsCPLC(), coBang = plc.filter((c) => bangCua(c.id)).length, nOff = Object.keys(S.offDocs || {}).length;
     const soLon = (n, sau) => `<b class="so">${n}${sau ? `<small>${sau}</small>` : ''}</b>`, em = (vi, zh) => `<em>${L(vi, zh)}</em>`;
-    const lech = D.phienBan && D.phienBan !== APP_VER;
+    const lech = D.phienBan && soSanhBan(D.phienBan, MAY_CHU_CAN) < 0;
     return `<div class="card hello"><span class="avt">${esc(chuDau())}</span><div class="hm"><b>${esc(ten)}</b><div class="muted">${L(T.app[0], T.app[1])}</div></div>
       <div class="hd"><b>${homNay.slice(8, 10)}/${homNay.slice(5, 7)}/${homNay.slice(0, 4)}</b><div class="muted">${thu[0]} · ${thu[1]}</div></div></div>
       ${S.Q.length ? `<button class="alert${S.Q.some((q) => q.err) ? ' bad' : ''}" data-act="qOpen">${IC.canh}<span class="main">${L(S.Q.length + ' việc đang chờ gửi lên máy chủ', S.Q.length + '项待发送到服务器')}</span></button>` : ''}
-      ${lech ? `<div class="alert bad" id="lechBan">${IC.canh}<span class="main">${L('Máy chủ đang chạy bản ' + esc(D.phienBan) + ', app bản ' + APP_VER + ' — dán lại Code.gs bản ' + APP_VER + ' rồi bấm Cập nhật', '服务器版本 ' + esc(D.phienBan) + '，应用版本 ' + APP_VER + ' — 请重新粘贴 Code.gs 后点“更新”')}</span></div>` : ''}
+      ${lech ? `<div class="alert bad" id="lechBan">${IC.canh}<span class="main">${L('Máy chủ đang chạy bản ' + esc(D.phienBan) + ', app cần từ bản ' + MAY_CHU_CAN + ' — dán Code.gs mới nhất rồi bấm Cập nhật', '服务器版本 ' + esc(D.phienBan) + '，应用需要 ' + MAY_CHU_CAN + ' 以上 — 请粘贴最新 Code.gs 后点“更新”')}</span></div>` : ''}
       <div class="sec">${L(T.tongQuan[0], T.tongQuan[1])}<button class="btn cn" id="capNhatBtn" data-act="capNhat">${IC.cn}${L(T.capNhat[0], T.capNhat[1])}</button></div>
       ${S.lanCuoi ? `<div class="lancuoi" id="lanCuoi">${T.lanCuoi[0]} · ${T.lanCuoi[1]} ${gioPhut(S.lanCuoi)}</div>` : ''}
       <div class="mtiles">
@@ -2256,6 +2288,9 @@ const ACT = {
   plcDich: (b) => plcDich(b.dataset.k), plcMo: (b) => { const h = keyHit(b.dataset.k); plcMo(h.cv, h.si, h.ri, h.ci); },
   plcTrang: (b) => plcMo(b.dataset.cv, Number(b.dataset.si), Number(b.dataset.ri), -1), plcThuLai: () => { PLC.loi = {}; plcNap(); },
   tsCompare, lines: linesForm, lineEdit: (b) => lineEdit(b.dataset.id), lineSave: (b) => lineSave(b.dataset.id), lineOff: (b) => lineSave(b.dataset.id, true),
+  timLoai: (b) => { S.timLoai = b.dataset.v; render(); },
+  goTinh: (b) => { S.tcv = b.dataset.cv; try { localStorage.setItem('gctl_tcv', S.tcv); } catch (e) { /* bỏ qua */ } go('tinh'); },
+  goPLC: (b) => { S.pcv = b.dataset.cv; S.pq = b.dataset.dc; try { localStorage.setItem('gctl_pcv', S.pcv); } catch (e) { /* bỏ qua */ } go('ct'); },
   tcvChon: (b) => { S.tcv = b.dataset.cv; try { localStorage.setItem('gctl_tcv', S.tcv); } catch (e) { /* bỏ qua */ } render(); },
   tSave: (b) => tSave(b.dataset.cv), tDel: (b) => tDel(b.dataset.id), tDungLai: (b) => tDungLai(b.dataset.id),
   qSend: () => { S.Q.forEach((q) => { q.err = ''; }); guiHangCho(true).then(render); },
