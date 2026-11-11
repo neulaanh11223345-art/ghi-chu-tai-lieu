@@ -1,4 +1,4 @@
-# Ghi chú & Tra cứu tài liệu · 笔记与资料查询 (v1.6.1)
+# Ghi chú & Tra cứu tài liệu · 笔记与资料查询 (v1.7.0)
 
 App riêng cho một người dùng: ghi chú ngay tại máy, tra cứu tài liệu (sổ tay, bản vẽ, quy trình), tra số dây điện theo bản vẽ, lưu thông số máy in theo từng chuyền và sản phẩm, tính DPI, tần số phun, delay, và tra bảng chương trình PLC của từng chuyền.
 
@@ -116,6 +116,38 @@ Ký hiệu trong ngoặc là ô tương ứng trong file Excel.
 App làm đúng như file để số trùng với Excel. Lưu ý hai điểm của file:
 - Số PB2 có thể lẻ vì độ lệch PB2 không được làm tròn. App hiện cả số lẻ ("Tính ra") và số đã làm tròn ("Nhập máy").
 - Số ở DPI mới được nhân tỉ lệ từ số đã làm tròn, nên có thể lệch 1 chấm so với tính thẳng từ khoảng cách.
+
+## Điểm mới của v1.7.0: tìm chương trình PLC bằng chữ mô tả, tìm bằng ghi chú
+
+**Màn Chương trình: gõ chữ mô tả cũng ra địa chỉ**
+
+Ô tìm của màn Chương trình giờ nhận hai kiểu gõ:
+- **Gõ địa chỉ** (một cụm liền có chữ số: `X1`, `M570`, `D120`) → tra **đúng tên** như cũ.
+- **Gõ chữ mô tả** (`cảm biến`, `dừng máy`, hoặc chữ Trung `传感器`) → ra các địa chỉ có mô tả đó:
+  1. **Ghi chú của bạn** cho từng địa chỉ (cả các lần ghi cũ), khớp tiếng Việt không dấu hoặc tiếng Trung. Bấm vào → tra đúng địa chỉ đó.
+  2. **Trong bảng chương trình**: bảng viết tiếng Trung, nên chữ tiếng Việt được Google Dịch sang tiếng Trung (ví dụ "dừng máy" → 停止) rồi tìm. Kết quả hiện như "M1 → 主机停止_1#".
+- Chữ Trung dịch ra nằm trong một ô sửa được. Nếu bảng dùng từ khác (ví dụ 感应器 thay vì 传感器), sửa ở đó. App nhớ cho lần sau, nên lúc mất mạng vẫn tìm được từ đã dùng.
+- Gõ thẳng chữ Trung thì tìm luôn, không cần dịch.
+
+**Ô Tìm chung: ghi chú ở các mục khác**
+
+Ô **Tìm** giờ tìm cả trong ghi chú nằm ở các mục khác, không chỉ mục Ghi chú:
+
+| Ghi chú ở | Bấm vào thì mở |
+|---|---|
+| Thông số (ghi chú của từng lần ghi, ví dụ "Tăng điện áp vì in mờ") | đúng lần ghi thông số đó |
+| Bảng tính (ghi chú lần lưu) | màn Tính toán của chuyền đó |
+| Địa chỉ PLC (ví dụ "M1: Đã đổi sang cảm biến mới") | màn Chương trình, đúng chuyền, đã gõ sẵn địa chỉ |
+| Sản phẩm, Chuyền, Dây | màn chi tiết của mục đó |
+| Mạch (cột Cần kiểm tra) | mạch đó |
+
+- Các kết quả này nằm trong nhóm **Ghi chú ở các mục khác**. Mỗi dòng ghi rõ ở đâu (chuyền, sản phẩm, ngày) và có bản tiếng Trung nếu có.
+- Nút **Chỉ ghi chú** ngay dưới ô tìm: bấm vào thì chỉ tìm trong ghi chú, bỏ qua chuyền, dây, bảng PLC. Bấm **Tất cả** để tìm mọi thứ như cũ.
+- Vẫn gõ không dấu được (`in mo` ra "in mờ").
+
+**Nâng cấp từ v1.6.1:** bản này chỉ đổi app, **không cần dán lại Code.gs**. Gộp PR xong, mở app bấm **Cập nhật**.
+
+Từ bản này, app chỉ nhắc dán lại Code.gs khi máy chủ cũ hơn bản app thật sự cần (hiện là 1.6.1). Không còn nhắc khi chỉ khác số phiên bản.
 
 ## Điểm mới của v1.6.1: lưu encoder và đường kính trục theo từng chuyền máy in
 
@@ -434,5 +466,5 @@ Quy ước dữ liệu:
 
 ```
 npm test        # 46 bài kiểm thử máy chủ (chạy Code.gs trong máy chủ giả)
-npm run e2e     # build + Playwright bấm 35 bước trên docs/demo.html, không được có lỗi JavaScript
+npm run e2e     # build + Playwright bấm 36 bước trên docs/demo.html, không được có lỗi JavaScript
 ```
