@@ -1,4 +1,4 @@
-# Ghi chú & Tra cứu tài liệu · 笔记与资料查询 (v1.7.0)
+# Ghi chú & Tra cứu tài liệu · 笔记与资料查询 (v1.8.0)
 
 App riêng cho một người dùng: ghi chú ngay tại máy, tra cứu tài liệu (sổ tay, bản vẽ, quy trình), tra số dây điện theo bản vẽ, lưu thông số máy in theo từng chuyền và sản phẩm, tính DPI, tần số phun, delay, và tra bảng chương trình PLC của từng chuyền.
 
@@ -116,6 +116,24 @@ Ký hiệu trong ngoặc là ô tương ứng trong file Excel.
 App làm đúng như file để số trùng với Excel. Lưu ý hai điểm của file:
 - Số PB2 có thể lẻ vì độ lệch PB2 không được làm tròn. App hiện cả số lẻ ("Tính ra") và số đã làm tròn ("Nhập máy").
 - Số ở DPI mới được nhân tỉ lệ từ số đã làm tròn, nên có thể lệch 1 chấm so với tính thẳng từ khoảng cách.
+
+## Điểm mới của v1.8.0: nối với app Bảo dưỡng (CMMS)
+
+App này và app **Bảo dưỡng** ([`B-o-d-ng`](https://github.com/neulaanh11223345-art/B-o-d-ng)) nay nhảy qua lại được bằng **mã chuyền / mã máy**. Hai app vẫn **đăng nhập riêng** và **không dữ liệu nào chạy sang app kia** — chỉ là đường link mở đúng màn, nên sổ tay *Confidential* và bản vẽ trong app này vẫn chỉ mình bạn xem.
+
+| Từ | Bấm | Mở ra |
+|---|---|---|
+| Chuyền 01 (màn Máy in) | **Mở bên app Bảo dưỡng** | Màn chuyền VKY01 bên app Bảo dưỡng: máy trong chuyền, hạn bảo dưỡng, linh kiện, lịch sử sự cố |
+| Màn Chương trình (bảng PLC của một chuyền) | như trên | như trên |
+| Ghi chú có ô *Mã máy* | chip **Mã máy: … ↗** | Màn máy / chuyền đó bên app Bảo dưỡng |
+| App Bảo dưỡng: màn chuyền hoặc máy | **Ghi chú · Tài liệu VKY01** | App này, màn **Tìm** đã gõ sẵn `VKY01` |
+
+- **Quy đổi mã**: app này ghi chuyền là `01`, app Bảo dưỡng ghi `VKY01`. Tìm `VKY01` ở đây cũng ra chuyền 01; bấm chuyền 01 sang bên kia thành `VKY01`.
+- **Địa chỉ lưu theo từng máy** (trên điện thoại / máy tính đó), không lên Google Sheet.
+- **Nối một lần là xong cả hai chiều**: dán địa chỉ app Bảo dưỡng ở **Thêm → Nối với app Bảo dưỡng** (hoặc dán địa chỉ app này bên app Bảo dưỡng). Lần đầu bấm sang app kia, link gửi kèm địa chỉ của app này nên app kia tự nhớ.
+- Chỉ nhận địa chỉ bắt đầu bằng `https://`.
+
+Nâng cấp: **chỉ đổi app**, không cần dán lại Code.gs (số phiên bản trong Code.gs đổi cho khớp, dán lại cũng không sao).
 
 ## Điểm mới của v1.7.0: tìm chương trình PLC bằng chữ mô tả, tìm bằng ghi chú
 

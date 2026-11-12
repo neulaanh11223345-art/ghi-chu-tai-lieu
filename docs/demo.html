@@ -235,6 +235,8 @@ table.bn{font-size:13px}table.bn td,table.bn th{vertical-align:middle;padding:7p
 table.tuden{width:100%;border-collapse:collapse;margin-bottom:6px}table.tuden th{width:58px;text-align:left;vertical-align:top;font-size:13px;color:var(--sub);padding:6px 0;font-weight:700}
 table.tuden th .zh{display:inline;margin-left:3px}table.tuden td{padding:6px 0;font-weight:650;font-size:15px;border-bottom:1px dashed var(--line)}table.tuden tr:last-child td{border-bottom:0}
 details.ct{margin-top:6px;border-top:1px solid var(--line);padding-top:6px}details.ct summary{cursor:pointer;font-size:13px;color:var(--pri2);font-weight:600}details.ct summary .zh{display:inline;margin-left:4px}
+a.btn,a.chip{text-decoration:none}
+a.cmms{color:var(--acc,#1e5eea)}
 </style>
 </head>
 <body>
@@ -242,7 +244,7 @@ details.ct{margin-top:6px;border-top:1px solid var(--line);padding-top:6px}detai
 <script>
 const API_URL = "";
 const MODE = "demo";
-const APP_VER = "1.7.0";
+const APP_VER = "1.8.0";
 const DemoBackend = (function () {
 // ===== Giả lập dịch vụ Google Apps Script (dùng cho bản xem thử và kiểm tra) =====
 // SpreadsheetApp, CacheService, LockService, PropertiesService, Utilities,
@@ -639,7 +641,7 @@ var DriveApp = (function () {
  * App chỉ có MỘT người dùng (chủ app), nên không chia vai trò. Mọi thao tác trừ ping/đăng nhập vẫn phải có
  * token hợp lệ: link /exec là công khai, không kiểm token thì ai biết link cũng đọc được tài liệu.
  */
-var PHIEN_BAN = '1.7.0';
+var PHIEN_BAN = '1.8.0';
 var TZ = 'Asia/Ho_Chi_Minh';
 var HAN_PHIEN_NGAY = 30;            // đăng nhập giữ 30 ngày
 var TEP_TOI_DA = 25 * 1024 * 1024;  // 25 MB/tệp: Apps Script nhận tối đa ~50 MB mỗi lần gửi, base64 làm to thêm 1/3
@@ -2469,7 +2471,7 @@ VIEWS.tim = {
       if (!g1.length && !gk.length) return o + `<div class="card empty">${TT('khongThay')}</div>`;
       return o + (g1.length ? `<div class="sec">${L(T.gc[0], T.gc[1])}<span>${g1.length}</span></div>` + g1.slice(0, 30).map((x) => rowGC(x, q)).join('') : '') + secGhiChuKhac(gk, q);
     }
-    const cv = (D.chuyen || []).filter((c) => khop(norm(['chuyen ' + c.ma, c.ghiChu, c.seriDau, c.mauPB1, c.mauPB2].join(' ')), q));
+    const cv = (D.chuyen || []).filter((c) => khop(norm(['chuyen ' + c.ma, maCmms(c.ma), c.ghiChu, c.seriDau, c.mauPB1, c.mauPB2].join(' ')), q));
     const sps = (D.sanPham || []).filter((x) => khop(norm([x.ma, x.ten, x.tenDich].join(' ')), q));
     const gc = D.ghiChu.filter((x) => khop(hayGC(x), q)), tl = tlNhom().filter((g) => g.ds.some((x) => khop(hayTL(x), q))), dd = D.dayDien.filter((x) => khop(hayDay(x), q));
     if (cv.length + sps.length) o += `<div class="sec">${L(T.may[0], T.may[1])}<span>${cv.length + sps.length}</span></div>` + cv.map(rowLine).join('') + sps.map(rowSP).join('');
@@ -2531,7 +2533,7 @@ function noteView(id) {
   const x = S.data.ghiChu.find((n) => n.id === id); if (!x) return;
   sheet(esc(x.tieuDe), `<div class="card">${x.tieuDeDich ? `<div class="zhbox"><b>${esc(x.tieuDeDich)}</b></div>` : ''}
     <div class="pre" style="margin-top:10px">${esc(x.noiDung)}</div>${x.noiDungDich ? `<div class="zhbox pre">${esc(x.noiDungDich)}</div>` : ''}
-    <div style="margin-top:8px">${(x.the || []).map((t) => `<span class="chip">#${esc(t)}</span>`).join('')}${x.maMay ? `<span class="chip">${T.maMay[0]}: ${esc(x.maMay)}</span>` : ''}</div>
+    <div style="margin-top:8px">${(x.the || []).map((t) => `<span class="chip">#${esc(t)}</span>`).join('')}${x.maMay ? chipMay(x.maMay) : ''}</div>
     <div class="thumbs">${(x.anh || []).map((a) => `<div class="th"><img data-anh="${esc(a)}" alt=""></div>`).join('')}${(x._anhMoi || []).map((u) => `<div class="th"><img src="${u}" alt=""></div>`).join('')}</div>
     <div class="muted" style="margin-top:8px">${esc(x.id)} · ${esc(x.capNhat)}</div></div>
     <div class="btns"><button class="btn" data-act="noteEdit" data-id="${esc(x.id)}">${L(T.sua[0], T.sua[1])}</button>
@@ -3225,6 +3227,7 @@ function lineView(id) {
   const runSp = spOf(run);
   sheet(`${esc(tenChuyen(c))} <span class="chip ${c.soMau === 2 ? 'pb2' : 'pb0'}">${nhanMau(c.soMau)}</span>`, `
     <div class="muted" style="margin:-6px 0 8px">${chipPB(c, 1)}${c.soMau === 2 ? chipPB(c, 2) : ''} ${c.soMau === 2 ? 'PB1 = JA1–4 · PB2 = JA5–8' : 'PB1 = JA1–4'}</div>
+    ${cmmsUrl() ? `<div class="btns" style="margin:0 0 8px">${nutCmms(c.ma)}</div>` : ''}
     <div class="sec">${L(T.dangChay[0], T.dangChay[1])}</div>${runSp ? the(runSp, true) : `<div class="card empty">${L('Chưa chọn sản phẩm đang chạy', '未选择运行产品')}</div>`}
     <div class="sec">${L('Sản phẩm của chuyền này', '本线产品')}<span>${ds.length}</span></div>
     ${ds.filter((sp) => sp.id !== run).map((sp) => the(sp, false)).join('')}
@@ -3779,6 +3782,7 @@ VIEWS.ct = {
     return `<div class="sec" style="margin-top:0">${L('Chuyền sản xuất', '生产线')}<button class="btn sm ghost" style="padding:4px 10px" data-act="plcLines">${L('Sửa danh sách', '编辑')}</button></div>
       <div class="chips plcl">${dsCPLC().map((x) => `<button class="${x.id === cv ? 'on' : ''}${bangCua(x.id) ? '' : ' trong'}" data-act="plcCv" data-cv="${esc(x.id)}">${esc(x.ma)}</button>`).join('')}</div>
       <div class="search">${IC.tim}<input id="pq" type="search" placeholder="${c ? 'Chuyền ' + esc(c.ma) + ': ' : ''}X1002, M570… ${L('hoặc chữ: cảm biến', '或文字：传感器').replace(/<[^>]+>/g, ' ')}" value="${esc(S.pq || '')}" autocomplete="off"></div>
+      ${c && cmmsUrl() ? `<div class="btns" style="margin:8px 0 0">${nutCmms(c.ma)}</div>` : ''}
       <div id="plcKq"></div><div id="plcTT">${ttPLC()}</div>
       <button class="btn fab" id="fabPLC" data-act="plcForm" data-cv="${esc(cv)}">${IC.up}${L('Tải bảng', '上传')}</button>`;
   },
@@ -3851,6 +3855,8 @@ VIEWS.cai = {
       <button class="row" data-act="lines">${IC.may}<div class="main"><div class="nm">${TT('dsChuyen')}</div><div class="sub">${dsChuyen().length}</div></div></button>
       <button class="row" data-act="groups">${IC.tl}<div class="main"><div class="nm">${TT('nhomTL')}</div><div class="sub">${S.data.nhom.length}</div></div></button>
       <button class="row" data-act="audit">${IC.gc}<div class="main"><div class="nm">${TT('nhatKy')}</div></div></button>
+      <div class="sec">${L('Nối app', '应用连接')}</div>
+      <button class="row" data-act="cmmsForm">${IC.link}<div class="main"><div class="nm">${L('Nối với app Bảo dưỡng', '连接保养APP')}</div><div class="sub mono">${cmmsUrl() ? esc(cmmsUrl().slice(0, 60)) : L('Chưa nối', '未连接')}</div></div></button>
       <div class="sec">${L('Tài khoản', '账户')}</div>
       <button class="row" data-act="pinChange">${IC.cai}<div class="main"><div class="nm">${TT('doiPin')}</div></div></button>
       ${IS_DEMO ? `<button class="row" data-act="simOff">${IC.link}<div class="main"><div class="nm">${TT('giaLap')}</div><div class="sub" id="simSt">${S.simOff ? 'BẬT · 开' : 'TẮT · 关'}</div></div></button>` : ''}
@@ -4176,9 +4182,55 @@ window.addEventListener('online', () => { setOffline(false); guiHangCho(); });
 window.addEventListener('offline', () => setOffline(true));
 document.addEventListener('visibilitychange', () => { if (!document.hidden && S.tk) guiHangCho(); });
 
+// ============ Nối với app Bảo dưỡng (CMMS) bằng mã chuyền / mã máy (v1.8) ============
+// Hai app vẫn đăng nhập riêng, không dữ liệu nào chạy sang app kia: chỉ là đường link mở đúng màn.
+//   App này nhận   ?tim=VKY01   → mở màn Tìm với sẵn chữ VKY01
+//                  &cmms=<link> → nhớ địa chỉ app Bảo dưỡng trên máy này
+//   App Bảo dưỡng nhận ?m=VKY01 (đang dùng cho tem QR) và &gc=<link app này>
+// Địa chỉ lưu theo TỪNG MÁY (localStorage), không lên Google Sheet.
+const linkHopLe = (u) => /^https?:\/\//i.test(String(u || '')) || (IS_DEMO && /^file:\/\//i.test(String(u || '')));
+function cmmsUrl() { try { const u = localStorage.getItem('gctl_cmms') || ''; return linkHopLe(u) ? u : ''; } catch (e) { return ''; } }
+function datCmms(u) { try { if (u) localStorage.setItem('gctl_cmms', u); else localStorage.removeItem('gctl_cmms'); } catch (e) { /* bỏ qua */ } }
+const urlMinh = () => location.href.split('#')[0].split('?')[0];
+// App này ghi chuyền là "01", "09"… (hiện "Chuyền 01"); app Bảo dưỡng ghi "VKY01". Mã toàn số thì thêm VKY
+// và đủ hai chữ số; mã đã có chữ (VKY01, M001, H2506) giữ nguyên.
+const maCmms = (ma) => { const m = String(ma || '').trim().replace(/^chuy[eề]n\s*/i, ''); return /^\d{1,3}$/.test(m) ? 'VKY' + m.padStart(2, '0') : m; };
+function linkCmms(ma) {
+  const b = cmmsUrl(), m = maCmms(ma);
+  if (!b || !m) return '';
+  try { const u = new URL(b); u.searchParams.set('m', m); u.searchParams.set('gc', urlMinh()); return u.href; } catch (e) { return ''; }
+}
+// Nút / chip mở thẳng màn đó bên app Bảo dưỡng. Chưa nối thì không hiện gì.
+const nutCmms = (ma) => { const h = linkCmms(ma); return h ? `<a class="btn sm ghost cmms" href="${esc(h)}" target="_blank" rel="noopener">${IC.link}${L('Mở bên app Bảo dưỡng', '在保养APP中打开')}</a>` : ''; };
+const chipMay = (ma) => { const h = linkCmms(ma); return h ? `<a class="chip cmms" href="${esc(h)}" target="_blank" rel="noopener">${T.maMay[0]}: ${esc(ma)} ↗</a>` : `<span class="chip">${T.maMay[0]}: ${esc(ma)}</span>`; };
+function cmmsForm() {
+  sheet(L('Nối với app Bảo dưỡng', '连接保养APP'), `<div class="card">
+    <p class="muted" style="margin:0 0 10px">${L('Dán địa chỉ app Bảo dưỡng (CMMS) đang mở trên điện thoại này. Từ đó mã chuyền, mã máy trong ghi chú bấm vào là mở thẳng màn đó bên app Bảo dưỡng. Chỉ lưu trên máy này.',
+      '粘贴本手机上保养APP（CMMS）的地址。之后备注中的产线、设备编号可直接点开保养APP对应页面。仅保存在本机。')}</p>
+    <label class="f"><span class="l">${L('Địa chỉ app Bảo dưỡng', '保养APP地址')}</span><input class="i mono" id="cmmsIn" value="${esc(cmmsUrl())}" placeholder="https://…/B-o-d-ng/" autocomplete="off"></label>
+    <div id="cmmsErr" style="color:var(--bad)"></div></div>
+    <div class="btns"><button class="btn" data-act="cmmsLuu">${L(T.luu ? T.luu[0] : 'Lưu', T.luu ? T.luu[1] : '保存')}</button>
+    ${cmmsUrl() ? `<button class="btn bad" data-act="cmmsBo">${L('Bỏ nối', '取消连接')}</button>` : ''}</div>`);
+}
+Object.assign(ACT, {
+  cmmsForm,
+  cmmsLuu: () => {
+    const v = $('#cmmsIn').value.trim();
+    if (!linkHopLe(v)) { $('#cmmsErr').textContent = 'Địa chỉ phải bắt đầu bằng https:// · 地址须以 https:// 开头'; return; }
+    datCmms(v); closeSheet(); toast(L('Đã nối với app Bảo dưỡng', '已连接保养APP')); render();
+  },
+  cmmsBo: () => { datCmms(''); closeSheet(); toast(L('Đã bỏ nối', '已取消连接')); render(); }
+});
+
 // ============ Khởi động ============
 (async function khoiDong() {
   const m = /[?&]api=([^&]+)/.exec(location.search);
+  // App Bảo dưỡng mở sang: ?tim=VKY01 → vào thẳng màn Tìm; &cmms= → nhớ địa chỉ để bấm ngược lại
+  try {
+    const qs = new URLSearchParams(location.search), cm = qs.get('cmms'), tim = qs.get('tim');
+    if (cm && linkHopLe(cm)) datCmms(cm);
+    if (tim) { S.q = tim.slice(0, 60); S.view = 'tim'; }
+  } catch (e) { /* bỏ qua */ }
   S.api = await store.get('api', '');
   if (m && !(typeof API_URL === 'string' && API_URL)) { S.api = decodeURIComponent(m[1]); await store.set('api', S.api); }
   S.tk = await store.get('tk', '');

@@ -855,7 +855,33 @@ try {
   await page.waitForSelector('#main');
   ok('Đổi PIN, PIN cũ hết dùng được');
 
-  // 19. Mọi nhãn tab đều song ngữ
+  // 19. Nối với app Bảo dưỡng (CMMS): mở bằng ?tim=VKY01&cmms=… thì vào thẳng màn Tìm và nhớ địa chỉ app kia
+  const CMMS = 'https://vi-du.github.io/B-o-d-ng/';
+  await page.goto(URL_DEMO + '?tim=VKY01&cmms=' + encodeURIComponent(CMMS));
+  // Bản xem thử tự đặt lại dữ liệu khi tải lại trang (PIN về 111111, phiên cũ hết hạn) nên đăng nhập lại
+  await wait(1500);
+  if (await page.locator('#pinPad').count()) await bamPin('111111');
+  if (await page.locator('#pinPad').count()) await bamPin('274815');
+  await page.waitForSelector('#main'); await wait(900);
+  assert.equal(await page.evaluate(() => S.view), 'tim', 'mở thẳng màn Tìm');
+  assert.equal(await page.inputValue('#q'), 'VKY01', 'ô tìm đã gõ sẵn VKY01');
+  assert.ok((await text('#main')).includes('Chuyền 01'), 'tìm VKY01 ra chuyền 01 (app này ghi chuyền là 01)');
+  await page.click('#main .row.line >> nth=0'); await wait(600);
+  const h19 = new URL(await page.getAttribute('#ov a.cmms', 'href'));
+  assert.equal(h19.origin + h19.pathname, CMMS, 'nút trỏ đúng app Bảo dưỡng');
+  assert.equal(h19.searchParams.get('m'), 'VKY01', 'chuyền 01 đổi thành mã VKY01 của app Bảo dưỡng');
+  assert.equal(h19.searchParams.get('gc'), URL_DEMO, 'gửi kèm địa chỉ app này để bấm ngược về');
+  await shot('11-noi-app-bao-duong');
+  await page.click('#ov [data-act="close"]').catch(() => page.evaluate(() => closeSheet())); await wait(300);
+  // Bỏ nối thì hết nút; địa chỉ javascript: không được nhận
+  await page.evaluate(() => ACT.cmmsBo()); await wait(300);
+  assert.equal(await page.evaluate(() => cmmsUrl()), '', 'đã bỏ nối');
+  await page.goto(URL_DEMO + '?cmms=' + encodeURIComponent('javascript:alert(1)'));
+  await page.waitForSelector('#main'); await wait(600);
+  assert.equal(await page.evaluate(() => cmmsUrl()), '', 'không nhận địa chỉ javascript:');
+  ok('Nối với app Bảo dưỡng: mở thẳng màn Tìm, đổi mã 01 ↔ VKY01, bỏ nối được, không nhận địa chỉ lạ');
+
+  // 20. Mọi nhãn tab đều song ngữ
   const nhan = await page.locator('.tabs .tab').allTextContents();
   for (const n of nhan) assert.match(n, /[一-鿿]/, 'tab thiếu tiếng Trung: ' + n);
   await shot('10-trang-chu');
